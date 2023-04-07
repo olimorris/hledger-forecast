@@ -1,0 +1,4 @@
+*.gem
+*.journal
+forecast.yml
+todo.md

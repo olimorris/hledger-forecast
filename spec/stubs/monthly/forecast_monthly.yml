@@ -1,0 +1,13 @@
+monthly:
+  - account: "[Assets:Bank]"
+    start: "2023-03-01"
+    transactions:
+      - amount: 2000
+        category: "[Expenses:Mortgage]"
+        description: Mortgage
+      - amount: 100
+        category: "[Expenses:Food]"
+        description: Food
+
+settings:
+  currency: GBP

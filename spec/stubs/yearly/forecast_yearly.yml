@@ -1,0 +1,10 @@
+settings:
+  currency: GBP
+
+yearly:
+  - start: "2023-04-01"
+    account: "[Assets:Bank]"
+    transactions:
+      - description: Bonus
+        category: "[Income:Bonus]"
+        amount: -3,000.00

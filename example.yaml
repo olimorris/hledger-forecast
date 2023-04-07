@@ -1,0 +1,26 @@
+monthly:
+  - date: "2023-03-01"
+    account: "[Assets:Bank]"
+    transactions:
+      - description: Mortgage
+        category: "[Expenses:Mortgage]"
+        amount: £1,000.00
+      - description: Food
+        category: "[Expenses:Food]"
+        amount: £500.00
+
+quarterly:
+  - date: "2023-04-01"
+    account: "[Assets:Bank]"
+    transactions:
+      - description: Bonus
+        category: "[Income:Bonus]"
+        amount: -£1,000.00
+
+yearly:
+  - date: "2023-04-01"
+    account: "[Assets:Bank]"
+    transactions:
+      - description: Annual Bonus
+        category: "[Income:Bonus]"
+        amount: -£2,000.00

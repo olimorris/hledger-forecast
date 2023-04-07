@@ -1,0 +1,8 @@
+2023-02-01 * Opening balance
+    Assets:Bank                             £1,000.00
+    Equity:Opening balance
+
+2023-02-05 * Mortgage payment
+    Expenses:Mortgage                 £1,500.00
+    Assets:Bank
+
