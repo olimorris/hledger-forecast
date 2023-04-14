@@ -1,0 +1,40 @@
+monthly:
+  - account: "[Assets:Bank]"
+    date: "2023-03-01"
+    transactions:
+      - amount: 1000.00
+        category: "[Expenses:Mortgage]"
+        description: Mortgage
+      - amount: 500.00
+        category: "[Expenses:Food]"
+        description: Food
+
+quarterly:
+  - account: "[Assets:Bank]"
+    date: "2023-04-01"
+    transactions:
+      - amount: -1000.00
+        category: "[Income:Bonus]"
+        description: Bonus
+
+yearly:
+  - account: "[Assets:Bank]"
+    date: "2023-04-01"
+    transactions:
+      - amount: -2000.00
+        category: "[Income:Bonus]"
+        description: Annual Bonus
+
+once:
+  - account: "[Assets:Bank]"
+    date: "2024-01-01"
+    transactions:
+      - amount: 5000.00
+        category: "[Expenses:Car]"
+        description: Forecast new car cost
+
+settings:
+  currency: GBP
+  show_symbol: false
+  sign_before_symbol: true
+  thousands_separator: false

@@ -47,6 +47,8 @@ where `transactions.journal` might be your bank transactions (your "actuals") an
 
 ### A simple config file
 
+> **Note**: An example can be found in the `example.yml` file
+
 Firstly, create a `yml` file which will contain the transactions you'd like to forecast:
 
 ```yaml
