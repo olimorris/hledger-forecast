@@ -1,4 +1,4 @@
 *.gem
-*.journal
+forecast.journal
 forecast.yml
 todo.md
