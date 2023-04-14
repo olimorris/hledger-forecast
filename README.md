@@ -1,6 +1,6 @@
 # Hledger-Forecast
 
-![Tests](https://github.com/olimorris/hledger-forecast/workflows/ci/badge.svg)
+[![Tests](https://github.com/olimorris/hledger-forecast/actions/workflows/ci.yml/badge.svg)](https://github.com/olimorris/hledger-forecast/actions/workflows/ci.yml)
 
 > **Warning**: This is still in the early stages of development and the API is likely to change
 
