@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    hledger-forecast (0.1.1)
+    hledger-forecast (0.1.2)
       highline (~> 2.1.0)
       money (~> 6.16.0)
 
