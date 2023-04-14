@@ -47,7 +47,7 @@ where `transactions.journal` might be your bank transactions (your "actuals") an
 
 ### A simple config file
 
-> **Note**: An example can be found in the `example.yml` file
+> **Note**: See the [example.yml](https://github.com/olimorris/hledger-forecast/blob/main/example.yml) file for all of the options
 
 Firstly, create a `yml` file which will contain the transactions you'd like to forecast:
 
