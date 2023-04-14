@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    hledger-forecast (0.1.0)
+    hledger-forecast (0.1.1)
       highline (~> 2.1.0)
       money (~> 6.16.0)
 
@@ -31,6 +31,7 @@ GEM
 
 PLATFORMS
   arm64-darwin-21
+  x86_64-linux
 
 DEPENDENCIES
   hledger-forecast!
