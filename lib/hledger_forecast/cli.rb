@@ -1,5 +1,5 @@
 module HledgerForecast
-  class CLI
+  class Cli
     def self.run(args)
       end_date = args[:end_date]
       start_date = args[:start_date]
