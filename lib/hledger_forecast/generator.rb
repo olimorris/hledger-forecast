@@ -29,7 +29,7 @@ module HledgerForecast
         Money.from_cents(formatted_transaction['amount'].to_i * 100, @settings[:currency]).format(
           symbol: @settings[:show_symbol],
           sign_before_symbol: @settings[:sign_before_symbol],
-          thousands_separator: @settings[:thousands_separator] ? ',' : nil
+          thousands_separator: @settings[:thousands_separator] ? ',' : nil,
         )
 
       formatted_transaction

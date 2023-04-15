@@ -9,4 +9,4 @@ rescue RuntimeError => e
   exit(1)
 end
 
-HledgerForecast::Command.run(options)
+HledgerForecast::CLI.run(options)

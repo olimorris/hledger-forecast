@@ -43,6 +43,6 @@ once:
 
 settings:
   currency: GBP
-  show_symbol: false
+  show_symbol: true
   sign_before_symbol: true
-  thousands_separator: false
+  thousands_separator: true

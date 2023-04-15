@@ -37,6 +37,7 @@ Running `hledger-forecast -h` shows the available options:
         -s, --start-date DATE            The date to start generating from (yyyy-mm-dd)
         -e, --end-date DATE              The date to start generating to (yyyy-mm-dd)
             --force                      Force an overwrite of the output file
+            --summarize                  Summarize the forecast file and output to the terminal
         -h, --help                       Show this message
             --version                    Show version
 
@@ -112,6 +113,14 @@ settings:
   sign_before_symbol: true      # Show the negative sign before the symbol?
   thousands_separator: true     # Separate thousands with a comma?
 ```
+
+### Summarizing the config file
+
+As your config file grows, it can be helpful to sum up the total amounts and output them in the CLI. This can be achieved by:
+
+    hledger-forecast -f forecast.yml --summarize
+
+where `forecast.yml` is the config file to sum up.
 
 ## :brain: Rationale
 

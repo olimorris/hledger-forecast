@@ -1,10 +1,12 @@
 module HledgerForecast
-  class Command
+  class CLI
     def self.run(args)
       end_date = args[:end_date]
       start_date = args[:start_date]
       forecast = File.read(args[:forecast_file])
       transactions = args[:transactions_file] ? File.read(args[:transactions_file]) : nil
+
+      return HledgerForecast::Summarize.generate(forecast) if args[:summarize]
 
       puts "[Using default dates: #{start_date} to #{end_date}]" if args[:default_dates]
 

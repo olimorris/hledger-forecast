@@ -32,6 +32,11 @@ module HledgerForecast
           options[:end_date] = a
         end
 
+        opts.on("--summarize",
+                "Summarize the forecast file and output to the terminal") do |a|
+          options[:summarize] = a
+        end
+
         opts.on("--force",
                 "Force an overwrite of the output file") do |a|
           options[:force] = a
