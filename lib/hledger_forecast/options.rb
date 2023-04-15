@@ -1,7 +1,6 @@
 module HledgerForecast
   class Options
     def self.parse_command_line_options(args = ARGV, _stdin = $stdin)
-      cli = HighLine.new
       options = {}
 
       OptionParser.new do |opts|
