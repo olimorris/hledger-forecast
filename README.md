@@ -36,6 +36,7 @@ Running `hledger-forecast -h` shows the available options:
         -o, --output-file FILE           The OUTPUT file to create
         -s, --start-date DATE            The date to start generating from (yyyy-mm-dd)
         -e, --end-date DATE              The date to start generating to (yyyy-mm-dd)
+            --force                      Force an overwrite of the output file
         -h, --help                       Show this message
             --version                    Show version
 
@@ -43,7 +44,10 @@ To then include in Hledger:
 
     hledger -f transactions.journal -f forecast.journal
 
-where `transactions.journal` might be your bank transactions (your "actuals") and `forecast.journal` is the file generated with the `-o` option from above (your "forecast").
+where:
+
+- `transactions.journal` might be your bank transactions (your "_actuals_")
+- `forecast.journal` is the generated forecast file
 
 ### A simple config file
 

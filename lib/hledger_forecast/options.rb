@@ -32,6 +32,11 @@ module HledgerForecast
           options[:end_date] = a
         end
 
+        opts.on("--force",
+                "Force an overwrite of the output file") do |a|
+          options[:force] = a
+        end
+
         opts.on_tail("-h", "--help", "Show this message") do
           puts opts
           exit

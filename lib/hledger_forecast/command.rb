@@ -11,7 +11,7 @@ module HledgerForecast
       transactions = Generator.create_journal_entries(transactions, forecast, start_date, end_date)
 
       output_file = args[:output_file]
-      if File.exist?(output_file)
+      if File.exist?(output_file) && !args[:force]
         print "File '#{output_file}' already exists. Overwrite? (y/n): "
         overwrite = gets.chomp.downcase
 
