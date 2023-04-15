@@ -4,7 +4,7 @@
 
 > **Warning**: This is still in the early stages of development and the API is likely to change
 
-Uses a YAML file to generate monthly, quarterly, yearly and one-off transactions for better forecasting in [Hledger](https://github.com/simonmichael/hledger).
+Uses a YAML file to generate monthly, quarterly, half-yearly, yearly and one-off transactions for better forecasting in [Hledger](https://github.com/simonmichael/hledger).
 
 See the [rationale](#brain-rationale) section for why this gem may be useful to you.
 
@@ -14,6 +14,7 @@ See the [rationale](#brain-rationale) section for why this gem may be useful to 
 - :date: Specify start and end dates for forecasts
 - :heavy_dollar_sign: Full currency support (uses the [RubyMoney](https://github.com/RubyMoney/money) gem)
 - :computer: Simple and easy to use CLI
+- :chart_with_upwards_trend: Summarize your forecasts by period and category and output to the CLI
 
 ## :package: Installation
 
