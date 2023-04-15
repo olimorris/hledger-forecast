@@ -8,6 +8,12 @@ monthly:
       - amount: 100
         category: "[Expenses:Food]"
         description: Food
+  - account: "[Assets:Savings]"
+    start: "2023-03-01"
+    transactions:
+      - amount: -1000
+        category: "[Assets:Bank]"
+        description: Savings
 
 settings:
   currency: GBP
