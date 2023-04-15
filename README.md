@@ -68,6 +68,9 @@ monthly:
       - amount: 500
         category: "[Expenses:Food]"
         description: Food
+
+settings:
+  currency: GBP
 ```
 
 Let's examine what's going on in this config file:
@@ -126,23 +129,14 @@ monthly:
         end: "2025-01-01"
 ```
 
-#### Currency
-
-To specify a currency:
-
-```yaml
-# forecast.yml
-settings:
-  currency: GBP
-```
-
 #### Additional settings
 
-Additional settings in the config file:
+Additional settings in the config file to consider:
 
 ```yaml
 # forecast.yml
 settings:
+  currency: GBP                 # Specify the currency to use
   show_symbol: true             # Show the currency symbol?
   sign_before_symbol: true      # Show the negative sign before the symbol?
   thousands_separator: true     # Separate thousands with a comma?
