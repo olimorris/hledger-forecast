@@ -73,16 +73,17 @@ Let's examine what's going on in this config file:
 
 - Firstly, we're telling the app to create two monthly transactions and repeat them, forever, starting from March 2023. In this case, forever will be the `end_date` specified when running the app
 - If you ran the app with `hledger-forecast -s 2023-04-01` then no transactions would be generated for March as the start date is greater than the periodic start date
-- Notice we're also using [virtual postings](https://hledger.org/1.29/hledger.html#virtual-postings) (designated by the brackets) to be explicit to Hledger. This also makes it easy to filter them out with the `-R` or `--real` option in Hledger
+- Notice we're also using [virtual postings](https://hledger.org/1.29/hledger.html#virtual-postings) (designated by the brackets). This makes it easy to filter them out with the `-R` or `--real` option in Hledger
 - We also have not specified a currency; the default (`USD`) will be used
 
 ### Extending the config file
 
 #### Periods
 
-If you'd like to add quarterly, yearly or one-off transactions, use the following keys:
+If you'd like to add quarterly, half-yearly, yearly or one-off transactions, use the following keys:
 
 - `quarterly`
+- `half-yearly`
 - `yearly`
 - `once`
 

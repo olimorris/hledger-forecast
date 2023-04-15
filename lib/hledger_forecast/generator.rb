@@ -48,6 +48,8 @@ module HledgerForecast
                          date.day == start_date.day
                        when 'quarterly'
                          date.day == start_date.day && date.month % 3 == start_date.month % 3
+                       when 'half-yearly'
+                         date.day == start_date.day && (date.month - start_date.month) % 6 == 0
                        when 'yearly'
                          date.day == start_date.day && date.month == start_date.month
                        when 'once'
@@ -81,6 +83,7 @@ module HledgerForecast
       while date <= end_date
         process_forecast(output, forecast_data, 'monthly', date)
         process_forecast(output, forecast_data, 'quarterly', date)
+        process_forecast(output, forecast_data, 'half-yearly', date)
         process_forecast(output, forecast_data, 'yearly', date)
         process_forecast(output, forecast_data, 'once', date)
 

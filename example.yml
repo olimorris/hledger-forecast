@@ -17,6 +17,14 @@ quarterly:
         category: "[Income:Bonus]"
         description: Bonus
 
+half-yearly:
+  - account: "[Assets:Bank]"
+    date: "2023-04-01"
+    transactions:
+      - amount: 500
+        category: "[Expenses:Holiday]"
+        description: Holiday
+
 yearly:
   - account: "[Assets:Bank]"
     date: "2023-04-01"
