@@ -1,10 +1,21 @@
-
+# Bundler
 .bundle
 Gemfile.lock
+pkg/*
 *.gem
 
+# Project
+.rbenv-version
+.rbx
+.rvmrc
+.ruby-version
+.ruby-gemset
+
+# Spec artifacts
+/coverage
+
+# Misc
 forecast.yml
 forecast.journal
 test_output.journal
-
 todo.md
