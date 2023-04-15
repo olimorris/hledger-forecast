@@ -12,8 +12,6 @@ Gem::Specification.new do |s|
   s.homepage    = 'https://github.com/olimorris/hledger-forecast'
   s.license     = 'MIT'
 
-  s.required_ruby_version = '>= 3.0.0'
-
   s.add_dependency "highline", "~> 2.1.0"
   s.add_dependency "money", "~> 6.16.0"
   s.add_development_dependency 'rspec', '~> 3.12'
