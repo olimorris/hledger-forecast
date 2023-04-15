@@ -92,6 +92,40 @@ The structure of the config file remains exactly the same.
 
 > **Note**: A quarterly transaction will repeat for every 3 months from the start date
 
+#### Dates
+
+The core of any solid forecast is predicting the correct periods that costs will fall into. When running the app from the CLI, you can specify specific dates (see the [usage](#rocket-usage) section) to generate transactions over. However, you can also further control the dates at a period/top-level as well as at a transaction level:
+
+##### Top level
+
+In the example below, all transactions in the `monthly` block will be constrained by the end date:
+
+```yaml
+# forecast.yml
+monthly:
+  - account: "[Assets:Bank]"
+    start: "2023-03-01"
+    end: "2025-01-01"
+    transactions:
+      # details omitted for brevity
+```
+
+##### Transaction level
+
+In the example below, only the single transaction will be constrained by the end date:
+
+```yaml
+# forecast.yml
+monthly:
+  - account: "[Assets:Bank]"
+    start: "2023-03-01"
+    transactions:
+      - amount: 2000
+        category: "[Expenses:Mortgage]"
+        description: Mortgage
+        end: "2025-01-01"
+```
+
 #### Currency
 
 To specify a currency:

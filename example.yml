@@ -1,17 +1,18 @@
 monthly:
   - account: "[Assets:Bank]"
-    date: "2023-03-01"
+    start: "2023-03-01"
     transactions:
       - amount: 1000.00
         category: "[Expenses:Mortgage]"
         description: Mortgage
+        end: "2024-01-01"
       - amount: 500.00
         category: "[Expenses:Food]"
         description: Food
 
 quarterly:
   - account: "[Assets:Bank]"
-    date: "2023-04-01"
+    start: "2023-04-01"
     transactions:
       - amount: -1000.00
         category: "[Income:Bonus]"
@@ -19,7 +20,7 @@ quarterly:
 
 half-yearly:
   - account: "[Assets:Bank]"
-    date: "2023-04-01"
+    start: "2023-04-01"
     transactions:
       - amount: 500
         category: "[Expenses:Holiday]"
@@ -27,7 +28,7 @@ half-yearly:
 
 yearly:
   - account: "[Assets:Bank]"
-    date: "2023-04-01"
+    start: "2023-04-01"
     transactions:
       - amount: -2000.00
         category: "[Income:Bonus]"
@@ -35,7 +36,7 @@ yearly:
 
 once:
   - account: "[Assets:Bank]"
-    date: "2024-01-01"
+    start: "2024-01-01"
     transactions:
       - amount: 5000.00
         category: "[Expenses:Car]"
