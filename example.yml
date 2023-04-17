@@ -42,6 +42,18 @@ once:
         category: "[Expenses:Car]"
         description: Forecast new car cost
 
+custom:
+  - description: Fuel every 5 days
+    recurrence:
+      period: days
+      quantity: 5
+    account: "[Assets:Bank]"
+    start: "2023-03-01"
+    transactions:
+      - amount: 150
+        category: "[Expenses:Car:Fuel]"
+        description: Car fuel
+
 settings:
   currency: GBP
   show_symbol: true

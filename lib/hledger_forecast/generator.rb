@@ -29,10 +29,41 @@ module HledgerForecast
         Money.from_cents(formatted_transaction['amount'].to_i * 100, @settings[:currency]).format(
           symbol: @settings[:show_symbol],
           sign_before_symbol: @settings[:sign_before_symbol],
-          thousands_separator: @settings[:thousands_separator] ? ',' : nil,
+          thousands_separator: @settings[:thousands_separator] ? ',' : nil
         )
 
       formatted_transaction
+    end
+
+    def self.process_custom(output, forecast_data, date)
+      forecast_data['custom']&.each do |forecast|
+        start_date = Date.parse(forecast['start'])
+        end_date = forecast['end'] ? Date.parse(forecast['end']) : nil
+        account = forecast['account']
+        period = forecast['recurrence']['period']
+        quantity = forecast['recurrence']['quantity']
+
+        next if end_date && date > end_date
+
+        date_matches = case period
+                       when 'days'
+                         (date - start_date).to_i % quantity == 0
+                       when 'weeks'
+                         (date - start_date).to_i % (quantity * 7) == 0
+                       when 'months'
+                         ((date.year * 12 + date.month) - (start_date.year * 12 + start_date.month)) % quantity == 0 && date.day == start_date.day
+                       end
+
+        if date_matches
+          forecast['transactions'].each do |transaction|
+            end_date = transaction['end'] ? Date.parse(transaction['end']) : nil
+
+            next unless end_date.nil? || date <= end_date
+
+            write_transactions(output, date, account, format_transaction(transaction))
+          end
+        end
+      end
     end
 
     def self.process_forecast(output_file, forecast_data, type, date)
@@ -86,6 +117,7 @@ module HledgerForecast
         process_forecast(output, forecast_data, 'half-yearly', date)
         process_forecast(output, forecast_data, 'yearly', date)
         process_forecast(output, forecast_data, 'once', date)
+        process_custom(output, forecast_data, date)
 
         date = date.next_day
       end

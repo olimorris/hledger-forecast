@@ -1,0 +1,28 @@
+2023-02-01 * Opening balance
+    Assets:Bank                             £1,000.00
+    Equity:Opening balance
+
+2023-02-05 * Mortgage payment
+    Expenses:Mortgage                 £1,500.00
+    Assets:Bank
+
+2023-03-01 * Hair and beauty
+    [Expenses:Personal Care]                £75.00
+    [Assets:Bank]
+
+2023-03-15 * Hair and beauty
+    [Expenses:Personal Care]                £75.00
+    [Assets:Bank]
+
+2023-03-29 * Hair and beauty
+    [Expenses:Personal Care]                £75.00
+    [Assets:Bank]
+
+2023-04-12 * Hair and beauty
+    [Expenses:Personal Care]                £75.00
+    [Assets:Bank]
+
+2023-04-26 * Hair and beauty
+    [Expenses:Personal Care]                £75.00
+    [Assets:Bank]
+

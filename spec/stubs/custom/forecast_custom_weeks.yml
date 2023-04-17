@@ -1,0 +1,14 @@
+custom:
+  - description: Repeat every 2 weeks
+    recurrence:
+      period: weeks
+      quantity: 2
+    account: "[Assets:Bank]"
+    start: "2023-03-01"
+    transactions:
+      - amount: 75
+        category: "[Expenses:Personal Care]"
+        description: Hair and beauty
+
+settings:
+  currency: GBP
