@@ -5,6 +5,7 @@ require 'date'
 require 'highline'
 require 'money'
 require 'optparse'
+require 'terminal-table'
 require 'yaml'
 
 Money.locale_backend = nil

@@ -15,6 +15,7 @@ Gem::Specification.new do |s|
   s.add_dependency "highline", "~> 2.1.0"
   s.add_dependency "money", "~> 6.16.0"
   s.add_dependency "colorize", "~> 0.8.1"
+  s.add_dependency "terminal-table", "~> 3.0.2"
   s.add_development_dependency 'rspec', '~> 3.12'
 
   s.files = `git ls-files`.split("\n")
