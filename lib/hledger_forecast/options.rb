@@ -10,6 +10,7 @@ module HledgerForecast
         opts.on("-f", "--forecast FILE",
                 "The FORECAST yaml file to generate from") do |file|
           options[:forecast_file] = file
+          options[:output_file] ||= file.sub(/\.yml$/, '.journal')
         end
 
         opts.on("-t", "--transaction FILE",
