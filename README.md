@@ -106,7 +106,6 @@ Besides monthly recurring transactions, the app also supports the following peri
 A custom period allows you to specify a given number of days, weeks or months for a transaction to repeat within. These can be included in the config file as follows:
 
 ```yaml
-# forecast.yml
 custom:
   - description: Fortnightly hair and beauty spend
     recurrence:
@@ -137,7 +136,6 @@ You can further control the dates at a period/top-level as well as at a transact
 In the example below, all transactions in the `monthly` block will be constrained by the end date:
 
 ```yaml
-# forecast.yml
 monthly:
   - account: "[Assets:Bank]"
     start: "2023-03-01"
@@ -151,7 +149,6 @@ monthly:
 In the example below, only the single transaction will be constrained by the end date:
 
 ```yaml
-# forecast.yml
 monthly:
   - account: "[Assets:Bank]"
     start: "2023-03-01"
@@ -167,7 +164,6 @@ monthly:
 Additional settings in the config file to consider:
 
 ```yaml
-# forecast.yml
 settings:
   currency: GBP                 # Specify the currency to use
   show_symbol: true             # Show the currency symbol?
