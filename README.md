@@ -2,16 +2,14 @@
 
 [![Tests](https://github.com/olimorris/hledger-forecast/actions/workflows/ci.yml/badge.svg)](https://github.com/olimorris/hledger-forecast/actions/workflows/ci.yml)
 
-> **Warning**: This is still in the early stages of development and the API is likely to change
-
-Uses a YAML file to generate monthly, quarterly, half-yearly, yearly and one-off transactions for better forecasting in [Hledger](https://github.com/simonmichael/hledger).
+Uses a YAML file to generate periodic transactions for better forecasting in [Hledger](https://github.com/simonmichael/hledger).
 
 See the [rationale](#brain-rationale) section for why this gem may be useful to you.
 
 ## :sparkles: Features
 
 - :book: Uses a simple YAML config file to generate periodic transactions
-- :date: Specify start and end dates for forecasts
+- :date: Generate forecasts between specified start and end dates
 - :heavy_dollar_sign: Full currency support (uses the [RubyMoney](https://github.com/RubyMoney/money) gem)
 - :computer: Simple and easy to use CLI
 - :chart_with_upwards_trend: Summarize your forecasts by period and category and output to the CLI
@@ -24,9 +22,11 @@ Assuming you have Ruby and [Rubygems](http://rubygems.org/pages/download) instal
 
 ## :rocket: Usage
 
-Simply run:
+Run:
 
     hledger-forecast
+
+> **Note**: This assumes that a `forecast.yml` exists in the current working directory
 
 Running `hledger-forecast -h` shows the available options:
 
@@ -42,18 +42,26 @@ Running `hledger-forecast -h` shows the available options:
         -h, --help                       Show this message
             --version                    Show version
 
-To then include in Hledger:
+Another example of a common command:
 
-    hledger -f transactions.journal -f forecast.journal
+    hledger-forecast -f my_forecast.yml -s 2023-05-01 -e 2024-12-31
+
+This will generate an output file (`my_forecast.journal`) from the forecast file between the two date ranges.
+
+### Using with Hledger
+
+To use the outputs in Hledger:
+
+    hledger -f transactions.journal -f my_forecast.journal
 
 where:
 
 - `transactions.journal` might be your bank transactions (your "_actuals_")
-- `forecast.journal` is the generated forecast file
+- `my_forecast.journal` is the generated forecast file
 
 ### A simple config file
 
-> **Note**: See the [example.yml](https://github.com/olimorris/hledger-forecast/blob/main/example.yml) file for all of the options
+> **Note**: See the [example.yml](https://github.com/olimorris/hledger-forecast/blob/main/example.yml) file for an example of a complex config file
 
 Firstly, create a `yml` file which will contain the transactions you'd like to forecast:
 
@@ -85,20 +93,44 @@ Let's examine what's going on in this config file:
 
 #### Periods
 
-If you'd like to add quarterly, half-yearly, yearly or one-off transactions, use the following keys:
+Besides monthly recurring transactions, the app also supports the following periods:
 
-- `quarterly`
-- `half-yearly`
-- `yearly`
-- `once`
+- `quarterly` - For transactions every _3 months_ from the given start date
+- `half-yearly` - For transactions every _6 months_ from the given start date
+- `yearly` - Generate transactions _once a year_ from the given start date
+- `once` - Generate _one-time_ transactions on a specified date
+- `custom` - Generate transactions every _n days/weeks/months_
 
-The structure of the config file remains exactly the same.
+##### Custom period
 
-> **Note**: A quarterly transaction will repeat for every 3 months from the start date
+A custom period allows you to specify a given number of days, weeks or months for a transaction to repeat within. These can be included in the config file as follows:
 
-#### Dates
+```yaml
+# forecast.yml
+custom:
+  - description: Fortnightly hair and beauty spend
+    recurrence:
+      period: weeks
+      quantity: 2
+    account: "[Assets:Bank]"
+    start: "2023-03-01"
+    transactions:
+      - amount: 80
+        category: "[Expenses:Personal Care]"
+        description: Hair and beauty
+```
 
-The core of any solid forecast is predicting the correct periods that costs will fall into. When running the app from the CLI, you can specify specific dates (see the [usage](#rocket-usage) section) to generate transactions over. However, you can also further control the dates at a period/top-level as well as at a transaction level:
+Where `quantity` is an integer and `period` is one of:
+
+- days
+- weeks
+- months
+
+#### Date constraints
+
+The core of any solid forecast is predicting the correct periods that costs will fall into. When running the app from the CLI, you can specify specific dates to generate transactions over (see the [usage](#rocket-usage) section).
+
+You can further control the dates at a period/top-level as well as at a transaction level:
 
 ##### Top level
 
@@ -147,9 +179,9 @@ settings:
 
 As your config file grows, it can be helpful to sum up the total amounts and output them in the CLI. This can be achieved by:
 
-    hledger-forecast -f forecast.yml --summarize
+    hledger-forecast -f my_forecast.yml --summarize
 
-where `forecast.yml` is the config file to sum up.
+where `my_forecast.yml` is the config file to sum up.
 
 ## :brain: Rationale
 
@@ -157,8 +189,8 @@ Firstly, I've come to realise from reading countless blog and Reddit posts on [p
 
 My days working in financial modelling have meant that a big macro-enabled spreadsheet was my go-to tool. Growing tired with the manual approach of importing transactions, heavily manipulating them, watching Excel become increasingly slower lead me to PTA. It's been a wonderful discovery.
 
-One of the aspects of my previous approach to personal finance that I liked was the monthly recap of my performance and the looking ahead to the future. Am I still on track to hit my year-end savings goal? Am I still on track to hit my savings goal for 12, 24 months time? It was at this point in my shift to PTA that I hit a wall.
+One of the aspects of my previous approach to personal finance that I liked was the monthly recap of my performance and the looking ahead to the future. Am I still on track to hit my year-end savings goal given my future commitments? Am I still on track to hit my savings goal in 12 and 24 months time? It was at this point in my shift to PTA that I found it difficult to answer those questions with Hledger.
 
-While Hledger provides support for [forecasting](https://hledger.org/1.29/hledger.html#forecasting) using periodic transactions, these are computed virtually at runtime. If I notice a big difference in my forecasted year-end balance compared to what I'm expecting, I want to investigate and start reconcilling. Computed transactions make this difficult and tiresome.
+While there is support for [forecasting](https://hledger.org/1.29/hledger.html#forecasting) using periodic transactions in Hledger, these are computed virtually at runtime. If I notice a big difference in my forecasted year-end balance compared to what I'm expecting, I want to investigate and start reconcilling. Computed transactions make this nigh on impossible to unpick. Also, I get a lot of value out of running different forecast scenarios and seeing the impact. For example, _"what's my savings balance looking like in 3 years time if I get the kitchen remodelled?"_.
 
-With this gem, my aim was to make it easy for users to change a config file, re-run a CLI command and be able to open a text file and see the changes. No guesswork. No surprises.
+With this gem, my aim was to make it easy for users to change their config file, regenerate the forecast and open a journal file and see the transactions. Or, use multiple forecast files for different scenarios and pass them in turn to Hledger to observe the impact.
