@@ -19,6 +19,12 @@ monthly:
         category: "[Expenses:Mortgage]"
         description: Mortgage
         end: "2024-01-01"
+  - account: "[Assets:Savings]"
+    start: "2023-03-01"
+    transactions:
+      - amount: -500
+        category: "[Income:Pension]"
+        description: Pension draw down
 
 quarterly:
   - account: "[Assets:Bank]"

@@ -8,7 +8,7 @@ See the [rationale](#brain-rationale) section for why this gem may be useful to 
 
 ## :sparkles: Features
 
-- :book: Uses a simple YAML config file to generate periodic transactions
+- :book: Uses simple YAML files to generate forecasts from periodic transactions
 - :date: Generate forecasts between specified start and end dates
 - :heavy_dollar_sign: Full currency support (uses the [RubyMoney](https://github.com/RubyMoney/money) gem)
 - :computer: Simple and easy to use CLI
@@ -190,8 +190,8 @@ Firstly, I've come to realise from reading countless blog and Reddit posts on [p
 
 My days working in financial modelling have meant that a big macro-enabled spreadsheet was my go-to tool. Growing tired with the manual approach of importing transactions, heavily manipulating them, watching Excel become increasingly slower lead me to PTA. It's been a wonderful discovery.
 
-One of the aspects of my previous approach to personal finance that I liked was the monthly recap of my performance and the looking ahead to the future. Am I still on track to hit my year-end savings goal given my future commitments? Am I still on track to hit my savings goal in 12 and 24 months time? It was at this point in my shift to PTA that I found it difficult to answer those questions with Hledger.
+One of the aspects of my previous approach to personal finance that I liked was the monthly recap of my performance and the looking ahead to the future. Am I still on track to hit my year-end savings goal given my performance to date and my future commitments? And what about my savings goal in 12 and 24 months time? Or, how much are my financial positions impacted if inflation increases by x%? It was at this point in my shift to PTA that I found it difficult to answer those questions quickly.
 
-While there is support for [forecasting](https://hledger.org/1.29/hledger.html#forecasting) using periodic transactions in Hledger, these are computed virtually at runtime. If I notice a big difference in my forecasted year-end balance compared to what I'm expecting, I want to investigate and start reconcilling. Computed transactions make this nigh on impossible to unpick. Also, I get a lot of value out of running different forecast scenarios and seeing the impact. For example, _"what's my savings balance looking like in 3 years time if I get the kitchen remodelled?"_.
+While there is support in Hledger for [forecasting](https://hledger.org/1.29/hledger.html#forecasting) using periodic transactions, these are computed virtually at runtime. If I notice a big difference in my forecasted year-end balance compared to what I'm expecting, I want to investigate and start reconcilling. Computed transactions make this nigh on impossible to unpick. Also, I get a lot of value out of running different forecast scenarios and seeing the impact. For example, _"what's my savings balance looking like in 3 years time if I get the kitchen remodelled?"_.
 
 With this gem, my aim was to make it easy for users to change their config file, regenerate the forecast and open a journal file and see the transactions. Or, use multiple forecast files for different scenarios and pass them in turn to Hledger to observe the impact.
