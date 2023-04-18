@@ -59,7 +59,9 @@ where:
 - `transactions.journal` might be your bank transactions (your "_actuals_")
 - `my_forecast.journal` is the generated forecast file
 
-### A simple config file
+## :gear: Configuration
+
+### The YAML file
 
 > **Note**: See the [example.yml](https://github.com/olimorris/hledger-forecast/blob/main/example.yml) file for an example of a complex config file
 
@@ -89,9 +91,7 @@ Let's examine what's going on in this config file:
 - Notice we're also using [virtual postings](https://hledger.org/1.29/hledger.html#virtual-postings) (designated by the brackets). This makes it easy to filter them out with the `-R` or `--real` option in Hledger
 - We also have not specified a currency; the default (`USD`) will be used
 
-### Extending the config file
-
-#### Periods
+### Periods
 
 Besides monthly recurring transactions, the app also supports the following periods:
 
@@ -101,7 +101,7 @@ Besides monthly recurring transactions, the app also supports the following peri
 - `once` - Generate _one-time_ transactions on a specified date
 - `custom` - Generate transactions every _n days/weeks/months_
 
-##### Custom period
+#### Custom period
 
 A custom period allows you to specify a given number of days, weeks or months for a transaction to repeat within. These can be included in the config file as follows:
 
@@ -125,13 +125,13 @@ Where `quantity` is an integer and `period` is one of:
 - weeks
 - months
 
-#### Date constraints
+### Dates
 
 The core of any solid forecast is predicting the correct periods that costs will fall into. When running the app from the CLI, you can specify specific dates to generate transactions over (see the [usage](#rocket-usage) section).
 
 You can further control the dates at a period/top-level as well as at a transaction level:
 
-##### Top level
+#### Top level
 
 In the example below, all transactions in the `monthly` block will be constrained by the end date:
 
@@ -144,9 +144,9 @@ monthly:
       # details omitted for brevity
 ```
 
-##### Transaction level
+#### Transaction level
 
-In the example below, only the single transaction will be constrained by the end date:
+In the example below, only the single transaction will be constrained by the end date and controlled via an additional start date:
 
 ```yaml
 monthly:
@@ -156,10 +156,13 @@ monthly:
       - amount: 2000
         category: "[Expenses:Mortgage]"
         description: Mortgage
+        start: "2023-05-01"
         end: "2025-01-01"
 ```
 
-#### Additional settings
+The addition of the `start` key means that while the block will start on 2023-03-01, the transaction for the mortgage won't start until `2023-05-01`.
+
+### Additional settings
 
 Additional settings in the config file to consider:
 
@@ -171,7 +174,9 @@ settings:
   thousands_separator: true     # Separate thousands with a comma?
 ```
 
-### Summarizing the config file
+## :rainbow: Helpers
+
+### Summarizing the forecast file
 
 As your config file grows, it can be helpful to sum up the total amounts and output them in the CLI. This can be achieved by:
 

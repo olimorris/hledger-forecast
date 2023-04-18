@@ -88,9 +88,12 @@ module HledgerForecast
 
         if date_matches
           forecast['transactions'].each do |transaction|
-            end_date = transaction['end'] ? Date.parse(transaction['end']) : nil
+            transaction_start_date = transaction['start'] ? Date.parse(transaction['start']) : nil
+            transaction_end_date = transaction['end'] ? Date.parse(transaction['end']) : nil
 
-            next unless end_date.nil? || date <= end_date
+            if (transaction_start_date && date < transaction_start_date) || (transaction_end_date && date > transaction_end_date)
+              next
+            end
 
             write_transactions(output_file, date, account, format_transaction(transaction))
           end

@@ -2,13 +2,19 @@ monthly:
   - account: "[Assets:Bank]"
     start: "2023-03-01"
     transactions:
+      - amount: -100
+        category: "[Income:Bonus]"
+        description: Bonus
+      - amount: -2000
+        category: "[Income:Salary]"
+        description: Salary
+      - amount: 500.00
+        category: "[Expenses:Food]"
+        description: Food
       - amount: 1000.00
         category: "[Expenses:Mortgage]"
         description: Mortgage
         end: "2024-01-01"
-      - amount: 500.00
-        category: "[Expenses:Food]"
-        description: Food
 
 quarterly:
   - account: "[Assets:Bank]"
