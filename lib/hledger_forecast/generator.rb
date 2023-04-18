@@ -1,7 +1,6 @@
 module HledgerForecast
   # Generates journal entries based on a YAML forecast file.
   # on forecast data and optional existing transactions.
-  #
   class Generator
     class << self
       attr_accessor :settings
@@ -26,7 +25,7 @@ module HledgerForecast
       formatted_transaction = transaction.clone
 
       formatted_transaction['amount'] =
-        Money.from_cents(formatted_transaction['amount'].to_i * 100, @settings[:currency]).format(
+        Money.from_cents(formatted_transaction['amount'].to_f * 100, @settings[:currency]).format(
           symbol: @settings[:show_symbol],
           sign_before_symbol: @settings[:sign_before_symbol],
           thousands_separator: @settings[:thousands_separator] ? ',' : nil
