@@ -11,6 +11,10 @@ monthly:
       - amount: 500.00
         category: "[Expenses:Food]"
         description: Food
+      - amount: 75
+        category: "[Expenses:Phone]"
+        description: New cell phone
+        start: "2023-08-01"
       - amount: 1000.00
         category: "[Expenses:Mortgage]"
         description: Mortgage
