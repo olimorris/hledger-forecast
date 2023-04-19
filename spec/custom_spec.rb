@@ -5,7 +5,7 @@ RSpec.describe 'generate' do
     transactions = File.read('spec/stubs/transactions.journal')
     forecast = File.read('spec/stubs/custom/forecast_custom_days.yml')
 
-    generated_journal = HledgerForecast::Generator.create_journal_entries(transactions, forecast, '2023-03-01',
+    generated_journal = HledgerForecast::Generator.generate(transactions, forecast, '2023-03-01',
                                                                           '2023-03-10')
 
     expected_output = File.read('spec/stubs/custom/output_custom_days.journal')
@@ -16,7 +16,7 @@ RSpec.describe 'generate' do
     transactions = File.read('spec/stubs/transactions.journal')
     forecast = File.read('spec/stubs/custom/forecast_custom_weeks.yml')
 
-    generated_journal = HledgerForecast::Generator.create_journal_entries(transactions, forecast, '2023-03-01',
+    generated_journal = HledgerForecast::Generator.generate(transactions, forecast, '2023-03-01',
                                                                           '2023-04-30')
 
     expected_output = File.read('spec/stubs/custom/output_custom_weeks.journal')
@@ -27,7 +27,7 @@ RSpec.describe 'generate' do
     transactions = File.read('spec/stubs/transactions.journal')
     forecast = File.read('spec/stubs/custom/forecast_custom_weeks_twice.yml')
 
-    generated_journal = HledgerForecast::Generator.create_journal_entries(transactions, forecast, '2023-03-01',
+    generated_journal = HledgerForecast::Generator.generate(transactions, forecast, '2023-03-01',
                                                                           '2023-03-30')
 
     expected_output = File.read('spec/stubs/custom/output_custom_weeks_twice.journal')
@@ -38,7 +38,7 @@ RSpec.describe 'generate' do
     transactions = File.read('spec/stubs/transactions.journal')
     forecast = File.read('spec/stubs/custom/forecast_custom_months.yml')
 
-    generated_journal = HledgerForecast::Generator.create_journal_entries(transactions, forecast, '2023-03-01',
+    generated_journal = HledgerForecast::Generator.generate(transactions, forecast, '2023-03-01',
                                                                           '2024-02-28')
 
     expected_output = File.read('spec/stubs/custom/output_custom_months.journal')

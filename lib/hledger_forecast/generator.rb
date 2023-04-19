@@ -101,7 +101,7 @@ module HledgerForecast
       end
     end
 
-    def self.create_journal_entries(transactions, forecast, start_date, end_date)
+    def self.generate(transactions, forecast, start_date, end_date)
       start_date = Date.parse(start_date)
       end_date = Date.parse(end_date)
       forecast_data = YAML.safe_load(forecast)
