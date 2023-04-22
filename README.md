@@ -28,7 +28,7 @@ Run:
 
 > **Note**: This assumes that a `forecast.yml` exists in the current working directory
 
-Running `hledger-forecast -h` shows the available options:
+Running `hledger-forecast generate -h` shows the available options:
 
     Usage: Hledger-Forecast generate [options]
 
