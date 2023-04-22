@@ -3,10 +3,10 @@
 require_relative '../lib/hledger_forecast'
 
 begin
-  options = HledgerForecast::Options.parse_command_line_options
+  subcommand, options = HledgerForecast::Cli.parse_commands
 rescue RuntimeError => e
   puts("ERROR: #{e}")
   exit(1)
 end
 
-HledgerForecast::Cli.run(options)
+HledgerForecast::Cli.run(subcommand, options)

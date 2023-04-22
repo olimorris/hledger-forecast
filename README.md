@@ -24,27 +24,25 @@ Assuming you have Ruby and [Rubygems](http://rubygems.org/pages/download) instal
 
 Run:
 
-    hledger-forecast
+    hledger-forecast generate
 
 > **Note**: This assumes that a `forecast.yml` exists in the current working directory
 
 Running `hledger-forecast -h` shows the available options:
 
-    Usage: Hledger-Forecast [options]
+    Usage: Hledger-Forecast generate [options]
 
-        -f, --forecast FILE              The FORECAST yaml file to generate from
         -t, --transaction FILE           The base TRANSACTIONS file to extend from
+        -f, --forecast FILE              The FORECAST yaml file to generate from
         -o, --output-file FILE           The OUTPUT file to create
         -s, --start-date DATE            The date to start generating from (yyyy-mm-dd)
         -e, --end-date DATE              The date to start generating to (yyyy-mm-dd)
             --force                      Force an overwrite of the output file
-            --summarize                  Summarize the forecast file and output to the terminal
-        -h, --help                       Show this message
-            --version                    Show version
+        -h, --help                       Show this help message
 
 Another example of a common command:
 
-    hledger-forecast -f my_forecast.yml -s 2023-05-01 -e 2024-12-31
+    hledger-forecast generate -f my_forecast.yml -s 2023-05-01 -e 2024-12-31
 
 This will generate an output file (`my_forecast.journal`) from the forecast file between the two date ranges.
 
@@ -180,7 +178,7 @@ settings:
 
 As your config file grows, it can be helpful to sum up the total amounts and output them in the CLI. This can be achieved by:
 
-    hledger-forecast -f my_forecast.yml --summarize
+    hledger-forecast summarize -f my_forecast.yml
 
 where `my_forecast.yml` is the config file to sum up.
 
