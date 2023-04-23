@@ -24,27 +24,58 @@ Assuming you have Ruby and [Rubygems](http://rubygems.org/pages/download) instal
 
 Run:
 
-    hledger-forecast generate
+    hledger-forecast
 
-> **Note**: This assumes that a `forecast.yml` exists in the current working directory
+The available options are:
 
-Running `hledger-forecast generate -h` shows the available options:
+    Usage: hledger-forecast [command] [options]
 
-    Usage: Hledger-Forecast generate [options]
+    Commands:
+      generate    Generate the forecast file
+      summarize   Summarize the forecast file and output to the terminal
 
-        -t, --transaction FILE           The base TRANSACTIONS file to extend from
-        -f, --forecast FILE              The FORECAST yaml file to generate from
-        -o, --output-file FILE           The OUTPUT file to create
-        -s, --start-date DATE            The date to start generating from (yyyy-mm-dd)
-        -e, --end-date DATE              The date to start generating to (yyyy-mm-dd)
-            --force                      Force an overwrite of the output file
+    Options:
         -h, --help                       Show this help message
+        -v, --version                    Show version
+
+### Generate command
+
+The `hledger-forecast generate` command will begin the generation of your forecast from a `yaml` file.
+
+The available options are:
+
+    Usage: hledger-forecast generate [options]
+
+      -t, --transaction FILE           The base TRANSACTIONS file to extend from
+      -f, --forecast FILE              The FORECAST yaml file to generate from
+      -o, --output-file FILE           The OUTPUT file to create
+      -s, --start-date DATE            The date to start generating from (yyyy-mm-dd)
+      -e, --end-date DATE              The date to start generating to (yyyy-mm-dd)
+          --force                      Force an overwrite of the output file
+      -h, --help                       Show this help message
+
+Simply running the command with no options will assume a `forecast.yml` file exists
 
 Another example of a common command:
 
     hledger-forecast generate -f my_forecast.yml -s 2023-05-01 -e 2024-12-31
 
 This will generate an output file (`my_forecast.journal`) from the forecast file between the two date ranges.
+
+### Summarize command
+
+As your config file grows, it can be helpful to sum up the total amounts and output them in the CLI. This can be achieved by:
+
+    hledger-forecast summarize -f my_forecast.yml
+
+where `my_forecast.yml` is the config file to sum up.
+
+The available options are:
+
+    Usage: hledger-forecast summarize [options]
+
+        -f, --forecast FILE              The FORECAST yaml file to summarize
+        -h, --help                       Show this help message
 
 ### Using with Hledger
 
@@ -172,24 +203,10 @@ settings:
   thousands_separator: true     # Separate thousands with a comma?
 ```
 
-## :rainbow: Helpers
-
-### Summarizing the forecast file
-
-As your config file grows, it can be helpful to sum up the total amounts and output them in the CLI. This can be achieved by:
-
-    hledger-forecast summarize -f my_forecast.yml
-
-where `my_forecast.yml` is the config file to sum up.
-
 ## :brain: Rationale
 
 Firstly, I've come to realise from reading countless blog and Reddit posts on [plain text accounting](https://plaintextaccounting.org), that everyone does it __completely__ differently!
 
-My days working in financial modelling have meant that a big macro-enabled spreadsheet was my go-to tool. Growing tired with the manual approach of importing transactions, heavily manipulating them, watching Excel become increasingly slower lead me to PTA. It's been a wonderful discovery.
-
-One of the aspects of my previous approach to personal finance that I liked was the monthly recap of my performance and the looking ahead to the future. Am I still on track to hit my year-end savings goal given my performance to date and my future commitments? And what about my savings goal in 12 and 24 months time? Or, how much are my financial positions impacted if inflation increases by x%? It was at this point in my shift to PTA that I found it difficult to answer those questions quickly.
-
-While there is support in Hledger for [forecasting](https://hledger.org/1.29/hledger.html#forecasting) using periodic transactions, these are computed virtually at runtime. If I notice a big difference in my forecasted year-end balance compared to what I'm expecting, I want to investigate and start reconcilling. Computed transactions make this nigh on impossible to unpick. Also, I get a lot of value out of running different forecast scenarios and seeing the impact. For example, _"what's my savings balance looking like in 3 years time if I get the kitchen remodelled?"_.
+There is _great_ support in Hledger for [forecasting](https://hledger.org/1.29/hledger.html#forecasting) using periodic transactions.
 
 With this gem, my aim was to make it easy for users to change their config file, regenerate the forecast and open a journal file and see the transactions. Or, use multiple forecast files for different scenarios and pass them in turn to Hledger to observe the impact.
