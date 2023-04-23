@@ -2,27 +2,26 @@ module HledgerForecast
   # The Command Line Interface for the application
   # Takes user arguments and translates them into actions
   class Cli
-
-    def self.run(subcommand, options)
-      case subcommand
+    def self.run(command, options)
+      case command
       when 'generate'
         generate(options)
       when 'summarize'
         summarize(options)
       else
-        puts "Unknown command: #{subcommand}"
+        puts "Unknown command: #{command}"
         exit(1)
       end
     end
 
     def self.parse_commands(args = ARGV, _stdin = $stdin)
-      subcommand = nil
+      command = nil
       options = {}
 
       global = OptionParser.new do |opts|
-        opts.banner = "Usage: hledger-forecast [subcommand] [options]"
+        opts.banner = "Usage: hledger-forecast [command] [options]"
         opts.separator ""
-        opts.separator "Subcommands:"
+        opts.separator "Commands:"
         opts.separator "  generate    Generate the forecast file"
         opts.separator "  summarize   Summarize the forecast file and output to the terminal"
         opts.separator ""
@@ -33,7 +32,7 @@ module HledgerForecast
           exit
         end
 
-        opts.on_tail("-v", "--version", "Show version") do
+        opts.on_tail("-v", "--version", "Show the installed version") do
           puts VERSION
           exit
         end
@@ -41,32 +40,32 @@ module HledgerForecast
 
       begin
         global.order!(args)
-        subcommand = args.shift || 'generate'
+        command = args.shift || 'generate'
       rescue OptionParser::InvalidOption => e
         puts e
         puts global
         exit(1)
       end
 
-      case subcommand
+      case command
       when 'generate'
         options = parse_generate_options(args)
       when 'summarize'
         options = parse_summarize_options(args)
       else
-        puts "Unknown subcommand: #{subcommand}"
+        puts "Unknown command: #{command}"
         puts global
         exit(1)
       end
 
-      return subcommand, options
+      return command, options
     end
 
     def self.parse_generate_options(args)
       options = {}
 
       OptionParser.new do |opts|
-        opts.banner = "Usage: Hledger-Forecast generate [options]"
+        opts.banner = "Usage: hledger-forecast generate [options]"
         opts.separator ""
 
         opts.on("-t", "--transaction FILE",
@@ -112,12 +111,12 @@ module HledgerForecast
       today = Date.today
 
       unless options[:start_date]
-        options[:default_dates] = true
+        options[:use_default_dates] = true
         options[:start_date] =
           Date.new(today.year, today.month, 1).next_month.to_s
       end
       unless options[:end_date]
-        options[:default_dates] = true
+        options[:use_default_dates] = true
         options[:end_date] = Date.new(today.year + 3, 12, 31).to_s
       end
 
@@ -128,7 +127,7 @@ module HledgerForecast
       options = {}
 
       OptionParser.new do |opts|
-        opts.banner = "Usage: Hledger-Forecast summarize [options]"
+        opts.banner = "Usage: hledger-forecast summarize [options]"
         opts.separator ""
 
         opts.on("-f", "--forecast FILE",
@@ -152,9 +151,14 @@ module HledgerForecast
       transactions = options[:transactions_file] ? File.read(options[:transactions_file]) : nil
 
       # Generate the forecast
-      puts "[Using default dates: #{start_date} to #{end_date}]" if options[:default_dates]
+      puts "[Using default dates: #{start_date} to #{end_date}]" if options[:use_default_dates]
 
-      transactions = Generator.generate(transactions, forecast, start_date, end_date)
+      begin
+        transactions = Generator.generate(transactions, forecast, start_date, end_date)
+      rescue StandardError => e
+        puts "An error occurred while generating transactions: #{e.message}"
+        exit(1)
+      end
 
       output_file = options[:output_file]
       if File.exist?(output_file) && !options[:force]
@@ -177,44 +181,5 @@ module HledgerForecast
       forecast = File.read(options[:forecast_file])
       puts Summarize.generate(forecast)
     end
-
-    # def self.run(args)
-    #   end_date = args[:end_date]
-    #   start_date = args[:start_date]
-    #   forecast = File.read(args[:forecast_file])
-    #   transactions = args[:transactions_file] ? File.read(args[:transactions_file]) : nil
-    #
-    #   # Output the summary
-    #   return HledgerForecast::Summarize.generate(forecast) if args[:summarize]
-    #
-    #   # Generate the forecast
-    #   unless args[:skip]
-    #
-    #     puts "[Using default dates: #{start_date} to #{end_date}]" if args[:default_dates]
-    #
-    #     transactions = Generator.generate(transactions, forecast, start_date, end_date)
-    #
-    #     output_file = args[:output_file]
-    #     if File.exist?(output_file) && !args[:force]
-    #       print "File '#{output_file}' already exists. Overwrite? (y/n): "
-    #       overwrite = gets.chomp.downcase
-    #
-    #       if overwrite == 'y'
-    #         File.write(output_file, transactions)
-    #         puts "File '#{output_file}' has been overwritten."
-    #       else
-    #         puts "Operation aborted. File '#{output_file}' was not overwritten."
-    #       end
-    #     else
-    #       File.write(output_file, transactions)
-    #       puts "File '#{output_file}' has been created."
-    #     end
-    #   end
-    #
-    #   # Check for missing transactions
-    #   return unless args[:check] && args[:transactions_file] && args[:forecast_file]
-    #
-    #   HledgerForecast::Checker.check(args)
-    # end
   end
 end
