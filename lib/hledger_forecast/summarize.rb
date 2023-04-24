@@ -60,7 +60,7 @@ module HledgerForecast
       if custom
         row_data[:periods].each do |period|
           @table.add_row [{ value: period[:category], alignment: :left },
-                          { value: "#{period[:frequency]}", alignment: :right },
+                          { value: period[:frequency], alignment: :right },
                           { value: format_amount(period[:amount]), alignment: :right }]
 
           period_total += period[:amount]
