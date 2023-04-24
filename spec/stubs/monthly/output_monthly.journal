@@ -1,44 +1,9 @@
-2023-02-01 * Opening balance
-    Assets:Bank                             £1,000.00
-    Equity:Opening balance
-
-2023-02-05 * Mortgage payment
-    Expenses:Mortgage                 £1,500.00
-    Assets:Bank
-
-2023-03-01 * Mortgage
-    [Expenses:Mortgage]                £2,000.55
+~ every month from 2023-03-01
+    [Expenses:Mortgage]            2000.55;  Mortgage
+    [Expenses:Food]            100.00;  Food
     [Assets:Bank]
 
-2023-03-01 * Food
-    [Expenses:Food]                £100.00
-    [Assets:Bank]
-
-2023-03-01 * Savings
-    [Assets:Bank]                -£1,000.00
-    [Assets:Savings]
-
-2023-04-01 * Mortgage
-    [Expenses:Mortgage]                £2,000.55
-    [Assets:Bank]
-
-2023-04-01 * Food
-    [Expenses:Food]                £100.00
-    [Assets:Bank]
-
-2023-04-01 * Savings
-    [Assets:Bank]                -£1,000.00
-    [Assets:Savings]
-
-2023-05-01 * Mortgage
-    [Expenses:Mortgage]                £2,000.55
-    [Assets:Bank]
-
-2023-05-01 * Food
-    [Expenses:Food]                £100.00
-    [Assets:Bank]
-
-2023-05-01 * Savings
-    [Assets:Bank]                -£1,000.00
+~ every month from 2023-03-01
+    [Assets:Bank]            -1000.00;  Savings
     [Assets:Savings]
 

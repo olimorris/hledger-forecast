@@ -1,20 +1,4 @@
-2023-02-01 * Opening balance
-    Assets:Bank                             £1,000.00
-    Equity:Opening balance
-
-2023-02-05 * Mortgage payment
-    Expenses:Mortgage                 £1,500.00
-    Assets:Bank
-
-2023-04-01 * Holiday
-    [Expenses:Holiday]                £500.00
-    [Assets:Bank]
-
-2023-10-01 * Holiday
-    [Expenses:Holiday]                £500.00
-    [Assets:Bank]
-
-2024-04-01 * Holiday
-    [Expenses:Holiday]                £500.00
+~ every 6 months from 2023-04-01
+    [Expenses:Holiday]            500.00;  Holiday
     [Assets:Bank]
 

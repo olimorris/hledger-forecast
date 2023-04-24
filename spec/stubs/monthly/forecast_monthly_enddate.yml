@@ -8,7 +8,14 @@ monthly:
       - description: Mortgage
         end: "2023-06-01"
         category: "[Expenses:Mortgage]"
-        amount: 2,000.00
+        amount: 2000.00
+      - description: Mortgage top up
+        end: "2023-06-01"
+        category: "[Expenses:Mortgage Top Up]"
+        amount: 200.00
       - description: Food
         category: "[Expenses:Food]"
         amount: 100.00
+      - description: Party time
+        category: "[Expenses:Going Out]"
+        amount: 50.00

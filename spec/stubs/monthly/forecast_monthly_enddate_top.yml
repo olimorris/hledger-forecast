@@ -8,7 +8,7 @@ monthly:
     transactions:
       - description: Mortgage
         category: "[Expenses:Mortgage]"
-        amount: 2,000.00
+        amount: 2000.00
       - description: Food
         category: "[Expenses:Food]"
         amount: 100.00
