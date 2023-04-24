@@ -37,8 +37,7 @@ module HledgerForecast
 
       forecast_data['custom']&.each do |entry|
         period_data = {}
-        period_data[:quantity] = entry['recurrence']['quantity']
-        period_data[:period] = entry['recurrence']['period']
+        period_data[:frequency] = entry['frequency']
         period_data[:category] = entry['transactions'].first['category']
         period_data[:amount] = entry['transactions'].first['amount']
 
@@ -53,7 +52,7 @@ module HledgerForecast
     end
 
     def self.format_amount(amount)
-      formatted_amount = @generator.format_transaction({ 'amount' => amount })['amount']
+      formatted_amount = @generator.format_amount(amount)
       amount.to_f < 0 ? formatted_amount.green : formatted_amount.red
     end
 
@@ -61,7 +60,7 @@ module HledgerForecast
       if custom
         row_data[:periods].each do |period|
           @table.add_row [{ value: period[:category], alignment: :left },
-                          { value: "every #{period[:quantity]} #{period[:period]}", alignment: :right },
+                          { value: "#{period[:frequency]}", alignment: :right },
                           { value: format_amount(period[:amount]), alignment: :right }]
 
           period_total += period[:amount]

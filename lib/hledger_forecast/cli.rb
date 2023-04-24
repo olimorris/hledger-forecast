@@ -133,7 +133,7 @@ module HledgerForecast
       forecast = File.read(options[:forecast_file])
 
       begin
-        transactions = TransactionGenerator.generate(forecast)
+        transactions = Generator.generate(forecast)
       rescue StandardError => e
         puts "An error occurred while generating transactions: #{e.message}"
         exit(1)
