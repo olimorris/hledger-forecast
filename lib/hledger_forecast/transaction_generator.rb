@@ -5,17 +5,21 @@ module HledgerForecast
       output = ""
 
       forecast_data.each do |period, forecasts|
-        interval = convert_period_to_interval(period)
-        next unless interval
+        if period == 'custom'
+          output += custom_transaction(forecasts)
+        else
+          interval = convert_period_to_interval(period)
+          next unless interval
 
-        forecasts.each do |forecast|
-          account = forecast['account']
-          start_date = Date.parse(forecast['start'])
-          end_date = forecast['end'] ? Date.parse(forecast['end']) : nil
-          transactions = forecast['transactions']
+          forecasts.each do |forecast|
+            account = forecast['account']
+            start_date = Date.parse(forecast['start'])
+            end_date = forecast['end'] ? Date.parse(forecast['end']) : nil
+            transactions = forecast['transactions']
 
-          output += regular_transaction(interval, start_date, end_date, transactions, account)
-          output += time_bound_transaction(interval, start_date, transactions, account)
+            output += regular_transaction(interval, start_date, end_date, transactions, account)
+            output += time_bound_transaction(interval, start_date, transactions, account)
+          end
         end
       end
 
@@ -57,6 +61,31 @@ module HledgerForecast
 
         output += "#{interval} from #{start_date} to #{end_date}\n"
         output += "    #{category}            #{amount};  #{description}\n"
+        output += "    #{account}\n\n"
+      end
+
+      output
+    end
+
+    def self.custom_transaction(forecasts)
+      output = ""
+
+      forecasts.each do |forecast|
+        account = forecast['account']
+        start_date = Date.parse(forecast['start'])
+        frequency = forecast['frequency']
+        transactions = forecast['transactions']
+
+        output += "~ #{frequency} from #{start_date}\n"
+
+        transactions.each do |transaction|
+          amount = format_amount(transaction['amount'])
+          category = transaction['category']
+          description = transaction['description']
+
+          output += "    #{category}            #{amount};  #{description}\n"
+        end
+
         output += "    #{account}\n\n"
       end
 
