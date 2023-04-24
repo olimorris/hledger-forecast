@@ -4,7 +4,7 @@ RSpec.describe 'generate' do
   it 'generates a forecast with correct ONCE transactions' do
     forecast = File.read('spec/stubs/once/forecast_once.yml')
 
-    generated_journal = HledgerForecast::TransactionGenerator.generate(forecast)
+    generated_journal = HledgerForecast::Generator.generate(forecast)
 
     expected_output = File.read('spec/stubs/once/output_once.journal')
     expect(generated_journal).to eq(expected_output)
