@@ -68,11 +68,6 @@ module HledgerForecast
         opts.banner = "Usage: hledger-forecast generate [options]"
         opts.separator ""
 
-        opts.on("-t", "--transaction FILE",
-                "The base TRANSACTIONS file to extend from") do |file|
-          options[:transactions_file] = file if file && !file.empty?
-        end
-
         opts.on("-f", "--forecast FILE",
                 "The FORECAST yaml file to generate from") do |file|
           options[:forecast_file] = file
@@ -82,16 +77,6 @@ module HledgerForecast
         opts.on("-o", "--output-file FILE",
                 "The OUTPUT file to create") do |file|
           options[:output_file] = file
-        end
-
-        opts.on("-s", "--start-date DATE",
-                "The date to start generating from (yyyy-mm-dd)") do |a|
-          options[:start_date] = a
-        end
-
-        opts.on("-e", "--end-date DATE",
-                "The date to start generating to (yyyy-mm-dd)") do |a|
-          options[:end_date] = a
         end
 
         opts.on("--force",
@@ -145,16 +130,10 @@ module HledgerForecast
     end
 
     def self.generate(options)
-      end_date = options[:end_date]
-      start_date = options[:start_date]
       forecast = File.read(options[:forecast_file])
-      transactions = options[:transactions_file] ? File.read(options[:transactions_file]) : nil
-
-      # Generate the forecast
-      puts "[Using default dates: #{start_date} to #{end_date}]" if options[:use_default_dates]
 
       begin
-        transactions = Generator.generate(transactions, forecast, start_date, end_date)
+        transactions = TransactionGenerator.generate(forecast)
       rescue StandardError => e
         puts "An error occurred while generating transactions: #{e.message}"
         exit(1)
