@@ -2,10 +2,6 @@
 
 [![Tests](https://github.com/olimorris/hledger-forecast/actions/workflows/ci.yml/badge.svg)](https://github.com/olimorris/hledger-forecast/actions/workflows/ci.yml)
 
-<p align="center">
-<img src="https://user-images.githubusercontent.com/9512444/234382872-b81ac84d-2bcc-4488-a041-364f72627087.png" alt="Hledger-Forecast" />
-</p>
-
 A wrapper which builds on [Hledger's](https://github.com/simonmichael/hledger) [forecasting](https://hledger.org/dev/hledger.html#forecasting) capability. Uses a `YAML` config file to generate periodic transactions whilst allowing for future inflation and the smart tracking of future transactions.
 
 See the [rationale](#brain-rationale) section for why this gem may be useful to you.
@@ -184,10 +180,22 @@ settings:
   thousands_separator: true     # Separate thousands with a comma?
 ```
 
+## Screenshots
+
+**Yaml config file and output**
+
+<img src="https://user-images.githubusercontent.com/9512444/234382872-b81ac84d-2bcc-4488-a041-364f72627087.png" alt="Hledger-Forecast" />
+
+**Summarize command**
+
+<img src="https://user-images.githubusercontent.com/9512444/234386807-1301c8d9-af77-4f58-a3c3-a345b5e890a2.png" alt="Summarize command" />
+
 ## :brain: Rationale
 
-Firstly, I've come to realise from reading countless blog and Reddit posts on [plain text accounting](https://plaintextaccounting.org), that everyone does it __completely__ differently!
+Firstly, I've come to realise from reading countless blog and Reddit posts on [plain text accounting](https://plaintextaccounting.org), that everyone does it __completely__ differently! There is _great_ support in Hledger for [forecasting](https://hledger.org/1.29/hledger.html#forecasting) using periodic transactions. Infact, it's nearly perfect for my needs.
 
-There is _great_ support in Hledger for [forecasting](https://hledger.org/1.29/hledger.html#forecasting) using periodic transactions.
+My only wishes were to be able to sum up monthly transactions much faster (see my forecast monthly I&E), apply future cost pressures (such as inflation) more easily and to be able to track and monitor specific transactions. Regarding the latter; I may be expecting a material amount of money to leave my account (perhaps for a holiday booking) in May. But maybe, that booking ends up leaving in July instead. Whilst I would have accounted for that expense in my forecast, I will have had to have specified a specific date. So if that transaction doesn't appear in the "actuals" of my bank account, it won't be included in my forecast at all. The impact is that my forecasted balance in any given month could be $X better off than reality.
 
-With this gem, my aim was to make it easy for users to change their config file, regenerate the forecast and open a journal file and see the transactions. Or, use multiple forecast files for different scenarios and pass them in turn to Hledger to observe the impact.
+Now I'll freely admit these are minor issues. So minor infact that they can probably be addressed by a dedicated 5 minutes every month. However I liked the idea of automating as much of my month end process as possible and saw this as an interesting challenge to try and solve.
+
+Whilst I tried to work within the constraints of a `journal` file, moving to a structured `yaml` format made the implementation of these features much easier. I also wanted to stay as true as possible to how Hledger recommends we forecast with periodic transactions.
