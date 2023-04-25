@@ -180,7 +180,7 @@ settings:
   thousands_separator: true     # Separate thousands with a comma?
 ```
 
-## Screenshots
+## :camera_flash: Screenshots
 
 **Yaml config file and output**
 
