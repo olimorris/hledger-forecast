@@ -2,14 +2,14 @@
 
 [![Tests](https://github.com/olimorris/hledger-forecast/actions/workflows/ci.yml/badge.svg)](https://github.com/olimorris/hledger-forecast/actions/workflows/ci.yml)
 
-Uses a YAML file to generate periodic transactions for better forecasting in [Hledger](https://github.com/simonmichael/hledger).
+A wrapper which builds on [Hledger's](https://github.com/simonmichael/hledger) [forecasting](https://hledger.org/dev/hledger.html#forecasting) capability. Uses a `YAML` config file to generate periodic transactions whilst allowing for future inflation and the smart tracking of future transactions.
 
 See the [rationale](#brain-rationale) section for why this gem may be useful to you.
 
 ## :sparkles: Features
 
-- :book: Uses simple YAML files to generate forecasts from periodic transactions
-- :date: Generate forecasts between specified start and end dates
+- :book: Uses simple YAML files to generate periodic transactions which are used for forecasting in Hledger
+- :date: Can smartly track forecasted transactions against actuals
 - :heavy_dollar_sign: Full currency support (uses the [RubyMoney](https://github.com/RubyMoney/money) gem)
 - :computer: Simple and easy to use CLI
 - :chart_with_upwards_trend: Summarize your forecasts by period and category and output to the CLI
@@ -40,27 +40,26 @@ The available options are:
 
 ### Generate command
 
-The `hledger-forecast generate` command will begin the generation of your forecast from a `yaml` file.
+The `hledger-forecast generate` command will begin the generation of your forecast _from_ a `yaml` file _to_ a Hledger periodic transaction journal file.
 
 The available options are:
 
     Usage: hledger-forecast generate [options]
 
-      -t, --transaction FILE           The base TRANSACTIONS file to extend from
       -f, --forecast FILE              The FORECAST yaml file to generate from
       -o, --output-file FILE           The OUTPUT file to create
-      -s, --start-date DATE            The date to start generating from (yyyy-mm-dd)
-      -e, --end-date DATE              The date to start generating to (yyyy-mm-dd)
           --force                      Force an overwrite of the output file
       -h, --help                       Show this help message
 
-Simply running the command with no options will assume a `forecast.yml` file exists
+Simply running the command with no options will assume a `forecast.yml` file exists.
 
-Another example of a common command:
+#### Using with Hledger
 
-    hledger-forecast generate -f my_forecast.yml -s 2023-05-01 -e 2024-12-31
+To work with Hledger, include the forecast file and the `--forecast` flag. An example:
 
-This will generate an output file (`my_forecast.journal`) from the forecast file between the two date ranges.
+    hledger -f transactions.journal -f forecast.journal bal assets -e 2024-02 --forecast
+
+The command will generate a forecast up to the end of Feb 2024, showing the balance for any asset accounts, referencing the transactions and forecast journal files.
 
 ### Summarize command
 
@@ -94,7 +93,7 @@ where:
 
 > **Note**: See the [example.yml](https://github.com/olimorris/hledger-forecast/blob/main/example.yml) file for an example of a complex config file
 
-Firstly, create a `yml` file which will contain the transactions you'd like to forecast:
+Firstly, create a `yaml` file which will contain the transactions you'd like to forecast:
 
 ```yaml
 # forecast.yml
@@ -116,7 +115,6 @@ settings:
 Let's examine what's going on in this config file:
 
 - Firstly, we're telling the app to create two monthly transactions and repeat them, forever, starting from March 2023. In this case, forever will be the `end_date` specified when running the app
-- If you ran the app with `hledger-forecast -s 2023-04-01` then no transactions would be generated for March as the start date is greater than the periodic start date
 - Notice we're also using [virtual postings](https://hledger.org/1.29/hledger.html#virtual-postings) (designated by the brackets). This makes it easy to filter them out with the `-R` or `--real` option in Hledger
 - We also have not specified a currency; the default (`USD`) will be used
 
@@ -130,16 +128,15 @@ Besides monthly recurring transactions, the app also supports the following peri
 - `once` - Generate _one-time_ transactions on a specified date
 - `custom` - Generate transactions every _n days/weeks/months_
 
+These will output periodic transactions such as `~ every 3 months` or `~ every year`.
+
 #### Custom period
 
-A custom period allows you to specify a given number of days, weeks or months for a transaction to repeat within. These can be included in the config file as follows:
+A custom period allows you to specify a custom periodic rule as per Hledger's [periodic rule syntax](https://hledger.org/dev/hledger.html#periodic-transactions):
 
 ```yaml
 custom:
-  - description: Fortnightly hair and beauty spend
-    recurrence:
-      period: weeks
-      quantity: 2
+  - frequency: "every 2 weeks"
     account: "[Assets:Bank]"
     start: "2023-03-01"
     transactions:
@@ -147,12 +144,6 @@ custom:
         category: "[Expenses:Personal Care]"
         description: Hair and beauty
 ```
-
-Where `quantity` is an integer and `period` is one of:
-
-- days
-- weeks
-- months
 
 ### Dates
 
@@ -175,7 +166,7 @@ monthly:
 
 #### Transaction level
 
-In the example below, only the single transaction will be constrained by the end date and controlled via an additional start date:
+In the example below, only the single transaction will be constrained by the end date:
 
 ```yaml
 monthly:
@@ -185,11 +176,8 @@ monthly:
       - amount: 2000
         category: "[Expenses:Mortgage]"
         description: Mortgage
-        start: "2023-05-01"
         end: "2025-01-01"
 ```
-
-The addition of the `start` key means that while the block will start on 2023-03-01, the transaction for the mortgage won't start until `2023-05-01`.
 
 ### Additional settings
 

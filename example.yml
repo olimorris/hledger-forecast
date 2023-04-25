@@ -8,13 +8,13 @@ monthly:
       - amount: -2000
         category: "[Income:Salary]"
         description: Salary
-      - amount: 500.00
+      - amount: 500
         category: "[Expenses:Food]"
         description: Food
       - amount: 75
         category: "[Expenses:Phone]"
         description: New cell phone
-      - amount: 1000.00
+      - amount: 1000
         category: "[Expenses:Mortgage]"
         description: Mortgage
         end: "2024-01-01"
@@ -58,10 +58,7 @@ once:
         description: Forecast new car cost
 
 custom:
-  - description: Fuel every 5 days
-    recurrence:
-      period: days
-      quantity: 5
+  - frequency: "every 5 days"
     account: "[Assets:Bank]"
     start: "2023-03-01"
     transactions:
@@ -71,6 +68,3 @@ custom:
 
 settings:
   currency: GBP
-  show_symbol: true
-  sign_before_symbol: true
-  thousands_separator: true

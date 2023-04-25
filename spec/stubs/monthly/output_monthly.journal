@@ -1,9 +1,9 @@
-~ every month from 2023-03-01
-    [Expenses:Mortgage]            £2,000.55;  Mortgage
-    [Expenses:Food]            £100.00;  Food
+~ monthly from 2023-03-01
+    [Expenses:Mortgage]    £2,000.55;  Mortgage
+    [Expenses:Food]        £100.00 ;  Food
     [Assets:Bank]
 
-~ every month from 2023-03-01
-    [Assets:Bank]            -£1,000.00;  Savings
+~ monthly from 2023-03-01
+    [Assets:Bank]          -£1,000.00;  Savings
     [Assets:Savings]
 

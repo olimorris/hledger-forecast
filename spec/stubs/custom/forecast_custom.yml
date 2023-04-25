@@ -6,6 +6,13 @@ custom:
       - amount: 80
         category: "[Expenses:Personal Care]"
         description: Hair and beauty
+  - frequency: "every 5 days"
+    start: "2023-05-01"
+    account: "[Assets:Checking]"
+    transactions:
+      - amount: 50
+        category: "[Expenses:Groceries]"
+        description: Gotta feed that stomach
 
 settings:
   currency: GBP

@@ -15,7 +15,7 @@ module HledgerForecast
 
     def self.init_generator(forecast_data)
       generator = HledgerForecast::Generator
-      generator.configure_settings(forecast_data)
+      generator.set_options(forecast_data)
 
       @generator = generator
     end
