@@ -2,6 +2,10 @@
 
 [![Tests](https://github.com/olimorris/hledger-forecast/actions/workflows/ci.yml/badge.svg)](https://github.com/olimorris/hledger-forecast/actions/workflows/ci.yml)
 
+<p align="center">
+<img src="https://user-images.githubusercontent.com/9512444/234382872-b81ac84d-2bcc-4488-a041-364f72627087.png" alt="Hledger-Forecast" />
+</p>
+
 A wrapper which builds on [Hledger's](https://github.com/simonmichael/hledger) [forecasting](https://hledger.org/dev/hledger.html#forecasting) capability. Uses a `YAML` config file to generate periodic transactions whilst allowing for future inflation and the smart tracking of future transactions.
 
 See the [rationale](#brain-rationale) section for why this gem may be useful to you.
@@ -55,7 +59,7 @@ Simply running the command with no options will assume a `forecast.yml` file exi
 
 #### Using with Hledger
 
-To work with Hledger, include the forecast file and the `--forecast` flag. An example:
+To work with Hledger, include the forecast file and use the `--forecast` flag. An example:
 
     hledger -f transactions.journal -f forecast.journal bal assets -e 2024-02 --forecast
 
@@ -75,17 +79,6 @@ The available options are:
 
         -f, --forecast FILE              The FORECAST yaml file to summarize
         -h, --help                       Show this help message
-
-### Using with Hledger
-
-To use the outputs in Hledger:
-
-    hledger -f transactions.journal -f my_forecast.journal
-
-where:
-
-- `transactions.journal` might be your bank transactions (your "_actuals_")
-- `my_forecast.journal` is the generated forecast file
 
 ## :gear: Configuration
 
