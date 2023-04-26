@@ -48,7 +48,9 @@ The available options are:
 
       -f, --forecast FILE              The FORECAST yaml file to generate from
       -o, --output-file FILE           The OUTPUT file to create
+      -t, --transaction FILE           The TRANSACTION file to search within if using tracking
           --force                      Force an overwrite of the output file
+          --no-track                   Don't track any transactions
       -h, --help                       Show this help message
 
 Simply running the command with no options will assume a `forecast.yml` file exists.
@@ -61,13 +63,32 @@ To work with Hledger, include the forecast file and use the `--forecast` flag. A
 
 The command will generate a forecast up to the end of Feb 2024, showing the balance for any asset accounts, referencing the transactions and forecast journal files.
 
+#### Tracking transactions
+
+Sometimes it can be useful to track and monitor forecasted transactions to ensure that they hit your bank statement. If they do, then these should be discarded from your forecast as this will create a double count. However, if they don't exist then they should be carried forward into a future period to ensure accurate recording.
+
+To mark transactions as available for tracking you may use the `track` option in your config file:
+
+```yaml
+monthly:
+    account: "[Assets:Bank]"
+    start: "2023-03-05"
+    transactions:
+      - amount: 3000
+        category: "[Expenses:Tax]"
+        description: Tax owed
+        track: true
+```
+
+> **Note**: Marking a transaction for tracking will ensure that it is only written into the forecast if it isn't found
+
+Hledger-forecast will use a Hledger query to determine if the combination of category and amount is present in the period specified in the `start` key. If not, then hledger-forecast will continue searching up to the latest period in the transactions file, including it as a forecast transaction in the output file.
+
 ### Summarize command
 
-As your config file grows, it can be helpful to sum up the total amounts and output them in the CLI. This can be achieved by:
+As your `yaml` file grows, it can be helpful to sum up the total amounts and output them to the CLI. This can be achieved by:
 
     hledger-forecast summarize -f my_forecast.yml
-
-where `my_forecast.yml` is the config file to sum up.
 
 The available options are:
 
@@ -190,11 +211,11 @@ settings:
 
 <img src="https://user-images.githubusercontent.com/9512444/234386807-1301c8d9-af77-4f58-a3c3-a345b5e890a2.png" alt="Summarize command" />
 
-## :brain: Rationale
+## :paintbrush: Rationale
 
 Firstly, I've come to realise from reading countless blog and Reddit posts on [plain text accounting](https://plaintextaccounting.org), that everyone does it __completely__ differently! There is _great_ support in Hledger for [forecasting](https://hledger.org/1.29/hledger.html#forecasting) using periodic transactions. Infact, it's nearly perfect for my needs.
 
-My only wishes were to be able to sum up monthly transactions much faster (see my forecast monthly I&E), apply future cost pressures (such as inflation) more easily and to be able to track and monitor specific transactions. Regarding the latter; I may be expecting a material amount of money to leave my account (perhaps for a holiday booking) in May. But maybe, that booking ends up leaving in July instead. Whilst I would have accounted for that expense in my forecast, I will have had to have specified a specific date. So if that transaction doesn't appear in the "actuals" of my bank account, it won't be included in my forecast at all. The impact is that my forecasted balance in any given month could be $X better off than reality.
+My only wishes were to be able to sum up monthly transactions much faster (so I can see my forecasted monthly I&E), apply future cost pressures more easily (such as inflation) and to be able to track and monitor specific transactions. Regarding the latter; I may be expecting a material amount of money to leave my account in May (perhaps for a holiday booking). But maybe, that booking ends up leaving in July instead. Whilst I would have accounted for that expense in my forecast, it will likely be for the period of May. So if that transaction doesn't appear in the "actuals" of my May bank statement (which I import into Hledger), it won't be included in my forecast at all (as the latest transaction period will be greater than the forecast period). The impact is that my forecasted balance in any future month could be $X better off than reality.
 
 Now I'll freely admit these are minor issues. So minor infact that they can probably be addressed by a dedicated 5 minutes every month. However I liked the idea of automating as much of my month end process as possible and saw this as an interesting challenge to try and solve.
 
