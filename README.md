@@ -57,7 +57,7 @@ Simply running the command with no options will assume a `forecast.yml` file exi
 
 #### Using with Hledger
 
-To work with Hledger, include the forecast file and use the `--forecast` flag. An example:
+To work with Hledger, include the forecast file and use the `--forecast` flag:
 
     hledger -f transactions.journal -f forecast.journal bal assets -e 2024-02 --forecast
 
@@ -67,22 +67,24 @@ The command will generate a forecast up to the end of Feb 2024, showing the bala
 
 Sometimes it can be useful to track and monitor forecasted transactions to ensure that they hit your bank statement. If they do, then these should be discarded from your forecast as this will create a double count. However, if they don't exist then they should be carried forward into a future period to ensure accurate recording.
 
+A common example might be when you're expecting to receive a material refund. You know the total amount you will receive and the category (e.g. `Expenses:Shopping`) however the period it is received could be December or January.
+
 To mark transactions as available for tracking you may use the `track` option in your config file:
 
 ```yaml
-monthly:
-    account: "[Assets:Bank]"
+once:
+    account: "Assets:Bank"
     start: "2023-03-05"
     transactions:
       - amount: 3000
-        category: "[Expenses:Tax]"
-        description: Tax owed
+        category: "Expenses:Shopping"
+        description: Refund for that damn laptop
         track: true
 ```
 
-> **Note**: Marking a transaction for tracking will ensure that it is only written into the forecast if it isn't found
+The app will use a Hledger query to determine if the combination of category and amount is present in the period specified in the `start` key. If not, then the app will continue searching up to the latest period in the transactions file, including it as a forecast transaction in the output file.
 
-Hledger-forecast will use a Hledger query to determine if the combination of category and amount is present in the period specified in the `start` key. If not, then hledger-forecast will continue searching up to the latest period in the transactions file, including it as a forecast transaction in the output file.
+> **Note**: Marking a transaction for tracking will ensure that it is only written into the forecast if it isn't found
 
 ### Summarize command
 
@@ -197,7 +199,6 @@ Additional settings in the config file to consider:
 settings:
   currency: GBP                 # Specify the currency to use
   show_symbol: true             # Show the currency symbol?
-  sign_before_symbol: true      # Show the negative sign before the symbol?
   thousands_separator: true     # Separate thousands with a comma?
 ```
 

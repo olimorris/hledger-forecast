@@ -79,9 +79,19 @@ module HledgerForecast
           options[:output_file] = file
         end
 
+        opts.on("-t", "--transaction FILE",
+                "The TRANSACTION journal file to search within") do |file|
+          options[:transaction_file] = file
+        end
+
         opts.on("--force",
                 "Force an overwrite of the output file") do |a|
           options[:force] = a
+        end
+
+        opts.on("--no-track",
+                "Don't track any transactions") do |a|
+          options[:no_track] = a
         end
 
         opts.on_tail("-h", "--help", "Show this help message") do
@@ -133,7 +143,7 @@ module HledgerForecast
       forecast = File.read(options[:forecast_file])
 
       begin
-        transactions = Generator.generate(forecast)
+        transactions = Generator.generate(forecast, options)
       rescue StandardError => e
         puts "An error occurred while generating transactions: #{e.message}"
         exit(1)

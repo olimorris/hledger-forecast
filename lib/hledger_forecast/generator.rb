@@ -2,10 +2,11 @@ module HledgerForecast
   # Generates periodic transactions from a YAML file
   class Generator
     class << self
-      attr_accessor :options
+      attr_accessor :options, :tracked
     end
 
     self.options = {}
+    self.tracked = {}
 
     def self.set_options(forecast_data)
       @options[:max_amount] = get_max_field_size(forecast_data, 'amount')
@@ -13,11 +14,11 @@ module HledgerForecast
 
       @options[:currency] = Money::Currency.new(forecast_data.fetch('settings', {}).fetch('currency', 'USD'))
       @options[:show_symbol] = forecast_data.fetch('settings', {}).fetch('show_symbol', true)
-      @options[:sign_before_symbol] = forecast_data.fetch('settings', {}).fetch('sign_before_symbol', true)
+      # @options[:sign_before_symbol] = forecast_data.fetch('settings', {}).fetch('sign_before_symbol', false)
       @options[:thousands_separator] = forecast_data.fetch('settings', {}).fetch('thousands_separator', true)
     end
 
-    def self.generate(yaml_file)
+    def self.generate(yaml_file, _options = nil)
       forecast_data = YAML.safe_load(yaml_file)
 
       set_options(forecast_data)
@@ -43,6 +44,8 @@ module HledgerForecast
         end
       end
 
+      # output += Tracker.track(@tracked) if @tracked.length > 0 && !_no_track
+
       output
     end
 
@@ -57,6 +60,11 @@ module HledgerForecast
                end
 
       transactions.each do |transaction|
+        if transaction['track']
+          track_transaction(start_date, end_date, account, transaction)
+          next
+        end
+
         output += output_amount(transaction['category'], format_amount(transaction['amount']),
                                 transaction['description'])
       end
@@ -71,6 +79,11 @@ module HledgerForecast
       transactions.each do |transaction|
         end_date = transaction['end'] ? Date.parse(transaction['end']) : nil
         next unless end_date
+
+        if transaction['track']
+          track_transaction(start_date, end_date, account, transaction)
+          next
+        end
 
         output += "#{frequency} from #{start_date} to #{end_date}\n"
         output += output_amount(transaction['category'], format_amount(transaction['amount']),
@@ -87,12 +100,20 @@ module HledgerForecast
       forecasts.each do |forecast|
         account = forecast['account']
         start_date = Date.parse(forecast['start'])
+        end_date = forecast['end'] ? Date.parse(forecast['end']) : nil
         frequency = forecast['frequency']
         transactions = forecast['transactions']
 
         output += "~ #{frequency} from #{start_date}\n"
 
         transactions.each do |transaction|
+          end_date = transaction['end'] ? Date.parse(transaction['end']) : end_date
+
+          if transaction['track']
+            track_transaction(start_date, end_date, account, transaction)
+            next
+          end
+
           output += output_amount(transaction['category'], format_amount(transaction['amount']),
                                   transaction['description'])
         end
@@ -105,6 +126,12 @@ module HledgerForecast
 
     def self.output_amount(category, amount, description)
       "    #{category.ljust(@options[:max_category])}    #{amount.ljust(@options[:max_amount])};  #{description}\n"
+    end
+
+    def self.track_transaction(start_date, end_date, account, transaction)
+      transaction['amount'] = format_amount(transaction['amount'])
+      @tracked[@tracked.length] =
+        { 'account' => account, 'start' => start_date, 'end' => end_date, 'transaction' => transaction }
     end
 
     def self.convert_period_to_frequency(period)

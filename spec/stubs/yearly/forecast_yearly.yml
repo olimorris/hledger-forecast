@@ -2,8 +2,8 @@ settings:
   currency: GBP
 
 yearly:
-  - start: "2023-04-01"
-    account: "[Assets:Bank]"
+  - account: "[Assets:Bank]"
+    start: "2023-04-01"
     transactions:
       - description: Bonus
         category: "[Income:Bonus]"

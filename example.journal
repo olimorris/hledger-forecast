@@ -1,28 +1,28 @@
 ~ monthly from 2023-03-01
-    [Income:Bonus]         -£100.00 ;   Bonus
-    [Income:Salary]        -£2,000.00;  Salary
-    [Expenses:Food]        £500.00  ;   Food
-    [Expenses:Phone]       £75.00   ;   New cell phone
+    [Income:Bonus]         £-100.00 ;  Bonus
+    [Income:Salary]        £-2,000.00;  Salary
+    [Expenses:Food]        £500.00  ;  Food
+    [Expenses:Phone]       £75.00   ;  New cell phone
     [Assets:Bank]
 
 ~ monthly from 2023-03-01 to 2024-01-01
-    [Expenses:Mortgage]    £1,000.00;   Mortgage
+    [Expenses:Mortgage]    £1,000.00;  Mortgage
     [Assets:Bank]
 
 ~ monthly from 2023-03-01
-    [Income:Pension]       -£500.00 ;   Pension draw down
+    [Income:Pension]       £-500.00 ;  Pension draw down
     [Assets:Savings]
 
 ~ every 3 months from 2023-04-01
-    [Income:Bonus]         -£1,000.00;  Bonus
+    [Income:Bonus]         £-1,000.00;  Bonus
     [Assets:Bank]
 
 ~ every 6 months from 2023-04-01
-    [Expenses:Holiday]     £500.00  ;   Holiday
+    [Expenses:Holiday]     £500.00  ;  Holiday
     [Assets:Bank]
 
 ~ yearly from 2023-04-01
-    [Income:Bonus]         -£2,000.00;  Annual Bonus
+    [Income:Bonus]         £-2,000.00;  Annual Bonus
     [Assets:Bank]
 
 ~ from 2024-01-01
