@@ -15,7 +15,7 @@ RSpec.describe 'Tracking transactions -' do
     expect(tracked[0]['account']).to eq("[Assets:Bank]")
 
     expect(tracked[1]['transaction']).to eq(
-      { "amount" => "£-1,500.00", "category" => "[Income:Salary]", "description" => "Salary",
+      { "amount" => "£-1,500.00", "category" => "[Income:Salary]", "description" => "Salary", "end" => "2023-08-01",
         "track" => true }
     )
     expect(tracked[1]['account']).to eq("[Assets:Bank]")
@@ -35,7 +35,7 @@ RSpec.describe 'Tracking transactions -' do
     expect(track[1]['found']).to eq(false)
   end
 
-  it 'marks a transaction as FOUND if it doesnt exist' do
+  it 'marks a transaction as FOUND if it exists' do
     forecast = File.read('spec/stubs/track/track.yml')
 
     generated = HledgerForecast::Generator
@@ -47,5 +47,20 @@ RSpec.describe 'Tracking transactions -' do
 
     expect(track[0]['found']).to eq(true)
     expect(track[1]['found']).to eq(true)
+  end
+
+  it 'writes a NON-FOUND entry into a journal' do
+    forecast = File.read('spec/stubs/track/track.yml')
+
+    options = {}
+    options[:transaction_file] = 'spec/stubs/track/transactions_not_found.journal'
+
+    generated = HledgerForecast::Generator
+    generated.tracked = {} # Clear tracked transactions
+
+    generated_journal = generated.generate(forecast, options)
+
+    expected_output = File.read('spec/stubs/track/output_track.journal')
+    expect(generated_journal).to eq(expected_output)
   end
 end

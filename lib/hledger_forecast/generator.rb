@@ -25,6 +25,7 @@ module HledgerForecast
 
       output = ""
 
+      # Generate regular transactions
       forecast_data.each do |period, forecasts|
         if period == 'custom'
           output += custom_transaction(forecasts)
@@ -44,7 +45,11 @@ module HledgerForecast
         end
       end
 
-      # output += Tracker.track(@tracked) if @tracked.length > 0 && !_no_track
+      # Generate tracked transactions
+      if _options && _options[:transaction_file] && !@tracked.empty?
+        output += output_tracked_transaction(Tracker.track(@tracked,
+                                                           _options[:transaction_file]))
+      end
 
       output
     end
@@ -54,9 +59,9 @@ module HledgerForecast
       return "" if transactions.empty?
 
       output = if end_date
-                 "#{frequency} from #{start_date} to #{end_date}\n"
+                 "#{frequency} from #{start_date} to #{end_date}  * #{extract_descriptions(transactions)}\n"
                else
-                 "#{frequency} from #{start_date}\n"
+                 "#{frequency} from #{start_date}  * #{extract_descriptions(transactions)}\n"
                end
 
       transactions.each do |transaction|
@@ -85,7 +90,7 @@ module HledgerForecast
           next
         end
 
-        output += "#{frequency} from #{start_date} to #{end_date}\n"
+        output += "#{frequency} from #{start_date} to #{end_date}  * #{transaction['description']}\n"
         output += output_amount(transaction['category'], format_amount(transaction['amount']),
                                 transaction['description'])
         output += "    #{account}\n\n"
@@ -104,7 +109,7 @@ module HledgerForecast
         frequency = forecast['frequency']
         transactions = forecast['transactions']
 
-        output += "~ #{frequency} from #{start_date}\n"
+        output += "~ #{frequency} from #{start_date}  * #{extract_descriptions(transactions)}\n"
 
         transactions.each do |transaction|
           end_date = transaction['end'] ? Date.parse(transaction['end']) : end_date
@@ -126,6 +131,32 @@ module HledgerForecast
 
     def self.output_amount(category, amount, description)
       "    #{category.ljust(@options[:max_category])}    #{amount.ljust(@options[:max_amount])};  #{description}\n"
+    end
+
+    def self.output_tracked_transaction(transactions)
+      output = ""
+
+      transactions.each do |_key, transaction|
+        output += "#  TRACKED TRANSACTION\n"
+        output += "~ from #{transaction['start']}  TRACKED - #{transaction['transaction']['description']}\n"
+        output += "    #{transaction['transaction']['category'].ljust(@options[:max_category])}    #{transaction['transaction']['amount'].ljust(@options[:max_amount])}\n"
+        output += "    #{transaction['account']}\n\n"
+      end
+
+      output
+    end
+
+    def self.extract_descriptions(transactions)
+      descriptions = []
+
+      transactions.each do |transaction|
+        next if transaction['track']
+
+        description = transaction['description']
+        descriptions << description
+      end
+
+      descriptions.join(', ')
     end
 
     def self.track_transaction(start_date, end_date, account, transaction)

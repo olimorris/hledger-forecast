@@ -12,6 +12,7 @@ monthly:
       - amount: -1500
         category: "[Income:Salary]"
         description: Salary
+        end: "2023-08-01"
         track: true
 
 settings:

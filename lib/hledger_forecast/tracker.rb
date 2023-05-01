@@ -6,7 +6,7 @@ module HledgerForecast
 
       transactions.each_with_object({}) do |(key, transaction), updated_transactions|
         found = transaction_exists?(transaction_file, transaction['start'], to_date, transaction['transaction'])
-        updated_transactions[key] = transaction.merge('found' => found)
+        updated_transactions[key] = transaction.merge('start' => Date.parse(to_date) >> 1, 'found' => found)
       end
     end
 

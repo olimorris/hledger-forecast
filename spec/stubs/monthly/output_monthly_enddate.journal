@@ -1,13 +1,13 @@
-~ monthly from 2023-03-01
+~ monthly from 2023-03-01  * Food, Party time
     [Expenses:Food]               £100.00 ;  Food
     [Expenses:Going Out]          £50.00  ;  Party time
     [Assets:Bank]
 
-~ monthly from 2023-03-01 to 2023-06-01
+~ monthly from 2023-03-01 to 2023-06-01  * Mortgage
     [Expenses:Mortgage]           £2,000.00;  Mortgage
     [Assets:Bank]
 
-~ monthly from 2023-03-01 to 2023-06-01
+~ monthly from 2023-03-01 to 2023-06-01  * Mortgage top up
     [Expenses:Mortgage Top Up]    £200.00 ;  Mortgage top up
     [Assets:Bank]
 
