@@ -59,13 +59,13 @@ module HledgerForecast
       return "" if transactions.empty?
 
       output = if end_date
-                 "#{frequency} from #{start_date} to #{end_date}  * #{extract_descriptions(transactions)}\n"
+                 "#{frequency} #{start_date} to #{end_date}  * #{extract_descriptions(transactions, start_date)}\n"
                else
-                 "#{frequency} from #{start_date}  * #{extract_descriptions(transactions)}\n"
+                 "#{frequency} #{start_date}  * #{extract_descriptions(transactions, start_date)}\n"
                end
 
       transactions.each do |transaction|
-        if transaction['track']
+        if track_transaction?(transaction, start_date)
           track_transaction(start_date, end_date, account, transaction)
           next
         end
@@ -85,12 +85,12 @@ module HledgerForecast
         end_date = transaction['end'] ? Date.parse(transaction['end']) : nil
         next unless end_date
 
-        if transaction['track']
+        if track_transaction?(transaction, start_date)
           track_transaction(start_date, end_date, account, transaction)
           next
         end
 
-        output += "#{frequency} from #{start_date} to #{end_date}  * #{transaction['description']}\n"
+        output += "#{frequency} #{start_date} to #{end_date}  * #{transaction['description']}\n"
         output += output_amount(transaction['category'], format_amount(transaction['amount']),
                                 transaction['description'])
         output += "    #{account}\n\n"
@@ -109,12 +109,12 @@ module HledgerForecast
         frequency = forecast['frequency']
         transactions = forecast['transactions']
 
-        output += "~ #{frequency} from #{start_date}  * #{extract_descriptions(transactions)}\n"
+        output += "~ #{frequency} from #{start_date}  * #{extract_descriptions(transactions, start_date)}\n"
 
         transactions.each do |transaction|
           end_date = transaction['end'] ? Date.parse(transaction['end']) : end_date
 
-          if transaction['track']
+          if track_transaction?(transaction, start_date)
             track_transaction(start_date, end_date, account, transaction)
             next
           end
@@ -146,17 +146,21 @@ module HledgerForecast
       output
     end
 
-    def self.extract_descriptions(transactions)
+    def self.extract_descriptions(transactions, start_date)
       descriptions = []
 
       transactions.each do |transaction|
-        next if transaction['track']
+        next if track_transaction?(transaction, start_date)
 
         description = transaction['description']
         descriptions << description
       end
 
       descriptions.join(', ')
+    end
+
+    def self.track_transaction?(transaction, start_date)
+      transaction['track'] && start_date <= Date.today
     end
 
     def self.track_transaction(start_date, end_date, account, transaction)
@@ -168,10 +172,10 @@ module HledgerForecast
     def self.convert_period_to_frequency(period)
       map = {
         'once' => '~',
-        'monthly' => '~ monthly',
-        'quarterly' => '~ every 3 months',
-        'half-yearly' => '~ every 6 months',
-        'yearly' => '~ yearly'
+        'monthly' => '~ monthly from',
+        'quarterly' => '~ every 3 months from',
+        'half-yearly' => '~ every 6 months from',
+        'yearly' => '~ yearly from'
       }
 
       map[period]

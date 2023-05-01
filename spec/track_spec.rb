@@ -63,4 +63,19 @@ RSpec.describe 'Tracking transactions -' do
     expected_output = File.read('spec/stubs/track/output_track.journal')
     expect(generated_journal).to eq(expected_output)
   end
+
+  it 'treats a future tracked transaction as a regular transaction' do
+    forecast = File.read('spec/stubs/track/track_normal.yml')
+
+    options = {}
+    options[:transaction_file] = 'spec/stubs/track/transactions_not_found.journal'
+
+    generated = HledgerForecast::Generator
+    generated.tracked = {} # Clear tracked transactions
+
+    generated_journal = generated.generate(forecast, options)
+
+    expected_output = File.read('spec/stubs/track/output_track_normal.journal')
+    expect(generated_journal).to eq(expected_output)
+  end
 end
