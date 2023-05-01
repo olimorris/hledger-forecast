@@ -40,7 +40,7 @@ The available options are:
 
 ### Generate command
 
-The `hledger-forecast generate` command will begin the generation of your forecast _from_ a `yaml` file _to_ a Hledger periodic transaction journal file.
+The `hledger-forecast generate` command will begin the generation of your forecast _from_ a `yaml` file _to_ a hledger periodic transaction journal file.
 
 The available options are:
 
@@ -55,38 +55,19 @@ The available options are:
 
 Simply running the command with no options will assume a `forecast.yml` file exists.
 
-#### Using with Hledger
+### Using with Hledger
 
-To work with Hledger, include the forecast file and use the `--forecast` flag:
+To work with hledger, include the forecast file and use the `--forecast` flag:
 
     hledger -f transactions.journal -f forecast.journal bal assets -e 2024-02 --forecast
 
-The command will generate a forecast up to the end of Feb 2024, showing the balance for any asset accounts, referencing the transactions and forecast journal files.
+The command will generate a forecast up to the end of Feb 2024, showing the balance for any asset accounts, referencing the transactions and forecast journal files. Of course, refer to the [hledger](https://hledger.org/dev/hledger.html) documentation for more information on how to query your finances.
 
-#### Tracking transactions
-
-Sometimes it can be useful to track and monitor forecasted transactions to ensure that they are accounted for in any financial projections. If they are present, then these should be discarded from your forecast as this will create a double count against your actuals. However, if they don't exist then they should be carried forward into a future period to ensure accurate recording.
-
-To mark transactions as available for tracking you may use the `track` option in your config file:
-
-```yaml
-once:
-    account: "Assets:Bank"
-    start: "2023-03-05"
-    transactions:
-      - amount: 3000
-        category: "Expenses:Shopping"
-        description: Refund for that damn laptop
-        track: true
-```
-
-The app will use a Hledger query to determine if the combination of category and amount is present in the period specified in the `start` key. If not, then the app will continue searching up to the latest period in the transactions file, including it as a forecast transaction in the output file.
-
-> **Note**: Marking a transaction for tracking will ensure that it is only written into the forecast if it isn't found
+To apply any modifiers, use the `--auto` flag as well.
 
 ### Summarize command
 
-As your `yaml` file grows, it can be helpful to sum up the total amounts and output them to the CLI. This can be achieved by:
+As your `yaml` configuration file grows, it can be helpful to sum up the total amounts and output them to the CLI. This can be achieved by:
 
     hledger-forecast summarize -f my_forecast.yml
 
@@ -188,6 +169,68 @@ monthly:
         description: Mortgage
         end: "2025-01-01"
 ```
+
+### Tracking transactions
+
+Sometimes it can be useful to track and monitor forecasted transactions to ensure that they are accounted for in any financial projections. If they are present, then these should be discarded from your forecast as this will create a double count against your actuals. However, if they can't be found amongst your actuals then they should be carried forward into a future period to ensure accurate recording.
+
+To mark transactions as available for tracking you may use the `track` option in your config file:
+
+```yaml
+once:
+    account: "Assets:Bank"
+    start: "2023-03-05"
+    transactions:
+      - amount: 3000
+        category: "Expenses:Shopping"
+        description: Refund for that damn laptop
+        track: true
+```
+
+The app will use a Hledger query to determine if the combination of category and amount is present in the period specified in the `start` key. If not, then the app will continue searching up to the latest period in the transactions file, including it as a forecast transaction in the output file.
+
+> **Note**: Marking a transaction for tracking will ensure that it is only written into the forecast if it isn't found
+
+### Applying modifiers
+
+> **Note**: For modifiers to be included in your hledger reporting, use the `--auto` flag
+
+Within your forecasts, it can be useful to reflect future increases/decreases in certain categories. For example, next year, I expect the cost of groceries to increase by 2%:
+
+```yaml
+monthly:
+    account: "Assets:Bank"
+    start: "2023-03-05"
+    transactions:
+      - amount: 450
+        category: "Expenses:Groceries"
+        description: Food shopping
+        modifiers:
+          - from: 2024-01-01
+            to: 2024-12-13
+            amount: 0.02
+```
+
+This will generate an [auto-posting](https://hledger.org/dev/hledger.html#auto-postings) in your forecast which will
+uplift any transaction with an `Expenses:Groceries` category:
+
+```
+= Expenses:Groceries date:2024-01-01..2024-12-31
+    (Expenses:Groceries)  *0.02
+```
+
+Of course you may wish to apply 2% for next year and another 3% for the year after:
+
+```yaml
+modifiers:
+  - from: 2024-01-01
+    to: 2024-12-13
+    amount: 0.02
+  - from: 2025-01-01
+    to: 2025-12-13
+    amount: 0.05
+```
+
 
 ### Additional settings
 
