@@ -65,9 +65,7 @@ The command will generate a forecast up to the end of Feb 2024, showing the bala
 
 #### Tracking transactions
 
-Sometimes it can be useful to track and monitor forecasted transactions to ensure that they hit your bank statement. If they do, then these should be discarded from your forecast as this will create a double count. However, if they don't exist then they should be carried forward into a future period to ensure accurate recording.
-
-A common example might be when you're expecting to receive a material refund. You know the total amount you will receive and the category (e.g. `Expenses:Shopping`) however the period it is received could be December or January.
+Sometimes it can be useful to track and monitor forecasted transactions to ensure that they are accounted for in any financial projections. If they are present, then these should be discarded from your forecast as this will create a double count against your actuals. However, if they don't exist then they should be carried forward into a future period to ensure accurate recording.
 
 To mark transactions as available for tracking you may use the `track` option in your config file:
 
