@@ -1,6 +1,6 @@
 monthly:
   - account: "[Assets:Bank]"
-    start: "2023-03-01"
+    from: "2023-03-01"
     transactions:
       - amount: -100
         category: "[Income:Bonus]"
@@ -17,9 +17,9 @@ monthly:
       - amount: 1000
         category: "[Expenses:Mortgage]"
         description: Mortgage
-        end: "2024-01-01"
+        to: "2024-01-01"
   - account: "[Assets:Savings]"
-    start: "2023-03-01"
+    from: "2023-03-01"
     transactions:
       - amount: -500
         category: "[Income:Pension]"
@@ -27,7 +27,7 @@ monthly:
 
 quarterly:
   - account: "[Assets:Bank]"
-    start: "2023-04-01"
+    from: "2023-04-01"
     transactions:
       - amount: -1000.00
         category: "[Income:Bonus]"
@@ -35,7 +35,7 @@ quarterly:
 
 half-yearly:
   - account: "[Assets:Bank]"
-    start: "2023-04-01"
+    from: "2023-04-01"
     transactions:
       - amount: 500
         category: "[Expenses:Holiday]"
@@ -43,7 +43,7 @@ half-yearly:
 
 yearly:
   - account: "[Assets:Bank]"
-    start: "2023-04-01"
+    from: "2023-04-01"
     transactions:
       - amount: -2000.00
         category: "[Income:Bonus]"
@@ -51,16 +51,17 @@ yearly:
 
 once:
   - account: "[Assets:Bank]"
-    start: "2024-01-01"
+    from: "2023-03-01"
     transactions:
       - amount: 5000.00
         category: "[Expenses:Car]"
         description: Forecast new car cost
+        track: true
 
 custom:
   - frequency: "every 5 days"
     account: "[Assets:Bank]"
-    start: "2023-03-01"
+    from: "2023-03-01"
     transactions:
       - amount: 150
         category: "[Expenses:Car:Fuel]"

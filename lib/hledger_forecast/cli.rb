@@ -103,18 +103,6 @@ module HledgerForecast
       options[:forecast_file] = "forecast.yml" unless options[:forecast_file]
       options[:output_file] = "forecast.journal" unless options[:output_file]
 
-      today = Date.today
-
-      unless options[:start_date]
-        options[:use_default_dates] = true
-        options[:start_date] =
-          Date.new(today.year, today.month, 1).next_month.to_s
-      end
-      unless options[:end_date]
-        options[:use_default_dates] = true
-        options[:end_date] = Date.new(today.year + 3, 12, 31).to_s
-      end
-
       options
     end
 

@@ -35,8 +35,8 @@ module HledgerForecast
 
           forecasts.each do |forecast|
             account = forecast['account']
-            start_date = Date.parse(forecast['start'])
-            end_date = forecast['end'] ? Date.parse(forecast['end']) : nil
+            start_date = Date.parse(forecast['from'])
+            end_date = forecast['to'] ? Date.parse(forecast['to']) : nil
             transactions = forecast['transactions']
 
             output += regular_transaction(frequency, start_date, end_date, transactions, account)
@@ -51,7 +51,7 @@ module HledgerForecast
           output += output_tracked_transaction(Tracker.track(@tracked,
                                                              _options[:transaction_file]))
         else
-        puts "\nWarning: ".yellow.bold + "You need to specify a transaction file with the `--t` flag for smart transactions to work!\n"
+        puts "\nWarning: ".yellow.bold + "You need to specify a transaction file with the `--t` flag for smart transactions to work\n"
         end
       end
 
@@ -59,7 +59,7 @@ module HledgerForecast
     end
 
     def self.regular_transaction(frequency, start_date, end_date, transactions, account)
-      transactions = transactions.select { |transaction| transaction['end'].nil? }
+      transactions = transactions.select { |transaction| transaction['to'].nil? }
       return "" if transactions.empty?
 
       output = ""
@@ -91,7 +91,7 @@ module HledgerForecast
       output = ""
 
       transactions.each do |transaction|
-        end_date = transaction['end'] ? Date.parse(transaction['end']) : nil
+        end_date = transaction['to'] ? Date.parse(transaction['to']) : nil
         next unless end_date
 
         if track_transaction?(transaction, start_date)
@@ -113,15 +113,15 @@ module HledgerForecast
 
       forecasts.each do |forecast|
         account = forecast['account']
-        start_date = Date.parse(forecast['start'])
-        end_date = forecast['end'] ? Date.parse(forecast['end']) : nil
+        start_date = Date.parse(forecast['from'])
+        end_date = forecast['to'] ? Date.parse(forecast['to']) : nil
         frequency = forecast['frequency']
         transactions = forecast['transactions']
 
         output += "~ #{frequency} from #{start_date}  * #{extract_descriptions(transactions, start_date)}\n"
 
         transactions.each do |transaction|
-          end_date = transaction['end'] ? Date.parse(transaction['end']) : end_date
+          end_date = transaction['to'] ? Date.parse(transaction['to']) : end_date
 
           if track_transaction?(transaction, start_date)
             track_transaction(start_date, end_date, account, transaction)

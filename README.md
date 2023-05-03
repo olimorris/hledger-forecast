@@ -91,7 +91,7 @@ Firstly, create a `yaml` file which will contain the transactions you'd like to 
 # forecast.yml
 monthly:
   - account: "[Assets:Bank]"
-    start: "2023-03-01"
+    from: "2023-03-01"
     transactions:
       - amount: 2000
         category: "[Expenses:Mortgage]"
@@ -130,7 +130,7 @@ A custom period allows you to specify a custom periodic rule as per Hledger's [p
 custom:
   - frequency: "every 2 weeks"
     account: "[Assets:Bank]"
-    start: "2023-03-01"
+    from: "2023-03-01"
     transactions:
       - amount: 80
         category: "[Expenses:Personal Care]"
@@ -145,30 +145,30 @@ You can further control the dates at a period/top-level as well as at a transact
 
 #### Top level
 
-In the example below, all transactions in the `monthly` block will be constrained by the end date:
+In the example below, all transactions in the `monthly` block will be constrained by the to date:
 
 ```yaml
 monthly:
   - account: "[Assets:Bank]"
-    start: "2023-03-01"
-    end: "2025-01-01"
+    from: "2023-03-01"
+    to: "2025-01-01"
     transactions:
       # details omitted for brevity
 ```
 
 #### Transaction level
 
-In the example below, only the single transaction will be constrained by the end date:
+In the example below, only the single transaction will be constrained by the to date:
 
 ```yaml
 monthly:
   - account: "[Assets:Bank]"
-    start: "2023-03-01"
+    from: "2023-03-01"
     transactions:
       - amount: 2000
         category: "[Expenses:Mortgage]"
         description: Mortgage
-        end: "2025-01-01"
+        to: "2025-01-01"
 ```
 
 ### Tracking transactions
@@ -182,7 +182,7 @@ To mark transactions as available for tracking you may use the `track` option in
 ```yaml
 once:
     account: "Assets:Bank"
-    start: "2023-03-05"
+    from: "2023-03-05"
     transactions:
       - amount: 3000
         category: "Expenses:Shopping"
@@ -190,7 +190,7 @@ once:
         track: true
 ```
 
-The app will use a hledger query to determine if the combination of category and amount is present in the periods between the `start` key and the latest period in the transactions file. If not, then the app will include it as a forecast transaction in the output file.
+The app will use a hledger query to determine if the combination of category and amount is present in the periods between the `from` key and the latest period in the transactions file. If not, then the app will include it as a forecast transaction in the output file.
 
 ### Applying modifiers
 
@@ -201,7 +201,7 @@ Within your forecasts, it can be useful to reflect future increases/decreases in
 ```yaml
 monthly:
     account: "Assets:Bank"
-    start: "2023-03-05"
+    from: "2023-03-05"
     transactions:
       - amount: 450
         category: "Expenses:Groceries"

@@ -1,6 +1,6 @@
 once:
   - account: "Assets:Bank"
-    start: "2023-03-05"
+    from: "2023-03-05"
     transactions:
       - amount: 3000
         category: "Expenses:Tax"
@@ -12,7 +12,7 @@ once:
       - amount: -1500
         category: "Income:Salary"
         description: Salary
-        end: "2023-08-01"
+        to: "2023-08-01"
         track: true
 
 settings:

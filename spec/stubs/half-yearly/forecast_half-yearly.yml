@@ -2,7 +2,7 @@ settings:
   currency: GBP
 
 half-yearly:
-  - start: "2023-04-01"
+  - from: "2023-04-01"
     account: "[Assets:Bank]"
     transactions:
       - description: Holiday

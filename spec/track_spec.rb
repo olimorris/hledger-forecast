@@ -34,7 +34,7 @@ RSpec.describe 'Tracking transactions -' do
     expect(tracked[0]['account']).to eq("Assets:Bank")
 
     expect(tracked[1]['transaction']).to eq(
-      { "amount" => "£-1,500.00", "category" => "Income:Salary", "description" => "Salary", "end" => "2023-08-01",
+      { "amount" => "£-1,500.00", "category" => "Income:Salary", "description" => "Salary", "to" => "2023-08-01",
         "inverse_amount" => "£1,500.00", "track" => true }
     )
     expect(tracked[1]['account']).to eq("Assets:Bank")
@@ -102,7 +102,7 @@ RSpec.describe 'Tracking transactions -' do
     forecast_config = <<~YAML
       once:
         - account: "Assets:Bank"
-          start: "#{previous_month}"
+          from: "#{previous_month}"
           transactions:
             - amount: 5000
               category: "Expenses:House"
@@ -154,7 +154,7 @@ RSpec.describe 'Tracking transactions -' do
     forecast_config = <<~YAML
       monthly:
         - account: "Assets:Bank"
-          start: "#{next_month}"
+          from: "#{next_month}"
           transactions:
             - amount: 100
               category: "Expenses:Food"

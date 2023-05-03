@@ -3,7 +3,7 @@ settings:
 
 yearly:
   - account: "[Assets:Bank]"
-    start: "2023-04-01"
+    from: "2023-04-01"
     transactions:
       - description: Bonus
         category: "[Income:Bonus]"

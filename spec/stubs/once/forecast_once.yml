@@ -2,7 +2,7 @@ settings:
   currency: GBP
 
 once:
-  - start: "2023-07-01"
+  - from: "2023-07-01"
     account: "[Assets:Bank]"
     transactions:
       - description: New Kitchen

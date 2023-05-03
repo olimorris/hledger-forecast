@@ -2,15 +2,15 @@ settings:
   currency: GBP
 
 monthly:
-  - start: "2023-03-01"
+  - from: "2023-03-01"
     account: "[Assets:Bank]"
     transactions:
       - description: Mortgage
-        end: "2023-06-01"
+        to: "2023-06-01"
         category: "[Expenses:Mortgage]"
         amount: 2000.00
       - description: Mortgage top up
-        end: "2023-06-01"
+        to: "2023-06-01"
         category: "[Expenses:Mortgage Top Up]"
         amount: 200.00
       - description: Food
