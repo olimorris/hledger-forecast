@@ -1,9 +1,9 @@
 monthly:
-  - account: "[Assets:Bank]"
+  - account: "Assets:Bank"
     start: "2030-01-01"
     transactions:
       - amount: 100
-        category: "[Expenses:Food]"
+        category: "Expenses:Food"
         description: Food expenses
         track: true
 

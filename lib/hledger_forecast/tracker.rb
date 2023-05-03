@@ -5,7 +5,8 @@ module HledgerForecast
       to_date = Date.parse(latest_date(transaction_file))
 
       transactions.each_with_object({}) do |(key, transaction), updated_transactions|
-        found = transaction_exists?(transaction_file, transaction['start'], to_date, transaction['transaction'])
+        found = transaction_exists?(transaction_file, transaction['start'], to_date, transaction['account'],
+                                    transaction['transaction'])
         updated_transactions[key] = transaction.merge('start' => to_date >> 1, 'found' => found)
       end
     end
@@ -17,10 +18,16 @@ module HledgerForecast
       date_output.strip
     end
 
-    def self.transaction_exists?(file, from, to, transaction)
-      command = %(hledger print -f #{file} "date:#{from}..#{to}" | tr -s '[:space:]' ' ' | grep -q -Eo "#{escape_str(transaction['category'])} #{transaction['amount']}")
+    def self.transaction_exists?(file, from, to, account, transaction)
+      category = escape_str(transaction['category'])
+      amount = transaction['amount']
+      inverse_amount = transaction['inverse_amount']
 
-      system(command)
+      # We run two commands and check to see if category +/- amount or account +/- amount exists
+      command1 = %(hledger print -f #{file} "date:#{from}..#{to}" | tr -s '[:space:]' ' ' | grep -q -Eo "#{category} (#{amount}|#{inverse_amount})")
+      command2 = %(hledger print -f #{file} "date:#{from}..#{to}" | tr -s '[:space:]' ' ' | grep -q -Eo "#{account} (#{amount}|#{inverse_amount})")
+
+      system(command1) || system(command2)
     end
 
     def self.escape_str(str)

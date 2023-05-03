@@ -40,7 +40,7 @@ module HledgerForecast
             transactions = forecast['transactions']
 
             output += regular_transaction(frequency, start_date, end_date, transactions, account)
-            output += time_bound_transaction(frequency, start_date, transactions, account)
+            output += ending_transaction(frequency, start_date, transactions, account)
           end
         end
       end
@@ -56,13 +56,9 @@ module HledgerForecast
 
     def self.regular_transaction(frequency, start_date, end_date, transactions, account)
       transactions = transactions.select { |transaction| transaction['end'].nil? }
-      return "" if transactions.empty?
+      return if transactions.empty?
 
-      output = if end_date
-                 "#{frequency} #{start_date} to #{end_date}  * #{extract_descriptions(transactions, start_date)}\n"
-               else
-                 "#{frequency} #{start_date}  * #{extract_descriptions(transactions, start_date)}\n"
-               end
+      output = ""
 
       transactions.each do |transaction|
         if track_transaction?(transaction, start_date)
@@ -74,11 +70,20 @@ module HledgerForecast
                                 transaction['description'])
       end
 
+      return unless output != ""
+
+      output = if end_date
+                 "#{frequency} #{start_date} to #{end_date}  * #{extract_descriptions(transactions,
+                                                                                      start_date)}\n" << output
+               else
+                 "#{frequency} #{start_date}  * #{extract_descriptions(transactions, start_date)}\n" << output
+               end
+
       output += "    #{account}\n\n"
       output
     end
 
-    def self.time_bound_transaction(frequency, start_date, transactions, account)
+    def self.ending_transaction(frequency, start_date, transactions, account)
       output = ""
 
       transactions.each do |transaction|
@@ -160,11 +165,14 @@ module HledgerForecast
     end
 
     def self.track_transaction?(transaction, start_date)
-      transaction['track'] && start_date <= Date.today
+      transaction['track'] && start_date < Date.today
     end
 
     def self.track_transaction(start_date, end_date, account, transaction)
-      transaction['amount'] = format_amount(transaction['amount'])
+      amount = transaction['amount']
+      transaction['amount'] = format_amount(amount)
+      transaction['inverse_amount'] = format_amount(amount * -1)
+
       @tracked[@tracked.length] =
         { 'account' => account, 'start' => start_date, 'end' => end_date, 'transaction' => transaction }
     end

@@ -1,16 +1,16 @@
-monthly:
-  - account: "[Assets:Bank]"
+once:
+  - account: "Assets:Bank"
     start: "2023-03-05"
     transactions:
       - amount: 3000
-        category: "[Expenses:Tax]"
+        category: "Expenses:Tax"
         description: Tax owed
         track: true
       - amount: 100
-        category: "[Expenses:Food]"
+        category: "Expenses:Food"
         description: Food expenses
       - amount: -1500
-        category: "[Income:Salary]"
+        category: "Income:Salary"
         description: Salary
         end: "2023-08-01"
         track: true

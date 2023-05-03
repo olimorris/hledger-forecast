@@ -1,14 +1,14 @@
-~ monthly from 2023-03-05  * Food expenses
-    [Expenses:Food]    £100.00;  Food expenses
-    [Assets:Bank]
+~ 2023-03-05  * Food expenses
+    Expenses:Food    £100.00;  Food expenses
+    Assets:Bank
 
 #  TRACKED TRANSACTION
 ~ from 2023-07-01  TRACKED - Tax owed
-    [Expenses:Tax]     £3,000.00
-    [Assets:Bank]
+    Expenses:Tax     £3,000.00
+    Assets:Bank
 
 #  TRACKED TRANSACTION
 ~ from 2023-07-01  TRACKED - Salary
-    [Income:Salary]    £-1,500.00
-    [Assets:Bank]
+    Income:Salary    £-1,500.00
+    Assets:Bank
 
