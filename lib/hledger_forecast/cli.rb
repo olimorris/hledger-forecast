@@ -85,13 +85,13 @@ module HledgerForecast
         end
 
         opts.on("--force",
-                "Force an overwrite of the output file") do |a|
-          options[:force] = a
+                "Force an overwrite of the output file") do
+          options[:force] = true
         end
 
         opts.on("--no-track",
-                "Don't track any transactions") do |a|
-          options[:no_track] = a
+                "Don't track any transactions") do
+          options[:no_track] = true
         end
 
         opts.on_tail("-h", "--help", "Show this help message") do
@@ -151,18 +151,18 @@ module HledgerForecast
 
       output_file = options[:output_file]
       if File.exist?(output_file) && !options[:force]
-        print "File '#{output_file}' already exists. Overwrite? (y/n): "
+        print "\nFile '#{output_file}' already exists. Overwrite? (y/n): "
         overwrite = gets.chomp.downcase
 
         if overwrite == 'y'
           File.write(output_file, transactions)
-          puts "File '#{output_file}' has been overwritten."
+          puts "\nSuccess: ".bold.green + "File '#{output_file}' has been overwritten."
         else
-          puts "Operation aborted. File '#{output_file}' was not overwritten."
+          puts "\nInfo: ".bold.blue + "Operation aborted. File '#{output_file}' was not overwritten."
         end
       else
         File.write(output_file, transactions)
-        puts "File '#{output_file}' has been created."
+        puts "\nSuccess: ".bold.green + "File '#{output_file}' has been created"
       end
     end
 

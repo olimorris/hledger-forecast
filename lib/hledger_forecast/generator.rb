@@ -46,9 +46,13 @@ module HledgerForecast
       end
 
       # Generate tracked transactions
-      if _options && _options[:transaction_file] && !@tracked.empty?
-        output += output_tracked_transaction(Tracker.track(@tracked,
-                                                           _options[:transaction_file]))
+      if _options && !_options[:no_track] && !@tracked.empty?
+        if _options[:transaction_file]
+          output += output_tracked_transaction(Tracker.track(@tracked,
+                                                             _options[:transaction_file]))
+        else
+        puts "\nWarning: ".yellow.bold + "You need to specify a transaction file with the `--t` flag for smart transactions to work!\n"
+        end
       end
 
       output
