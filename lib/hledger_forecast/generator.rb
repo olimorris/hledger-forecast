@@ -56,7 +56,7 @@ module HledgerForecast
 
     def self.regular_transaction(frequency, start_date, end_date, transactions, account)
       transactions = transactions.select { |transaction| transaction['end'].nil? }
-      return if transactions.empty?
+      return "" if transactions.empty?
 
       output = ""
 
@@ -70,7 +70,7 @@ module HledgerForecast
                                 transaction['description'])
       end
 
-      return unless output != ""
+      return "" unless output != ""
 
       output = if end_date
                  "#{frequency} #{start_date} to #{end_date}  * #{extract_descriptions(transactions,
@@ -142,9 +142,8 @@ module HledgerForecast
       output = ""
 
       transactions.each do |_key, transaction|
-        output += "#  TRACKED TRANSACTION\n"
-        output += "~ from #{transaction['start']}  TRACKED - #{transaction['transaction']['description']}\n"
-        output += "    #{transaction['transaction']['category'].ljust(@options[:max_category])}    #{transaction['transaction']['amount'].ljust(@options[:max_amount])}\n"
+        output += "~ #{transaction['start']}  * [TRACKED] #{transaction['transaction']['description']}\n"
+        output += "    #{transaction['transaction']['category'].ljust(@options[:max_category])}    #{transaction['transaction']['amount'].ljust(@options[:max_amount])};  #{transaction['transaction']['description']}\n"
         output += "    #{transaction['account']}\n\n"
       end
 

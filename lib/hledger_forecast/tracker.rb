@@ -2,12 +2,12 @@ module HledgerForecast
   # Checks for the existence of a transaction in a journal file and tracks it
   class Tracker
     def self.track(transactions, transaction_file)
-      to_date = Date.parse(latest_date(transaction_file))
+      next_month = Date.new(Date.today.year, Date.today.month, 1).next_month
 
       transactions.each_with_object({}) do |(key, transaction), updated_transactions|
-        found = transaction_exists?(transaction_file, transaction['start'], to_date, transaction['account'],
+        found = transaction_exists?(transaction_file, transaction['start'], Date.today, transaction['account'],
                                     transaction['transaction'])
-        updated_transactions[key] = transaction.merge('start' => to_date >> 1, 'found' => found)
+        updated_transactions[key] = transaction.merge('start' => next_month, 'found' => found)
       end
     end
 
