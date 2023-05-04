@@ -69,18 +69,18 @@ module HledgerForecast
         opts.separator ""
 
         opts.on("-f", "--forecast FILE",
-                "The FORECAST yaml file to generate from") do |file|
+                "The path to the FORECAST yaml file to generate from") do |file|
           options[:forecast_file] = file
           options[:output_file] ||= file.sub(/\.yml$/, '.journal')
         end
 
         opts.on("-o", "--output-file FILE",
-                "The OUTPUT file to create") do |file|
+                "The path to the OUTPUT file to create") do |file|
           options[:output_file] = file
         end
 
         opts.on("-t", "--transaction FILE",
-                "The TRANSACTION journal file to search within") do |file|
+                "The path to the TRANSACTION journal file") do |file|
           options[:transaction_file] = file
         end
 
@@ -114,7 +114,7 @@ module HledgerForecast
         opts.separator ""
 
         opts.on("-f", "--forecast FILE",
-                "The FORECAST yaml file to summarize") do |file|
+                "The path to the FORECAST yaml file to summarize") do |file|
           options[:forecast_file] = file
         end
 

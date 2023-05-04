@@ -47,9 +47,9 @@ The available options are:
 
     Usage: hledger-forecast generate [options]
 
-      -f, --forecast FILE              The FORECAST yaml file to generate from
-      -o, --output-file FILE           The OUTPUT file to create
-      -t, --transaction FILE           The TRANSACTION file to search within if using tracking
+      -f, --forecast FILE              The path to the FORECAST yaml file to generate from
+      -o, --output-file FILE           The path to the OUTPUT file to create
+      -t, --transaction FILE           The path to the TRANSACTION journal file
           --force                      Force an overwrite of the output file
           --no-track                   Don't track any transactions
       -h, --help                       Show this help message
@@ -60,9 +60,9 @@ Simply running the command with no options will assume a `forecast.yml` file exi
 
 To work with hledger, include the forecast file and use the `--forecast` flag:
 
-    hledger -f transactions.journal -f forecast.journal bal assets -e 2024-02 --forecast
+    hledger -f bank_transactions.journal -f forecast.journal --forecast bal assets -e 2024-02
 
-The command will generate a forecast up to the end of Feb 2024, showing the balance for any asset accounts, referencing the transactions and forecast journal files. Of course, refer to the [hledger](https://hledger.org/dev/hledger.html) documentation for more information on how to query your finances.
+The command will generate a forecast up to the end of Feb 2024, showing the balance for any asset accounts, overlaying some bank transactions with the forecast journal file. Of course, refer to the [hledger](https://hledger.org/dev/hledger.html) documentation for more information on how to query your finances.
 
 To apply any modifiers, use the `--auto` flag at the end of your command.
 
@@ -76,7 +76,7 @@ The available options are:
 
     Usage: hledger-forecast summarize [options]
 
-        -f, --forecast FILE              The FORECAST yaml file to summarize
+        -f, --forecast FILE              The path to the FORECAST yaml file to summarize
         -h, --help                       Show this help message
 
 ## :gear: Configuration
@@ -125,7 +125,7 @@ These will write periodic transactions such as `~ every 3 months` or `~ every ye
 
 #### Custom period
 
-When you need a bespoke time bound forecasts, a custom period may be useful. Custom periods allow you to specify a custom periodic rule as per hledger's [periodic rule syntax](https://hledger.org/dev/hledger.html#periodic-transactions):
+When you need a bespoke time bound forecast, a custom period may be useful. Custom periods allow you to specify a periodic rule as per hledger's [periodic rule syntax](https://hledger.org/dev/hledger.html#periodic-transactions):
 
 ```yaml
 custom:
@@ -174,7 +174,7 @@ monthly:
 
 ### Tracking transactions
 
-> **Note**: Marking a transaction for tracking will ensure that it is only written into the forecast if it isn't found
+> **Note**: Marking a transaction for tracking will ensure that it is only written into the forecast if it isn't found within a specified transaction file
 
 Sometimes it can be useful to track and monitor forecasted transactions to ensure that they are accounted for in any financial projections. If they are present, then these should be discarded from your forecast as this will create a double count against your actuals. However, if they can't be found then they should be carried forward into a future period to ensure accurate recording.
 
@@ -193,7 +193,11 @@ once:
 
 > **Note**: This feature has been designed to work with one-off transactions only
 
-The app will use a hledger query to determine if the combination of category and amount is present in the periods between the `from` key and the current date. If not, then the app will include it as a forecast transaction in the output file.
+To use this feature, ensure you pass a filepath to the `-t` flag, such as:
+
+    hledger-forecast generate -t [journal_file_to_search] -f [path_to_yaml_file] -o [path_to_output_journal]
+
+The app will use a hledger query to determine if the combination of category and amount is present in the periods between the `from` key and the current date in the journal file you've specified. If not, then the app will include it as a forecast transaction in the output file.
 
 ### Applying modifiers
 
