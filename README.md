@@ -41,7 +41,7 @@ The available options are:
 
 ### Generate command
 
-The `hledger-forecast generate` command will begin the generation of your forecast _from_ a `yaml` file _to_ a hledger periodic transaction journal file.
+The `hledger-forecast generate` command will begin the generation of your forecast _from_ a `yaml` file _to_ a journal file.
 
 The available options are:
 
@@ -64,7 +64,7 @@ To work with hledger, include the forecast file and use the `--forecast` flag:
 
 The command will generate a forecast up to the end of Feb 2024, showing the balance for any asset accounts, referencing the transactions and forecast journal files. Of course, refer to the [hledger](https://hledger.org/dev/hledger.html) documentation for more information on how to query your finances.
 
-To apply any modifiers, use the `--auto` flag as well.
+To apply any modifiers, use the `--auto` flag at the end of your command.
 
 ### Summarize command
 
@@ -106,9 +106,9 @@ settings:
 
 Let's examine what's going on in this config file:
 
-- Firstly, we're telling the app to create two monthly transactions and repeat them, forever, starting from March 2023. In this case, forever will be the `end_date` specified when running the app
-- Notice we're also using [virtual postings](https://hledger.org/1.29/hledger.html#virtual-postings) (designated by the brackets). This makes it easy to filter them out with the `-R` or `--real` option in Hledger
-- We also have not specified a currency; the default (`USD`) will be used
+- Firstly, we're telling the app to create two monthly transactions and repeat them, forever, starting from March 2023
+- Notice we're also using [virtual postings](https://hledger.org/1.29/hledger.html#virtual-postings) (designated by the brackets). This makes it easy to filter them out with the `-R` or `--real` option in hledger
+- We have also specified a currency; the default (`USD`) will be used if you do not, however
 
 ### Periods
 
@@ -120,11 +120,11 @@ Besides monthly recurring transactions, the app also supports the following peri
 - `once` - Generate _one-time_ transactions on a specified date
 - `custom` - Generate transactions every _n days/weeks/months_
 
-These will output periodic transactions such as `~ every 3 months` or `~ every year`.
+These will write periodic transactions such as `~ every 3 months` or `~ every year` in the output journal file.
 
 #### Custom period
 
-A custom period allows you to specify a custom periodic rule as per Hledger's [periodic rule syntax](https://hledger.org/dev/hledger.html#periodic-transactions):
+When you need a bespoke time bound forecasts, a custom period may be useful. Custom periods allow you to specify a custom periodic rule as per hledger's [periodic rule syntax](https://hledger.org/dev/hledger.html#periodic-transactions):
 
 ```yaml
 custom:
@@ -145,7 +145,7 @@ You can further control the dates at a period/top-level as well as at a transact
 
 #### Top level
 
-In the example below, all transactions in the `monthly` block will be constrained by the to date:
+In the example below, all transactions in the `monthly` block will be constrained by the `to` date:
 
 ```yaml
 monthly:
@@ -158,7 +158,7 @@ monthly:
 
 #### Transaction level
 
-In the example below, only the single transaction will be constrained by the to date:
+In the example below, only the single transaction will be constrained by the `to` date:
 
 ```yaml
 monthly:
@@ -190,7 +190,9 @@ once:
         track: true
 ```
 
-The app will use a hledger query to determine if the combination of category and amount is present in the periods between the `from` key and the latest period in the transactions file. If not, then the app will include it as a forecast transaction in the output file.
+> **Note**: This feature has been designed to work with one-off transactions only
+
+The app will use a hledger query to determine if the combination of category and amount is present in the periods between the `from` key and the current date. If not, then the app will include it as a forecast transaction in the output file.
 
 ### Applying modifiers
 
@@ -207,9 +209,9 @@ monthly:
         category: "Expenses:Groceries"
         description: Food shopping
         modifiers:
-          - from: "2024-01-01"
+          - amount: 0.02
+            from: "2024-01-01"
             to: "2024-12-13"
-            amount: 0.02
 ```
 
 This will generate an [auto-posting](https://hledger.org/dev/hledger.html#auto-postings) in your forecast which will
@@ -220,12 +222,12 @@ Of course you may wish to apply 2% for next year and another 3% for the year aft
 ```yaml
 # details above omitted for brevity
 modifiers:
-  - from: "2024-01-01"
+  - amount: 0.02
+    from: "2024-01-01"
     to: "2024-12-13"
-    amount: 0.02
-  - from: "2025-01-01"
+  - amount: 0.05
+    from: "2025-01-01"
     to: "2025-12-13"
-    amount: 0.05
 ```
 
 ### Additional settings
