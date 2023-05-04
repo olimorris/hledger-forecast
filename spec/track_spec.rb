@@ -4,7 +4,7 @@ current_month = Date.new(Date.today.year, Date.today.month, 1)
 previous_month = current_month.prev_month
 next_month = current_month.next_month
 
-output = <<~JOURNAL
+base_output = <<~JOURNAL
   ~ 2023-03-05  * Food expenses
       Expenses:Food    £100.00;  Food expenses
       Assets:Bank
@@ -92,7 +92,7 @@ RSpec.describe 'Tracking transactions -' do
 
     generated_journal = generated.generate(forecast, options)
 
-    expected_output = output
+    expected_output = base_output
     expect(generated_journal).to eq(expected_output)
   end
 
