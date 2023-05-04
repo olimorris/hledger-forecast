@@ -210,8 +210,9 @@ monthly:
         description: Food shopping
         modifiers:
           - amount: 0.02
+            description: "Inflation"
             from: "2024-01-01"
-            to: "2024-12-13"
+            to: "2024-12-31"
 ```
 
 This will generate an [auto-posting](https://hledger.org/dev/hledger.html#auto-postings) in your forecast which will
@@ -223,11 +224,13 @@ Of course you may wish to apply 2% for next year and another 3% for the year aft
 # details above omitted for brevity
 modifiers:
   - amount: 0.02
+    description: "Inflation"
     from: "2024-01-01"
-    to: "2024-12-13"
+    to: "2024-12-31"
   - amount: 0.05
+    description: "Inflation"
     from: "2025-01-01"
-    to: "2025-12-13"
+    to: "2025-12-31"
 ```
 
 ### Additional settings
@@ -255,10 +258,10 @@ settings:
 
 Firstly, I've come to realise from reading countless blog and Reddit posts on [plain text accounting](https://plaintextaccounting.org), that everyone does it __completely__ differently! There is _great_ support in hledger for [forecasting](https://hledger.org/1.29/hledger.html#forecasting) using periodic transactions. Infact, it's nearly perfect for my needs. My only wishes were to be able to sum up monthly transactions much faster (so I can see my forecasted monthly I&E), apply future cost pressures more easily (such as inflation) and to be able to track and monitor specific transactions.
 
-Regarding the latter; I may be expecting a material amount of money to leave my account in May (perhaps for a holiday booking). But maybe, that booking ends up leaving in July instead. Whilst I would have accounted for that expense in my forecast, it will likely be for the period of May. So if that transaction doesn't appear in the "actuals" of my May bank statement (which I import into hledger), it won't be included in my forecast at all (as the latest transaction period will be greater than the forecast period). The impact is that my forecasted balance in any future month could be $X better off than reality.
+Regarding the latter; I may be expecting a material amount of money to leave my account in May (perhaps for a holiday booking). But maybe, that booking ends up leaving in July instead. Whilst I would have accounted for that expense in my forecast, it will likely be for the period of May. So if that transaction doesn't appear in the "actuals" of my May bank statement (which I import into hledger), it won't be included in my forecast at all (as the latest transaction period will be greater than the forecast period). The impact is that my forecasted balance in any future month could be $X better off than reality. Being able to automatically look out for these transactions is a nice time saver.
 
 Also, I like to look ahead up to 3 years at a time and understand what my bank balances might look like. For this to be really accurate, factors such as inflation and salary expectations should be included. This is where the idea for modifiers came in. Being able to apply a percentage to a given category between two dates and automatically have the impact included any extended forecasts.
 
-Now I'll freely admit these are two minor issues. So minor infact that they can probably be addressed by a dedicated 5 minutes every month to consider them, as part of your hledger workflow. However I liked the idea of automating as much of my month end process as possible and saw this as an interesting challenge to try and solve.
+Now I'll freely admit these are two minor issues. So minor infact that they can probably be addressed by a dedicated 5 minutes every month as part of your hledger workflow. However I liked the idea of automating as much of my month end process as possible and saw this as an interesting challenge to try and solve.
 
-Whilst I tried to work within the constraints of a `journal` file, moving to a structured `yaml` format made the implementation of these features much easier. I also wanted to stay as true as possible to how hledger recommends we forecast with periodic transactions.
+Whilst I tried to work within the constraints of a `journal` file, moving to a `yaml` format made the implementation of these features much easier and allowed me to stay true to how you'd accomplish forecasting in hledger, manually. Whilst the config file can end up being many lines long, the output journal should be relatively streamlined and easy to follow.
