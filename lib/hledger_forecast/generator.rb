@@ -19,7 +19,7 @@ module HledgerForecast
       @options[:thousands_separator] = forecast_data.fetch('settings', {}).fetch('thousands_separator', true)
     end
 
-    def self.generate(yaml_file, _options = nil)
+    def self.generate(yaml_file, options = nil)
       forecast_data = YAML.safe_load(yaml_file)
 
       set_options(forecast_data)
@@ -47,10 +47,10 @@ module HledgerForecast
       end
 
       # Generate tracked transactions
-      if _options && !_options[:no_track] && !@tracked.empty?
-        if _options[:transaction_file]
+      if options && !options[:no_track] && !@tracked.empty?
+        if options[:transaction_file]
           output += output_tracked_transaction(Tracker.track(@tracked,
-                                                             _options[:transaction_file]))
+                                                             options[:transaction_file]))
         else
           puts "\nWarning: ".yellow.bold + "You need to specify a transaction file with the `--t` flag for smart transactions to work\n"
         end
