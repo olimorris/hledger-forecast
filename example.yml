@@ -1,70 +1,75 @@
 monthly:
-  - account: "[Assets:Bank]"
+  - account: "Assets:Bank"
     from: "2023-03-01"
     transactions:
       - amount: -100
-        category: "[Income:Bonus]"
+        category: "Income:Bonus"
         description: Bonus
       - amount: -2000
-        category: "[Income:Salary]"
+        category: "Income:Salary"
         description: Salary
       - amount: 500
-        category: "[Expenses:Food]"
+        category: "Expenses:Food"
         description: Food
+        modifiers:
+          - amount: 0.1
+            description: "Inflation"
+            from: "2024-01-01"
+            to: "2024-12-31"
       - amount: 75
-        category: "[Expenses:Phone]"
+        category: "Expenses:Phone"
         description: New cell phone
       - amount: 1000
-        category: "[Expenses:Mortgage]"
+        category: "Expenses:Mortgage"
         description: Mortgage
         to: "2024-01-01"
-  - account: "[Assets:Savings]"
+  - account: "Assets:Savings"
     from: "2023-03-01"
     transactions:
       - amount: -500
-        category: "[Income:Pension]"
+        category: "Income:Pension"
         description: Pension draw down
 
 quarterly:
-  - account: "[Assets:Bank]"
+  - account: "Assets:Bank"
     from: "2023-04-01"
     transactions:
       - amount: -1000.00
-        category: "[Income:Bonus]"
+        category: "Income:Bonus"
         description: Bonus
 
 half-yearly:
-  - account: "[Assets:Bank]"
+  - account: "Assets:Bank"
     from: "2023-04-01"
     transactions:
       - amount: 500
-        category: "[Expenses:Holiday]"
+        category: "Expenses:Holiday"
         description: Holiday
 
 yearly:
-  - account: "[Assets:Bank]"
+  - account: "Assets:Bank"
     from: "2023-04-01"
     transactions:
       - amount: -2000.00
-        category: "[Income:Bonus]"
+        category: "Income:Bonus"
         description: Annual Bonus
 
 once:
-  - account: "[Assets:Bank]"
+  - account: "Assets:Bank"
     from: "2023-03-01"
     transactions:
       - amount: 5000.00
-        category: "[Expenses:Car]"
+        category: "Expenses:Car"
         description: Forecast new car cost
         track: true
 
 custom:
   - frequency: "every 5 days"
-    account: "[Assets:Bank]"
+    account: "Assets:Bank"
     from: "2023-03-01"
     transactions:
       - amount: 150
-        category: "[Expenses:Car:Fuel]"
+        category: "Expenses:Car:Fuel"
         description: Car fuel
 
 settings:

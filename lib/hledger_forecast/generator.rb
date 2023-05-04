@@ -2,10 +2,11 @@ module HledgerForecast
   # Generates periodic transactions from a YAML file
   class Generator
     class << self
-      attr_accessor :options, :tracked
+      attr_accessor :options, :modified, :tracked
     end
 
     self.options = {}
+    self.modified = {}
     self.tracked = {}
 
     def self.set_options(forecast_data)
@@ -51,9 +52,11 @@ module HledgerForecast
           output += output_tracked_transaction(Tracker.track(@tracked,
                                                              _options[:transaction_file]))
         else
-        puts "\nWarning: ".yellow.bold + "You need to specify a transaction file with the `--t` flag for smart transactions to work\n"
+          puts "\nWarning: ".yellow.bold + "You need to specify a transaction file with the `--t` flag for smart transactions to work\n"
         end
       end
+
+      output += output_modified_transaction(@modified) unless @modified.empty?
 
       output
     end
@@ -70,15 +73,17 @@ module HledgerForecast
           next
         end
 
-        output += output_amount(transaction['category'], format_amount(transaction['amount']),
-                                transaction['description'])
+        modified_transaction(from, to, account, transaction)
+
+        output += output_transaction(transaction['category'], format_amount(transaction['amount']),
+                                     transaction['description'])
       end
 
       return "" unless output != ""
 
       output = if to
                  "#{frequency} #{from} to #{to}  * #{extract_descriptions(transactions,
-                                                                                      from)}\n" << output
+                                                                          from)}\n" << output
                else
                  "#{frequency} #{from}  * #{extract_descriptions(transactions, from)}\n" << output
                end
@@ -99,9 +104,11 @@ module HledgerForecast
           next
         end
 
+        modified_transaction(from, to, account, transaction)
+
         output += "#{frequency} #{from} to #{to}  * #{transaction['description']}\n"
-        output += output_amount(transaction['category'], format_amount(transaction['amount']),
-                                transaction['description'])
+        output += output_transaction(transaction['category'], format_amount(transaction['amount']),
+                                     transaction['description'])
         output += "    #{account}\n\n"
       end
 
@@ -128,8 +135,10 @@ module HledgerForecast
             next
           end
 
-          output += output_amount(transaction['category'], format_amount(transaction['amount']),
-                                  transaction['description'])
+          modified_transaction(from, to, account, transaction)
+
+          output += output_transaction(transaction['category'], format_amount(transaction['amount']),
+                                       transaction['description'])
         end
 
         output += "    #{account}\n\n"
@@ -138,8 +147,23 @@ module HledgerForecast
       output
     end
 
-    def self.output_amount(category, amount, description)
+    def self.output_transaction(category, amount, description)
       "    #{category.ljust(@options[:max_category])}    #{amount.ljust(@options[:max_amount])};  #{description}\n"
+    end
+
+    def self.output_modified_transaction(transactions)
+      output = ""
+
+      transactions.each do |_key, transaction|
+        date = "date:#{transaction['from']}"
+        date += "..#{transaction['to']}" if transaction['to']
+
+        output += "= #{transaction['category']} #{date}\n"
+        output += "    #{transaction['category'].ljust(@options[:max_category])}    *#{transaction['amount'].to_s.ljust(@options[:max_amount] - 1)};  #{transaction['description']}\n"
+        output += "    #{transaction['account'].ljust(@options[:max_category])}    *#{transaction['amount'] * -1}\n\n"
+      end
+
+      output
     end
 
     def self.output_tracked_transaction(transactions)
@@ -167,8 +191,26 @@ module HledgerForecast
       descriptions.join(', ')
     end
 
+    def self.modified_transaction(from, to, account, transaction)
+      return unless transaction['modifiers']
+
+      transaction['modifiers'].each do |modifier|
+        description = transaction['description']
+        description += ' - ' + modifier['description'] unless modifier['description'].empty?
+
+        @modified[@modified.length] = {
+          'account' => account,
+          'amount' => modifier['amount'],
+          'category' => transaction['category'],
+          'description' => description,
+          'from' => modifier['from'] ? Date.parse(modifier['from']) : (from || nil),
+          'to' => modifier['to'] ? Date.parse(modifier['to']) : (to || nil)
+        }
+      end
+    end
+
     def self.track_transaction?(transaction, from)
-      transaction['track'] && from < Date.today
+      transaction['track'] && from <= Date.today
     end
 
     def self.track_transaction(from, to, account, transaction)
@@ -176,8 +218,12 @@ module HledgerForecast
       transaction['amount'] = format_amount(amount)
       transaction['inverse_amount'] = format_amount(amount * -1)
 
-      @tracked[@tracked.length] =
-        { 'account' => account, 'from' => from, 'to' => to, 'transaction' => transaction }
+      @tracked[@tracked.length] = {
+        'account' => account,
+        'from' => from,
+        'to' => to,
+        'transaction' => transaction
+      }
     end
 
     def self.convert_period_to_frequency(period)
