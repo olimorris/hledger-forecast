@@ -170,6 +170,8 @@ module HledgerForecast
       output = ""
 
       transactions.each do |_key, transaction|
+        next if transaction['found']
+
         output += "~ #{transaction['from']}  * [TRACKED] #{transaction['transaction']['description']}\n"
         output += "    #{transaction['transaction']['category'].ljust(@options[:max_category])}    #{transaction['transaction']['amount'].ljust(@options[:max_amount])};  #{transaction['transaction']['description']}\n"
         output += "    #{transaction['account']}\n\n"
