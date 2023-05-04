@@ -1,20 +1,21 @@
-lib = File.expand_path('../lib', __FILE__)
+lib = File.expand_path('lib', __dir__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
+
 require 'hledger_forecast/version'
 
 Gem::Specification.new do |s|
   s.name        = 'hledger-forecast'
   s.version     = HledgerForecast::VERSION
   s.authors     = ['Oli Morris']
-  s.summary     = "An extended wrapper around Hledger's forecasting functionality"
-  s.description = 'Uses a YAML file to generate periodic transactions which can be used to extend the default forecasting in Hledger'
+  s.summary     = "An extended wrapper around hledger's forecasting functionality"
+  s.description = 'Uses a YAML file to generate forecasts which can be used to extend the default functionality in hledger'
   s.email       = 'olimorris@users.noreply.github.com'
   s.homepage    = 'https://github.com/olimorris/hledger-forecast'
   s.license     = 'MIT'
 
+  s.add_dependency "colorize", "~> 0.8.1"
   s.add_dependency "highline", "~> 2.1.0"
   s.add_dependency "money", "~> 6.16.0"
-  s.add_dependency "colorize", "~> 0.8.1"
   s.add_dependency "terminal-table", "~> 3.0.2"
   s.add_development_dependency 'rspec', '~> 3.12'
 
