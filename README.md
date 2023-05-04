@@ -90,14 +90,14 @@ Firstly, create a `yaml` file which will contain the transactions you'd like to 
 ```yaml
 # forecast.yml
 monthly:
-  - account: "[Assets:Bank]"
+  - account: "Assets:Bank"
     from: "2023-03-01"
     transactions:
       - amount: 2000
-        category: "[Expenses:Mortgage]"
+        category: "Expenses:Mortgage"
         description: Mortgage
       - amount: 500
-        category: "[Expenses:Food]"
+        category: "Expenses:Food"
         description: Food
 
 settings:
@@ -106,17 +106,18 @@ settings:
 
 Let's examine what's going on in this config file:
 
-- Firstly, we're telling the app to create two monthly transactions and repeat them, forever, starting from March 2023
-- Notice we're also using [virtual postings](https://hledger.org/1.29/hledger.html#virtual-postings) (designated by the brackets). This makes it easy to filter them out with the `-R` or `--real` option in hledger
-- We have also specified a currency; the default (`USD`) will be used if you do not, however
+- We're telling the app to create two monthly transactions and repeat them, forever, starting from March 2023
+- We're telling the app to link them both to the `Assets:Bank` account
+- We've added descriptions to make it easy to follow in our output file
+- Finally, we're telling the app to use the `GBP` currency; the default (`USD`) will be used if this is not specified
 
 ### Periods
 
 Besides monthly recurring transactions, the app also supports the following periods:
 
-- `quarterly` - For transactions every _3 months_ from the given start date
-- `half-yearly` - For transactions every _6 months_ from the given start date
-- `yearly` - Generate transactions _once a year_ from the given start date
+- `quarterly` - For transactions every _3 months_
+- `half-yearly` - For transactions every _6 months_
+- `yearly` - Generate transactions _once a year_
 - `once` - Generate _one-time_ transactions on a specified date
 - `custom` - Generate transactions every _n days/weeks/months_
 
@@ -129,11 +130,11 @@ When you need a bespoke time bound forecasts, a custom period may be useful. Cus
 ```yaml
 custom:
   - frequency: "every 2 weeks"
-    account: "[Assets:Bank]"
+    account: "Assets:Bank"
     from: "2023-03-01"
     transactions:
       - amount: 80
-        category: "[Expenses:Personal Care]"
+        category: "Expenses:Personal Care"
         description: Hair and beauty
 ```
 
@@ -149,7 +150,7 @@ In the example below, all transactions in the `monthly` block will be constraine
 
 ```yaml
 monthly:
-  - account: "[Assets:Bank]"
+  - account: "Assets:Bank"
     from: "2023-03-01"
     to: "2025-01-01"
     transactions:
@@ -162,11 +163,11 @@ In the example below, only the single transaction will be constrained by the `to
 
 ```yaml
 monthly:
-  - account: "[Assets:Bank]"
+  - account: "Assets:Bank"
     from: "2023-03-01"
     transactions:
       - amount: 2000
-        category: "[Expenses:Mortgage]"
+        category: "Expenses:Mortgage"
         description: Mortgage
         to: "2025-01-01"
 ```
