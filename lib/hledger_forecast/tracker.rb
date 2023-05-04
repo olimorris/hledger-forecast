@@ -5,9 +5,9 @@ module HledgerForecast
       next_month = Date.new(Date.today.year, Date.today.month, 1).next_month
 
       transactions.each_with_object({}) do |(key, transaction), updated_transactions|
-        found = transaction_exists?(transaction_file, transaction['start'], Date.today, transaction['account'],
+        found = transaction_exists?(transaction_file, transaction['from'], Date.today, transaction['account'],
                                     transaction['transaction'])
-        updated_transactions[key] = transaction.merge('start' => next_month, 'found' => found)
+        updated_transactions[key] = transaction.merge('from' => next_month, 'found' => found)
       end
     end
 
