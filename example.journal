@@ -1,16 +1,16 @@
 ~ monthly from 2023-03-01  * Bonus, Salary, Food, New cell phone
-    Income:Bonus         £-100.00 ;  Bonus
+    Income:Bonus         £-100.00  ;  Bonus
     Income:Salary        £-2,000.00;  Salary
-    Expenses:Food        £500.00  ;  Food
-    Expenses:Phone       £75.00   ;  New cell phone
+    Expenses:Food        £500.00   ;  Food
+    Expenses:Phone       £75.00    ;  New cell phone
     Assets:Bank
 
 ~ monthly from 2023-03-01 to 2024-01-01  * Mortgage
-    Expenses:Mortgage    £1,000.00;  Mortgage
+    Expenses:Mortgage    £1,000.00 ;  Mortgage
     Assets:Bank
 
 ~ monthly from 2023-03-01  * Pension draw down
-    Income:Pension       £-500.00 ;  Pension draw down
+    Income:Pension       £-500.00  ;  Pension draw down
     Assets:Savings
 
 ~ every 3 months from 2023-04-01  * Bonus
@@ -18,7 +18,7 @@
     Assets:Bank
 
 ~ every 6 months from 2023-04-01  * Holiday
-    Expenses:Holiday     £500.00  ;  Holiday
+    Expenses:Holiday     £500.00   ;  Holiday
     Assets:Bank
 
 ~ yearly from 2023-04-01  * Annual Bonus
@@ -26,10 +26,10 @@
     Assets:Bank
 
 ~ every 5 days from 2023-03-01  * Car fuel
-    Expenses:Car:Fuel    £150.00  ;  Car fuel
+    Expenses:Car:Fuel    £150.00   ;  Car fuel
     Assets:Bank
 
 = Expenses:Food date:2024-01-01..2024-12-31
-    Expenses:Food        *0.1     ;  Food - Inflation
+    Expenses:Food        *0.1      ;  Food - Inflation
     Assets:Bank          *-0.1
 

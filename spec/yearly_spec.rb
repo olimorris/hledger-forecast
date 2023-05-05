@@ -1,12 +1,27 @@
 require_relative '../lib/hledger_forecast'
 
+config = <<~YAML
+  settings:
+    currency: GBP
+
+  yearly:
+    - account: "Assets:Bank"
+      from: "2023-04-01"
+      transactions:
+        - description: Bonus
+          category: "Income:Bonus"
+          amount: -3,000.00
+YAML
+
+output = <<~JOURNAL
+  ~ yearly from 2023-04-01  * Bonus
+      Income:Bonus    £-3,000.00;  Bonus
+      Assets:Bank
+
+JOURNAL
+
 RSpec.describe 'generate' do
   it 'generates a forecast with correct YEARLY transactions' do
-    forecast = File.read('spec/stubs/yearly/forecast_yearly.yml')
-
-    generated_journal = HledgerForecast::Generator.generate(forecast)
-
-    expected_output = File.read('spec/stubs/yearly/output_yearly.journal')
-    expect(generated_journal).to eq(expected_output)
+    expect(HledgerForecast::Generator.generate(config)).to eq(output)
   end
 end

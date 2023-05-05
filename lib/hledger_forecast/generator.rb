@@ -10,7 +10,7 @@ module HledgerForecast
     self.tracked = {}
 
     def self.set_options(forecast_data)
-      @options[:max_amount] = get_max_field_size(forecast_data, 'amount')
+      @options[:max_amount] = get_max_field_size(forecast_data, 'amount') + 1 # +1 for the negatives
       @options[:max_category] = get_max_field_size(forecast_data, 'category')
 
       @options[:currency] = Money::Currency.new(forecast_data.fetch('settings', {}).fetch('currency', 'USD'))
@@ -258,7 +258,7 @@ module HledgerForecast
           transactions = forecast['transactions']
           transactions.each do |transaction|
             field_value = if transaction[field].is_a?(Integer) || transaction[field].is_a?(Float)
-                            ((transaction[field] + 2) * 100).to_s
+                            ((transaction[field] + 3) * 100).to_s
                           else
                             transaction[field].to_s
                           end

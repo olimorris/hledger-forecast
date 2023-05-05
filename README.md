@@ -54,7 +54,9 @@ The available options are:
           --no-track                   Don't track any transactions
       -h, --help                       Show this help message
 
-Simply running the command with no options will assume a `forecast.yml` file exists.
+> **Note**: For the tracking of transactions you need to include the `-t` flag
+
+Running the command with no options will assume a `forecast.yml` file exists.
 
 ### Using with Hledger
 
@@ -83,7 +85,7 @@ The available options are:
 
 ### The YAML file
 
-> **Note**: See the [example.yml](https://github.com/olimorris/hledger-forecast/blob/main/example.yml) file for an example of a complex config file
+> **Note**: See the [example.yml](https://github.com/olimorris/hledger-forecast/blob/main/example.yml) file for an example of a complex config file and its [output](https://github.com/olimorris/hledger-forecast/blob/main/example.journal)
 
 Firstly, create a `yaml` file which will contain the transactions you'd like to forecast:
 

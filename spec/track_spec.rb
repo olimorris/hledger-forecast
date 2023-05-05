@@ -4,9 +4,31 @@ current_month = Date.new(Date.today.year, Date.today.month, 1)
 previous_month = current_month.prev_month
 next_month = current_month.next_month
 
+base_config = <<~YAML
+  once:
+    - account: "Assets:Bank"
+      from: "2023-03-05"
+      transactions:
+        - amount: 3000
+          category: "Expenses:Tax"
+          description: Tax owed
+          track: true
+        - amount: 100
+          category: "Expenses:Food"
+          description: Food expenses
+        - amount: -1500
+          category: "Income:Salary"
+          description: Salary
+          to: "2023-08-01"
+          track: true
+
+  settings:
+    currency: GBP
+YAML
+
 base_output = <<~JOURNAL
   ~ 2023-03-05  * Food expenses
-      Expenses:Food    £100.00;  Food expenses
+      Expenses:Food    £100.00 ;  Food expenses
       Assets:Bank
 
   ~ #{next_month}  * [TRACKED] Tax owed
@@ -21,10 +43,8 @@ JOURNAL
 
 RSpec.describe 'Tracking transactions -' do
   it 'Determines which transactions should be tracked' do
-    forecast = File.read('spec/stubs/track/track.yml')
-
     generated = HledgerForecast::Generator
-    generated.generate(forecast)
+    generated.generate(base_config)
     tracked = generated.tracked
 
     expect(tracked[0]['transaction']).to eq(
@@ -41,56 +61,48 @@ RSpec.describe 'Tracking transactions -' do
   end
 
   it 'marks a transaction as NOT FOUND if it doesnt exist' do
-    forecast = File.read('spec/stubs/track/track.yml')
-
     generated = HledgerForecast::Generator
     generated.tracked = {} # Clear tracked transactions
-    generated.generate(forecast)
+    generated.generate(base_config)
     transactions_to_track = generated.tracked
 
-    track = HledgerForecast::Tracker.track(transactions_to_track, 'spec/stubs/track/transactions_not_found.journal')
+    track = HledgerForecast::Tracker.track(transactions_to_track, 'spec/stubs/transactions_not_found.journal')
 
     expect(track[0]['found']).to eq(false)
     expect(track[1]['found']).to eq(false)
   end
 
   it 'marks a transaction as FOUND if it exists' do
-    forecast = File.read('spec/stubs/track/track.yml')
-
     generated = HledgerForecast::Generator
     generated.tracked = {} # Clear tracked transactions
-    generated.generate(forecast)
+    generated.generate(base_config)
     transactions_to_track = generated.tracked
 
-    track = HledgerForecast::Tracker.track(transactions_to_track, 'spec/stubs/track/transactions_found.journal')
+    track = HledgerForecast::Tracker.track(transactions_to_track, 'spec/stubs/transactions_found.journal')
 
     expect(track[0]['found']).to eq(true)
     expect(track[1]['found']).to eq(true)
   end
 
   it 'marks a transaction as FOUND if it exists, even if the category/amount are inversed' do
-    forecast = File.read('spec/stubs/track/track.yml')
-
     generated = HledgerForecast::Generator
     generated.tracked = {} # Clear tracked transactions
-    generated.generate(forecast)
+    generated.generate(base_config)
     transactions_to_track = generated.tracked
 
-    track = HledgerForecast::Tracker.track(transactions_to_track, 'spec/stubs/track/transactions_found_inverse.journal')
+    track = HledgerForecast::Tracker.track(transactions_to_track, 'spec/stubs/transactions_found_inverse.journal')
 
     expect(track[0]['found']).to eq(true)
   end
 
   it 'writes a NON-FOUND entry into a journal' do
-    forecast = File.read('spec/stubs/track/track.yml')
-
     options = {}
-    options[:transaction_file] = 'spec/stubs/track/transactions_not_found.journal'
+    options[:transaction_file] = 'spec/stubs/transactions_not_found.journal'
 
     generated = HledgerForecast::Generator
     generated.tracked = {} # Clear tracked transactions
 
-    generated_journal = generated.generate(forecast, options)
+    generated_journal = generated.generate(base_config, options)
 
     expected_output = base_output
     expect(generated_journal).to eq(expected_output)
@@ -166,7 +178,7 @@ RSpec.describe 'Tracking transactions -' do
     YAML
 
     options = {}
-    options[:transaction_file] = 'spec/stubs/track/transactions_not_found.journal'
+    options[:transaction_file] = 'spec/stubs/transactions_not_found.journal'
 
     generated = HledgerForecast::Generator
     generated.tracked = {} # Clear tracked transactions
