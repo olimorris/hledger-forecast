@@ -1,0 +1,24 @@
+2023-04-01 * Opening balance
+    Assets:Bank
+    Equity:Opening balance            £-1,000.00
+
+2023-04-01 * Mortgage payment
+    Expenses:Mortgage
+    Assets:Bank                       £-1,500.00
+
+2023-05-01 * Mortgage payment
+    Expenses:Mortgage
+    Assets:Bank                      £-1,500.00
+
+2023-06-01 * Mortgage payment
+    Expenses:Mortgage
+    Assets:Bank                      £-1,500.00
+
+2023-03-05 * Tax owed
+    Expenses:Tax
+    Assets:Bank                     £-3,000.00
+
+2023-03-05 * Salary
+    Income:Salary
+    Assets:Bank                     £1,500.00
+

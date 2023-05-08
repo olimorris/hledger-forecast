@@ -1,130 +1,273 @@
 module HledgerForecast
-  # Generates journal entries based on a YAML forecast file.
-  # on forecast data and optional existing transactions.
+  # Generates periodic transactions from a YAML file
   class Generator
     class << self
-      attr_accessor :settings
+      attr_accessor :options, :modified, :tracked
     end
 
-    self.settings = {}
+    self.options = {}
+    self.modified = {}
+    self.tracked = {}
 
-    def self.configure_settings(forecast_data)
-      @settings[:currency] = Money::Currency.new(forecast_data.fetch('settings', {}).fetch('currency', 'USD'))
-      @settings[:show_symbol] = forecast_data.fetch('settings', {}).fetch('show_symbol', true)
-      @settings[:sign_before_symbol] = forecast_data.fetch('settings', {}).fetch('sign_before_symbol', true)
-      @settings[:thousands_separator] = forecast_data.fetch('settings', {}).fetch('thousands_separator', true)
+    def self.set_options(forecast_data)
+      @options[:max_amount] = get_max_field_size(forecast_data, 'amount') + 1 # +1 for the negatives
+      @options[:max_category] = get_max_field_size(forecast_data, 'category')
+
+      @options[:currency] = Money::Currency.new(forecast_data.fetch('settings', {}).fetch('currency', 'USD'))
+      @options[:show_symbol] = forecast_data.fetch('settings', {}).fetch('show_symbol', true)
+      # @options[:sign_before_symbol] = forecast_data.fetch('settings', {}).fetch('sign_before_symbol', false)
+      @options[:thousands_separator] = forecast_data.fetch('settings', {}).fetch('thousands_separator', true)
     end
 
-    def self.write_transactions(output, date, account, transaction)
-      output.concat("#{date} * #{transaction['description']}\n")
-      output.concat("    #{transaction['category']}                #{transaction['amount']}\n")
-      output.concat("    #{account}\n\n")
-    end
+    def self.generate(yaml_file, options = nil)
+      forecast_data = YAML.safe_load(yaml_file)
 
-    def self.format_transaction(transaction)
-      formatted_transaction = transaction.clone
+      set_options(forecast_data)
 
-      formatted_transaction['amount'] =
-        Money.from_cents(formatted_transaction['amount'].to_f * 100, @settings[:currency]).format(
-          symbol: @settings[:show_symbol],
-          sign_before_symbol: @settings[:sign_before_symbol],
-          thousands_separator: @settings[:thousands_separator] ? ',' : nil
-        )
+      output = ""
 
-      formatted_transaction
-    end
+      # Generate regular transactions
+      forecast_data.each do |period, forecasts|
+        if period == 'custom'
+          output += custom_transaction(forecasts)
+        else
+          frequency = convert_period_to_frequency(period)
+          next unless frequency
 
-    def self.process_custom(output, forecast_data, date)
-      forecast_data['custom']&.each do |forecast|
-        start_date = Date.parse(forecast['start'])
-        end_date = forecast['end'] ? Date.parse(forecast['end']) : nil
-        account = forecast['account']
-        period = forecast['recurrence']['period']
-        quantity = forecast['recurrence']['quantity']
+          forecasts.each do |forecast|
+            account = forecast['account']
+            from = Date.parse(forecast['from'])
+            to = forecast['to'] ? Date.parse(forecast['to']) : nil
+            transactions = forecast['transactions']
 
-        next if end_date && date > end_date
-
-        date_matches = case period
-                       when 'days'
-                         (date - start_date).to_i % quantity == 0
-                       when 'weeks'
-                         (date - start_date).to_i % (quantity * 7) == 0
-                       when 'months'
-                         ((date.year * 12 + date.month) - (start_date.year * 12 + start_date.month)) % quantity == 0 && date.day == start_date.day
-                       end
-
-        if date_matches
-          forecast['transactions'].each do |transaction|
-            end_date = transaction['end'] ? Date.parse(transaction['end']) : nil
-
-            next unless end_date.nil? || date <= end_date
-
-            write_transactions(output, date, account, format_transaction(transaction))
+            output += regular_transaction(frequency, from, to, transactions, account)
+            output += ending_transaction(frequency, from, transactions, account)
           end
         end
       end
-    end
 
-    def self.process_forecast(output_file, forecast_data, type, date)
-      forecast_data[type]&.each do |forecast|
-        start_date = Date.parse(forecast['start'])
-        end_date = forecast['end'] ? Date.parse(forecast['end']) : nil
-        account = forecast['account']
-
-        next if end_date && date > end_date
-
-        date_matches = case type
-                       when 'monthly'
-                         date.day == start_date.day
-                       when 'quarterly'
-                         date.day == start_date.day && date.month % 3 == start_date.month % 3
-                       when 'half-yearly'
-                         date.day == start_date.day && (date.month - start_date.month) % 6 == 0
-                       when 'yearly'
-                         date.day == start_date.day && date.month == start_date.month
-                       when 'once'
-                         date == start_date
-                       end
-
-        if date_matches
-          forecast['transactions'].each do |transaction|
-            transaction_start_date = transaction['start'] ? Date.parse(transaction['start']) : nil
-            transaction_end_date = transaction['end'] ? Date.parse(transaction['end']) : nil
-
-            if (transaction_start_date && date < transaction_start_date) || (transaction_end_date && date > transaction_end_date)
-              next
-            end
-
-            write_transactions(output_file, date, account, format_transaction(transaction))
-          end
+      # Generate tracked transactions
+      if options && !options[:no_track] && !@tracked.empty?
+        if options[:transaction_file]
+          output += output_tracked_transaction(Tracker.track(@tracked,
+                                                             options[:transaction_file]))
+        else
+          puts "\nWarning: ".yellow.bold + "You need to specify a transaction file with the `--t` flag for smart transactions to work\n"
         end
       end
+
+      output += output_modified_transaction(@modified) unless @modified.empty?
+
+      output
     end
 
-    def self.generate(transactions, forecast, start_date, end_date)
-      start_date = Date.parse(start_date)
-      end_date = Date.parse(end_date)
-      forecast_data = YAML.safe_load(forecast)
+    def self.regular_transaction(frequency, from, to, transactions, account)
+      transactions = transactions.select { |transaction| transaction['to'].nil? }
+      return "" if transactions.empty?
 
-      configure_settings(forecast_data)
+      output = ""
 
-      output = ''
-      output.concat(transactions) if transactions
+      transactions.each do |transaction|
+        if track_transaction?(transaction, from)
+          track_transaction(from, to, account, transaction)
+          next
+        end
 
-      date = start_date
+        modified_transaction(from, to, account, transaction)
 
-      while date <= end_date
-        process_forecast(output, forecast_data, 'monthly', date)
-        process_forecast(output, forecast_data, 'quarterly', date)
-        process_forecast(output, forecast_data, 'half-yearly', date)
-        process_forecast(output, forecast_data, 'yearly', date)
-        process_forecast(output, forecast_data, 'once', date)
-        process_custom(output, forecast_data, date)
+        output += output_transaction(transaction['category'], format_amount(transaction['amount']),
+                                     transaction['description'])
+      end
 
-        date = date.next_day
+      return "" unless output != ""
+
+      output = if to
+                 "#{frequency} #{from} to #{to}  * #{extract_descriptions(transactions,
+                                                                          from)}\n" << output
+               else
+                 "#{frequency} #{from}  * #{extract_descriptions(transactions, from)}\n" << output
+               end
+
+      output += "    #{account}\n\n"
+      output
+    end
+
+    def self.ending_transaction(frequency, from, transactions, account)
+      output = ""
+
+      transactions.each do |transaction|
+        to = transaction['to'] ? Date.parse(transaction['to']) : nil
+        next unless to
+
+        if track_transaction?(transaction, from)
+          track_transaction(from, to, account, transaction)
+          next
+        end
+
+        modified_transaction(from, to, account, transaction)
+
+        output += "#{frequency} #{from} to #{to}  * #{transaction['description']}\n"
+        output += output_transaction(transaction['category'], format_amount(transaction['amount']),
+                                     transaction['description'])
+        output += "    #{account}\n\n"
       end
 
       output
+    end
+
+    def self.custom_transaction(forecasts)
+      output = ""
+
+      forecasts.each do |forecast|
+        account = forecast['account']
+        from = Date.parse(forecast['from'])
+        to = forecast['to'] ? Date.parse(forecast['to']) : nil
+        frequency = forecast['frequency']
+        transactions = forecast['transactions']
+
+        output += "~ #{frequency} from #{from}  * #{extract_descriptions(transactions, from)}\n"
+
+        transactions.each do |transaction|
+          to = transaction['to'] ? Date.parse(transaction['to']) : to
+
+          if track_transaction?(transaction, from)
+            track_transaction(from, to, account, transaction)
+            next
+          end
+
+          modified_transaction(from, to, account, transaction)
+
+          output += output_transaction(transaction['category'], format_amount(transaction['amount']),
+                                       transaction['description'])
+        end
+
+        output += "    #{account}\n\n"
+      end
+
+      output
+    end
+
+    def self.output_transaction(category, amount, description)
+      "    #{category.ljust(@options[:max_category])}    #{amount.ljust(@options[:max_amount])};  #{description}\n"
+    end
+
+    def self.output_modified_transaction(transactions)
+      output = ""
+
+      transactions.each do |_key, transaction|
+        date = "date:#{transaction['from']}"
+        date += "..#{transaction['to']}" if transaction['to']
+
+        output += "= #{transaction['category']} #{date}\n"
+        output += "    #{transaction['category'].ljust(@options[:max_category])}    *#{transaction['amount'].to_s.ljust(@options[:max_amount] - 1)};  #{transaction['description']}\n"
+        output += "    #{transaction['account'].ljust(@options[:max_category])}    *#{transaction['amount'] * -1}\n\n"
+      end
+
+      output
+    end
+
+    def self.output_tracked_transaction(transactions)
+      output = ""
+
+      transactions.each do |_key, transaction|
+        next if transaction['found']
+
+        output += "~ #{transaction['from']}  * [TRACKED] #{transaction['transaction']['description']}\n"
+        output += "    #{transaction['transaction']['category'].ljust(@options[:max_category])}    #{transaction['transaction']['amount'].ljust(@options[:max_amount])};  #{transaction['transaction']['description']}\n"
+        output += "    #{transaction['account']}\n\n"
+      end
+
+      output
+    end
+
+    def self.extract_descriptions(transactions, from)
+      descriptions = []
+
+      transactions.each do |transaction|
+        next if track_transaction?(transaction, from)
+
+        description = transaction['description']
+        descriptions << description
+      end
+
+      descriptions.join(', ')
+    end
+
+    def self.modified_transaction(from, to, account, transaction)
+      return unless transaction['modifiers']
+
+      transaction['modifiers'].each do |modifier|
+        description = transaction['description']
+        description += ' - ' + modifier['description'] unless modifier['description'].empty?
+
+        @modified[@modified.length] = {
+          'account' => account,
+          'amount' => modifier['amount'],
+          'category' => transaction['category'],
+          'description' => description,
+          'from' => modifier['from'] ? Date.parse(modifier['from']) : (from || nil),
+          'to' => modifier['to'] ? Date.parse(modifier['to']) : (to || nil)
+        }
+      end
+    end
+
+    def self.track_transaction?(transaction, from)
+      transaction['track'] && from <= Date.today
+    end
+
+    def self.track_transaction(from, to, account, transaction)
+      amount = transaction['amount']
+      transaction['amount'] = format_amount(amount)
+      transaction['inverse_amount'] = format_amount(amount * -1)
+
+      @tracked[@tracked.length] = {
+        'account' => account,
+        'from' => from,
+        'to' => to,
+        'transaction' => transaction
+      }
+    end
+
+    def self.convert_period_to_frequency(period)
+      map = {
+        'once' => '~',
+        'monthly' => '~ monthly from',
+        'quarterly' => '~ every 3 months from',
+        'half-yearly' => '~ every 6 months from',
+        'yearly' => '~ yearly from'
+      }
+
+      map[period]
+    end
+
+    def self.format_amount(amount)
+      Money.from_cents(amount.to_f * 100, @options[:currency]).format(
+        symbol: @options[:show_symbol],
+        sign_before_symbol: @options[:sign_before_symbol],
+        thousands_separator: @options[:thousands_separator] ? ',' : nil
+      )
+    end
+
+    def self.get_max_field_size(forecast_data, field)
+      max_size = 0
+
+      forecast_data.each do |period, forecasts|
+        next if period == 'settings'
+
+        forecasts.each do |forecast|
+          transactions = forecast['transactions']
+          transactions.each do |transaction|
+            field_value = if transaction[field].is_a?(Integer) || transaction[field].is_a?(Float)
+                            ((transaction[field] + 3) * 100).to_s
+                          else
+                            transaction[field].to_s
+                          end
+            max_size = [max_size, field_value.length].max
+          end
+        end
+      end
+
+      max_size
     end
   end
 end

@@ -68,35 +68,30 @@ module HledgerForecast
         opts.banner = "Usage: hledger-forecast generate [options]"
         opts.separator ""
 
-        opts.on("-t", "--transaction FILE",
-                "The base TRANSACTIONS file to extend from") do |file|
-          options[:transactions_file] = file if file && !file.empty?
-        end
-
         opts.on("-f", "--forecast FILE",
-                "The FORECAST yaml file to generate from") do |file|
+                "The path to the FORECAST yaml file to generate from") do |file|
           options[:forecast_file] = file
           options[:output_file] ||= file.sub(/\.yml$/, '.journal')
         end
 
         opts.on("-o", "--output-file FILE",
-                "The OUTPUT file to create") do |file|
+                "The path to the OUTPUT file to create") do |file|
           options[:output_file] = file
         end
 
-        opts.on("-s", "--start-date DATE",
-                "The date to start generating from (yyyy-mm-dd)") do |a|
-          options[:start_date] = a
-        end
-
-        opts.on("-e", "--end-date DATE",
-                "The date to start generating to (yyyy-mm-dd)") do |a|
-          options[:end_date] = a
+        opts.on("-t", "--transaction FILE",
+                "The path to the TRANSACTION journal file") do |file|
+          options[:transaction_file] = file
         end
 
         opts.on("--force",
-                "Force an overwrite of the output file") do |a|
-          options[:force] = a
+                "Force an overwrite of the output file") do
+          options[:force] = true
+        end
+
+        opts.on("--no-track",
+                "Don't track any transactions") do
+          options[:no_track] = true
         end
 
         opts.on_tail("-h", "--help", "Show this help message") do
@@ -107,18 +102,6 @@ module HledgerForecast
 
       options[:forecast_file] = "forecast.yml" unless options[:forecast_file]
       options[:output_file] = "forecast.journal" unless options[:output_file]
-
-      today = Date.today
-
-      unless options[:start_date]
-        options[:use_default_dates] = true
-        options[:start_date] =
-          Date.new(today.year, today.month, 1).next_month.to_s
-      end
-      unless options[:end_date]
-        options[:use_default_dates] = true
-        options[:end_date] = Date.new(today.year + 3, 12, 31).to_s
-      end
 
       options
     end
@@ -131,7 +114,7 @@ module HledgerForecast
         opts.separator ""
 
         opts.on("-f", "--forecast FILE",
-                "The FORECAST yaml file to summarize") do |file|
+                "The path to the FORECAST yaml file to summarize") do |file|
           options[:forecast_file] = file
         end
 
@@ -145,16 +128,10 @@ module HledgerForecast
     end
 
     def self.generate(options)
-      end_date = options[:end_date]
-      start_date = options[:start_date]
       forecast = File.read(options[:forecast_file])
-      transactions = options[:transactions_file] ? File.read(options[:transactions_file]) : nil
-
-      # Generate the forecast
-      puts "[Using default dates: #{start_date} to #{end_date}]" if options[:use_default_dates]
 
       begin
-        transactions = Generator.generate(transactions, forecast, start_date, end_date)
+        transactions = Generator.generate(forecast, options)
       rescue StandardError => e
         puts "An error occurred while generating transactions: #{e.message}"
         exit(1)
@@ -162,18 +139,18 @@ module HledgerForecast
 
       output_file = options[:output_file]
       if File.exist?(output_file) && !options[:force]
-        print "File '#{output_file}' already exists. Overwrite? (y/n): "
+        print "\nFile '#{output_file}' already exists. Overwrite? (y/n): "
         overwrite = gets.chomp.downcase
 
         if overwrite == 'y'
           File.write(output_file, transactions)
-          puts "File '#{output_file}' has been overwritten."
+          puts "\nSuccess: ".bold.green + "File '#{output_file}' has been overwritten."
         else
-          puts "Operation aborted. File '#{output_file}' was not overwritten."
+          puts "\nInfo: ".bold.blue + "Operation aborted. File '#{output_file}' was not overwritten."
         end
       else
         File.write(output_file, transactions)
-        puts "File '#{output_file}' has been created."
+        puts "\nSuccess: ".bold.green + "File '#{output_file}' has been created"
       end
     end
 

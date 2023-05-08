@@ -1,13 +1,27 @@
 require_relative '../lib/hledger_forecast'
 
+config = <<~YAML
+  settings:
+    currency: GBP
+
+  quarterly:
+    - from: "2023-04-01"
+      account: "Assets:Bank"
+      transactions:
+        - description: Bonus
+          category: "Income:Bonus"
+          amount: -1,000.00
+YAML
+
+output = <<~JOURNAL
+  ~ every 3 months from 2023-04-01  * Bonus
+      Income:Bonus    £-1,000.00;  Bonus
+      Assets:Bank
+
+JOURNAL
+
 RSpec.describe 'generate' do
   it 'generates a forecast with correct QUARTERLY transactions' do
-    transactions = File.read('spec/stubs/transactions.journal')
-    forecast = File.read('spec/stubs/quarterly/forecast_quarterly.yml')
-
-    generated_journal = HledgerForecast::Generator.generate(transactions, forecast, '2023-03-01', '2023-10-30')
-
-    expected_output = File.read('spec/stubs/quarterly/output_quarterly.journal')
-    expect(generated_journal).to eq(expected_output)
+    expect(HledgerForecast::Generator.generate(config)).to eq(output)
   end
 end
