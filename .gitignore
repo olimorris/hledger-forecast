@@ -15,7 +15,5 @@ pkg/*
 /coverage
 
 # Misc
-forecast.yml
-forecast.journal
 test_output.journal
 todo.md
