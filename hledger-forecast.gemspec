@@ -14,6 +14,7 @@ Gem::Specification.new do |s|
   s.license     = 'MIT'
 
   s.add_dependency "colorize", "~> 0.8.1"
+  s.add_dependency "dentaku", "~> 3.5.1"
   s.add_dependency "highline", "~> 2.1.0"
   s.add_dependency "money", "~> 6.16.0"
   s.add_dependency "terminal-table", "~> 3.0.2"

@@ -1,8 +1,9 @@
-~ monthly from 2023-03-01  * Bonus, Salary, Food, New cell phone
+~ monthly from 2023-03-01  * Bonus, Salary, Food, New cell phone, Holiday savings
     Income:Bonus         £-100.00  ;  Bonus
     Income:Salary        £-2,000.00;  Salary
     Expenses:Food        £500.00   ;  Food
     Expenses:Phone       £75.00    ;  New cell phone
+    Expenses:Holiday     £208.33   ;  Holiday savings
     Assets:Bank
 
 ~ monthly from 2023-03-01 to 2024-01-01  * Mortgage
@@ -27,6 +28,10 @@
 
 ~ every 5 days from 2023-03-01  * Car fuel
     Expenses:Car:Fuel    £150.00   ;  Car fuel
+    Assets:Bank
+
+~ 2023-06-01  * [TRACKED] Forecast new car cost
+    Expenses:Car         £5,000.00 ;  Forecast new car cost
     Assets:Bank
 
 = Expenses:Food date:2024-01-01..2024-12-31

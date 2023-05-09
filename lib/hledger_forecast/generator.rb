@@ -2,9 +2,10 @@ module HledgerForecast
   # Generates periodic transactions from a YAML file
   class Generator
     class << self
-      attr_accessor :options, :modified, :tracked
+      attr_accessor :calculator, :options, :modified, :tracked
     end
 
+    self.calculator = {}
     self.options = {}
     self.modified = {}
     self.tracked = {}
@@ -23,6 +24,8 @@ module HledgerForecast
       forecast_data = YAML.safe_load(yaml_file)
 
       set_options(forecast_data)
+
+      @calculator = Dentaku::Calculator.new
 
       output = ""
 
@@ -75,7 +78,7 @@ module HledgerForecast
 
         modified_transaction(from, to, account, transaction)
 
-        output += output_transaction(transaction['category'], format_amount(transaction['amount']),
+        output += output_transaction(transaction['category'], format_amount(calculate_amount(transaction['amount'])),
                                      transaction['description'])
       end
 
@@ -107,7 +110,7 @@ module HledgerForecast
         modified_transaction(from, to, account, transaction)
 
         output += "#{frequency} #{from} to #{to}  * #{transaction['description']}\n"
-        output += output_transaction(transaction['category'], format_amount(transaction['amount']),
+        output += output_transaction(transaction['category'], format_amount(calculate_amount(transaction['amount'])),
                                      transaction['description'])
         output += "    #{account}\n\n"
       end
@@ -137,7 +140,7 @@ module HledgerForecast
 
           modified_transaction(from, to, account, transaction)
 
-          output += output_transaction(transaction['category'], format_amount(transaction['amount']),
+          output += output_transaction(transaction['category'], format_amount(calculate_amount(transaction['amount'])),
                                        transaction['description'])
         end
 
@@ -216,7 +219,7 @@ module HledgerForecast
     end
 
     def self.track_transaction(from, to, account, transaction)
-      amount = transaction['amount']
+      amount = calculate_amount(transaction['amount'])
       transaction['amount'] = format_amount(amount)
       transaction['inverse_amount'] = format_amount(amount * -1)
 
@@ -238,6 +241,12 @@ module HledgerForecast
       }
 
       map[period]
+    end
+
+    def self.calculate_amount(amount)
+      return amount unless amount.is_a?(String)
+
+      @calculator.evaluate(amount.slice(1..-1))
     end
 
     def self.format_amount(amount)

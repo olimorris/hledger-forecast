@@ -2,6 +2,7 @@
 
 require 'colorize'
 require 'date'
+require 'dentaku'
 require 'highline'
 require 'money'
 require 'optparse'

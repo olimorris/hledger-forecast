@@ -2,15 +2,16 @@
 
 [![Tests](https://github.com/olimorris/hledger-forecast/actions/workflows/ci.yml/badge.svg)](https://github.com/olimorris/hledger-forecast/actions/workflows/ci.yml)
 
-A wrapper which builds on [hledger's](https://github.com/simonmichael/hledger) [forecasting](https://hledger.org/dev/hledger.html#forecasting) capability. Uses a `YAML` config file to generate forecasts whilst adding functionality for future cost rises (e.g. inflation) and the automatic tracking of planned transactions.
+A wrapper which builds on [hledger's](https://github.com/simonmichael/hledger) [forecasting](https://hledger.org/dev/hledger.html#forecasting) capability. Uses a `yaml` config file to generate forecasts whilst adding functionality for future cost rises (e.g. inflation) and the automatic tracking of planned transactions.
 
 See the [rationale](#brain-rationale) section for why this gem may be useful to you.
 
 ## :sparkles: Features
 
-- :book: Uses simple YAML files to generate forecasts which can be used with hledger
+- :book: Uses a simple yaml file to generate forecasts which can be used with hledger
 - :date: Can smartly track forecasted transactions against actuals
 - :moneybag: Can automatically apply modifiers such as inflation/deflation to forecasts
+- :abacus: Supports calculated amounts in forecasts (uses the [Dentaku](https://github.com/rubysolo/dentaku) gem)
 - :heavy_dollar_sign: Full currency support (uses the [RubyMoney](https://github.com/RubyMoney/money) gem)
 - :computer: Simple and easy to use CLI
 - :chart_with_upwards_trend: Summarize your forecasts by period and category and output to the CLI
@@ -41,7 +42,7 @@ The available options are:
 
 ### Generate command
 
-The `hledger-forecast generate` command will begin the generation of your forecast _from_ a `yaml` file _to_ a journal file.
+The `hledger-forecast generate` command will generate a forecast  _from_ a `yaml` file _to_ a journal file. You can see the output of this command in the [example.journal](https://github.com/olimorris/hledger-forecast/blob/main/example.journal) file.
 
 The available options are:
 
@@ -174,6 +175,24 @@ monthly:
         to: "2025-01-01"
 ```
 
+### Calculated amounts
+
+It may be helpful to let the app calculate the forecasted amount in your transactions. This can be especially useful if you're spreading a payment out over a number of months:
+
+```yaml
+monthly:
+  - account: "Liabilities:Amex"
+    from: "2023-05-01"
+    transactions:
+      - amount: "=5000/24"
+        category: "Expenses:House"
+        description: New Kitchen
+```
+
+> **Note**: Calculations will be determined up to two decimal places
+
+Simply ensure that the amount starts with an `=` sign and uses standard mathematical notations.
+
 ### Tracking transactions
 
 > **Note**: Marking a transaction for tracking will ensure that it is only written into the forecast if it isn't found within a specified transaction file
@@ -265,7 +284,7 @@ settings:
 
 Firstly, I've come to realise from reading countless blog and Reddit posts on [plain text accounting](https://plaintextaccounting.org), that everyone does it __completely__ differently! There is _great_ support in hledger for [forecasting](https://hledger.org/1.29/hledger.html#forecasting) using periodic transactions. Infact, it's nearly perfect for my needs. My only wishes were to be able to sum up monthly transactions much faster (so I can see my forecasted monthly I&E), apply future cost pressures more easily (such as inflation) and to be able to track and monitor specific transactions.
 
-Regarding the latter; I may be expecting a material amount of money to leave my account in May (perhaps for a holiday booking). But maybe, that booking ends up leaving in July instead. Whilst I would have accounted for that expense in my forecast, it will likely be for the period of May. So if that transaction doesn't appear in the "actuals" of my May bank statement (which I import into hledger), it won't be included in my forecast at all (as the latest transaction period will be greater than the forecast period). The impact is that my forecasted balance in any future month could be $X better off than reality. Being able to automatically look out for these transactions is a nice time saver.
+Regarding the latter; I may be expecting a material amount of money to leave my account in May (perhaps for a holiday booking). But maybe, that booking ends up leaving in July instead. Whilst I would have accounted for that expense in my forecast, it will be tied to some date in May. So if that transaction doesn't appear in the "actuals" of my May bank statement (which I import into hledger), it won't be included in my forecast at all (as the latest transaction period will be greater than the forecast period). The impact is that my forecasted balance in any future month could be $X better off than reality. Being able to automatically look out for these transactions, and include them if they're not present, is a nice time saver.
 
 Also, I like to look ahead up to 3 years at a time and understand what my bank balances might look like. For this to be really accurate, factors such as inflation and salary expectations should be included. This is where the idea for modifiers came in. Being able to apply a percentage to a given category between two dates and automatically have the impact included any extended forecasts.
 

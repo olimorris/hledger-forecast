@@ -19,6 +19,9 @@ monthly:
       - amount: 75
         category: "Expenses:Phone"
         description: New cell phone
+      - amount: "=2500/12"
+        category: "Expenses:Holiday"
+        description: Holiday savings
       - amount: 1000
         category: "Expenses:Mortgage"
         description: Mortgage
