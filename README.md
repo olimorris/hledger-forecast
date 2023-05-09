@@ -177,7 +177,9 @@ monthly:
 
 ### Calculated amounts
 
-It may be helpful to let the app calculate the forecasted amount in your transactions. This can be especially useful if you're spreading a payment out over a number of months:
+> **Note**: Calculations will be determined up to two decimal places
+
+It may be helpful to let the app calculate the forecasted amount in your transactions on your behalf. This can be especially useful if you're spreading a payment out over a number of months:
 
 ```yaml
 monthly:
@@ -189,9 +191,7 @@ monthly:
         description: New Kitchen
 ```
 
-> **Note**: Calculations will be determined up to two decimal places
-
-Simply ensure that the amount starts with an `=` sign and uses standard mathematical notations.
+Simply ensure that the amount starts with an `=` sign, is enclosed in quotation marks and uses standard mathematical notations.
 
 ### Tracking transactions
 
