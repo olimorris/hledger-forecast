@@ -2,10 +2,9 @@ module HledgerForecast
   # Generates periodic transactions from a YAML file
   class Generator
     class << self
-      attr_accessor :calculator, :options, :modified, :tracked
+      attr_accessor :options, :modified, :tracked
     end
 
-    self.calculator = {}
     self.options = {}
     self.modified = {}
     self.tracked = {}
@@ -99,7 +98,7 @@ module HledgerForecast
       output = ""
 
       transactions.each do |transaction|
-        to = transaction['to'] ? Date.parse(transaction['to']) : nil
+        to = transaction['to'] ? calculate_date(from, transaction['to']) : nil
         next unless to
 
         if track_transaction?(transaction, from)
@@ -131,7 +130,7 @@ module HledgerForecast
         output += "~ #{frequency} from #{from}  * #{extract_descriptions(transactions, from)}\n"
 
         transactions.each do |transaction|
-          to = transaction['to'] ? Date.parse(transaction['to']) : to
+          to = transaction['to'] ? calculate_date(from, transaction['to']) : to
 
           if track_transaction?(transaction, from)
             track_transaction(from, to, account, transaction)
@@ -247,6 +246,13 @@ module HledgerForecast
       return amount unless amount.is_a?(String)
 
       @calculator.evaluate(amount.slice(1..-1))
+    end
+
+    def self.calculate_date(from, to)
+      return to unless to[0] == "="
+
+      # Subtract a day from the final date
+      (from >> @calculator.evaluate(to.slice(1..-1))) - 1
     end
 
     def self.format_amount(amount)

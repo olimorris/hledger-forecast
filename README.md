@@ -42,7 +42,7 @@ The available options are:
 
 ### Generate command
 
-The `hledger-forecast generate` command will generate a forecast  _from_ a `yaml` file _to_ a journal file. You can see the output of this command in the [example.journal](https://github.com/olimorris/hledger-forecast/blob/main/example.journal) file.
+The `hledger-forecast generate` command will generate a forecast _from_ a `yaml` file _to_ a journal file. You can see the output of this command in the [example.journal](https://github.com/olimorris/hledger-forecast/blob/main/example.journal) file.
 
 The available options are:
 
@@ -67,7 +67,7 @@ To work with hledger, include the forecast file and use the `--forecast` flag:
 
 The command will generate a forecast up to the end of Feb 2024, showing the balance for any asset accounts, overlaying some bank transactions with the forecast journal file. Of course, refer to the [hledger](https://hledger.org/dev/hledger.html) documentation for more information on how to query your finances.
 
-To apply any modifiers, use the `--auto` flag at the end of your command.
+> **Note**: To apply any modifiers, use the `--auto` flag at the end of your command.
 
 ### Summarize command
 
@@ -84,9 +84,9 @@ The available options are:
 
 ## :gear: Configuration
 
-### The YAML file
+### The yaml file
 
-> **Note**: See the [example.yml](https://github.com/olimorris/hledger-forecast/blob/main/example.yml) file for an example of a complex config file and its [output](https://github.com/olimorris/hledger-forecast/blob/main/example.journal)
+> **Note**: See the [example.yml](https://github.com/olimorris/hledger-forecast/blob/main/example.yml) file for an example config and its corresponding [output](https://github.com/olimorris/hledger-forecast/blob/main/example.journal)
 
 Firstly, create a `yaml` file which will contain the transactions you'd like to forecast:
 
@@ -175,6 +175,17 @@ monthly:
         to: "2025-01-01"
 ```
 
+It can also be useful to compute a `to` date by adding on a number of months to the `from` date. Extending the example above:
+
+```yaml
+- amount: 2000
+  category: "Expenses:Mortgage"
+  description: Mortgage
+  to: "=12"
+```
+
+This will take the `to` date to _2024-02-29_. This can be useful if you know a payment is due to end in _n_ months time and don't wish to use one of the many date calculators on the internet.
+
 ### Calculated amounts
 
 > **Note**: Calculations will be determined up to two decimal places
@@ -191,7 +202,7 @@ monthly:
         description: New Kitchen
 ```
 
-Simply ensure that the amount starts with an `=` sign, is enclosed in quotation marks and uses standard mathematical notations.
+Simply ensure that the amount starts with an `=` sign, is enclosed in quotation marks and uses standard mathematical notations. Of course, it may make sense to restrict this transaction with a `to` date in months, as per the [transaction level dates](#transaction-level) section.
 
 ### Tracking transactions
 
@@ -203,13 +214,13 @@ To mark transactions as available for tracking you may use the `track` option in
 
 ```yaml
 once:
-    account: "Assets:Bank"
-    from: "2023-03-05"
-    transactions:
-      - amount: 3000
-        category: "Expenses:Shopping"
-        description: Refund for that damn laptop
-        track: true
+  account: "Assets:Bank"
+  from: "2023-03-05"
+  transactions:
+    - amount: 3000
+      category: "Expenses:Shopping"
+      description: Refund for that damn laptop
+      track: true
 ```
 
 > **Note**: This feature has been designed to work with one-off transactions only
@@ -220,7 +231,7 @@ To use this feature, ensure you pass a filepath to the `-t` flag, such as:
 
 The app will use a hledger query to determine if the combination of category and amount is present in the periods between the `from` key and the current date in the journal file you've specified. If not, then the app will include it as a forecast transaction in the output file.
 
-### Applying modifiers
+### Modifiers
 
 > **Note**: For modifiers to be included in your hledger reporting, use the `--auto` flag
 
@@ -228,17 +239,17 @@ Within your forecasts, it can be useful to reflect future increases/decreases in
 
 ```yaml
 monthly:
-    account: "Assets:Bank"
-    from: "2023-03-05"
-    transactions:
-      - amount: 450
-        category: "Expenses:Groceries"
-        description: Food shopping
-        modifiers:
-          - amount: 0.02
-            description: "Inflation"
-            from: "2024-01-01"
-            to: "2024-12-31"
+  account: "Assets:Bank"
+  from: "2023-03-05"
+  transactions:
+    - amount: 450
+      category: "Expenses:Groceries"
+      description: Food shopping
+      modifiers:
+        - amount: 0.02
+          description: "Inflation"
+          from: "2024-01-01"
+          to: "2024-12-31"
 ```
 
 This will generate an [auto-posting](https://hledger.org/dev/hledger.html#auto-postings) in your forecast which will
@@ -259,15 +270,15 @@ modifiers:
     to: "2025-12-31"
 ```
 
-### Additional settings
+### Additional config settings
 
 Additional settings in the config file to consider:
 
 ```yaml
 settings:
-  currency: GBP                 # Specify the currency to use
-  show_symbol: true             # Show the currency symbol?
-  thousands_separator: true     # Separate thousands with a comma?
+  currency: GBP # Specify the currency to use
+  show_symbol: true # Show the currency symbol?
+  thousands_separator: true # Separate thousands with a comma?
 ```
 
 ## :camera_flash: Screenshots
@@ -282,7 +293,7 @@ settings:
 
 ## :paintbrush: Rationale
 
-Firstly, I've come to realise from reading countless blog and Reddit posts on [plain text accounting](https://plaintextaccounting.org), that everyone does it __completely__ differently! There is _great_ support in hledger for [forecasting](https://hledger.org/1.29/hledger.html#forecasting) using periodic transactions. Infact, it's nearly perfect for my needs. My only wishes were to be able to sum up monthly transactions much faster (so I can see my forecasted monthly I&E), apply future cost pressures more easily (such as inflation) and to be able to track and monitor specific transactions.
+Firstly, I've come to realise from reading countless blog and Reddit posts on [plain text accounting](https://plaintextaccounting.org), that everyone does it **completely** differently! There is _great_ support in hledger for [forecasting](https://hledger.org/1.29/hledger.html#forecasting) using periodic transactions. Infact, it's nearly perfect for my needs. My only wishes were to be able to sum up monthly transactions much faster (so I can see my forecasted monthly I&E), apply future cost pressures more easily (such as inflation) and to be able to track and monitor specific transactions.
 
 Regarding the latter; I may be expecting a material amount of money to leave my account in May (perhaps for a holiday booking). But maybe, that booking ends up leaving in July instead. Whilst I would have accounted for that expense in my forecast, it will be tied to some date in May. So if that transaction doesn't appear in the "actuals" of my May bank statement (which I import into hledger), it won't be included in my forecast at all (as the latest transaction period will be greater than the forecast period). The impact is that my forecasted balance in any future month could be $X better off than reality. Being able to automatically look out for these transactions, and include them if they're not present, is a nice time saver.
 
