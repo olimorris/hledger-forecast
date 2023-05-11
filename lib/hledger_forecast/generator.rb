@@ -9,6 +9,8 @@ module HledgerForecast
     self.modified = {}
     self.tracked = {}
 
+    @calculator = Dentaku::Calculator.new
+
     def self.set_options(forecast_data)
       @options[:max_amount] = get_max_field_size(forecast_data, 'amount') + 1 # +1 for the negatives
       @options[:max_category] = get_max_field_size(forecast_data, 'category')
@@ -23,8 +25,6 @@ module HledgerForecast
       forecast_data = YAML.safe_load(yaml_file)
 
       set_options(forecast_data)
-
-      @calculator = Dentaku::Calculator.new
 
       output = ""
 

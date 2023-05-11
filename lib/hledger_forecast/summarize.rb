@@ -24,7 +24,7 @@ module HledgerForecast
       category_total = Hash.new(0)
       forecast_data[period]&.each do |entry|
         entry['transactions'].each do |transaction|
-          category_total[transaction['category']] += transaction['amount']
+          category_total[transaction['category']] += @generator.calculate_amount(transaction['amount'])
         end
       end
 
