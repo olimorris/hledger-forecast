@@ -1,5 +1,6 @@
 module HledgerForecast
   # Summarise a forecast YAML file and output it to the CLI
+  # TODO: Rename this to Summarizer and the main method becomes summarize
   class Summarize
     @table = nil
     @generator = nil
@@ -52,6 +53,7 @@ module HledgerForecast
     end
 
     def self.format_amount(amount)
+      # TODO: Use the formatter class
       formatted_amount = @generator.format_amount(amount)
       amount.to_f < 0 ? formatted_amount.green : formatted_amount.red
     end

@@ -1,281 +1,275 @@
 module HledgerForecast
-  # Generates periodic transactions from a YAML file
+  # Generate periodic transactions from a YAML file, compatible with hledger
   class Generator
     class << self
-      attr_accessor :options, :modified, :tracked
+      attr_accessor :options
     end
 
     self.options = {}
-    self.modified = {}
-    self.tracked = {}
 
-    @calculator = Dentaku::Calculator.new
+    def self.generate(forecast, options = nil)
+      forecast = YAML.safe_load(forecast)
+      config_options(forecast)
 
-    def self.set_options(forecast_data)
-      @options[:max_amount] = get_max_field_size(forecast_data, 'amount') + 1 # +1 for the negatives
-      @options[:max_category] = get_max_field_size(forecast_data, 'category')
+      @options.merge!(options) if options
 
-      @options[:currency] = Money::Currency.new(forecast_data.fetch('settings', {}).fetch('currency', 'USD'))
-      @options[:show_symbol] = forecast_data.fetch('settings', {}).fetch('show_symbol', true)
-      # @options[:sign_before_symbol] = forecast_data.fetch('settings', {}).fetch('sign_before_symbol', false)
-      @options[:thousands_separator] = forecast_data.fetch('settings', {}).fetch('thousands_separator', true)
-    end
+      output_block = {}
+      forecast.each do |period, blocks|
+        next if %w[settings].include?(period)
 
-    def self.generate(yaml_file, options = nil)
-      forecast_data = YAML.safe_load(yaml_file)
-
-      set_options(forecast_data)
-
-      output = ""
-
-      # Generate regular transactions
-      forecast_data.each do |period, forecasts|
-        if period == 'custom'
-          output += custom_transaction(forecasts)
-        else
-          frequency = convert_period_to_frequency(period)
-          next unless frequency
-
-          forecasts.each do |forecast|
-            account = forecast['account']
-            from = Date.parse(forecast['from'])
-            to = forecast['to'] ? Date.parse(forecast['to']) : nil
-            transactions = forecast['transactions']
-
-            output += regular_transaction(frequency, from, to, transactions, account)
-            output += ending_transaction(frequency, from, transactions, account)
-          end
+        blocks.each do |block|
+          output_block[output_block.length] = process_block(period, block)
         end
       end
 
-      # Generate tracked transactions
-      if options && !options[:no_track] && !@tracked.empty?
-        if options[:transaction_file]
-          output += output_tracked_transaction(Tracker.track(@tracked,
-                                                             options[:transaction_file]))
-        else
-          puts "\nWarning: ".yellow.bold + "You need to specify a transaction file with the `--t` flag for smart transactions to work\n"
-        end
-      end
-
-      output += output_modified_transaction(@modified) unless @modified.empty?
-
-      output
+      format_to_ledger(
+        compile_transaction(output_block),
+        compile_modifier(output_block),
+        compile_tracked_transaction(output_block)
+      )
     end
 
-    def self.regular_transaction(frequency, from, to, transactions, account)
-      transactions = transactions.select { |transaction| transaction['to'].nil? }
-      return "" if transactions.empty?
+    def self.config_options(forecast)
+      @options[:max_amount] = get_max_field_size(forecast, 'amount') + 1 # +1 for the negatives
+      @options[:max_category] = get_max_field_size(forecast, 'category')
 
-      output = ""
-
-      transactions.each do |transaction|
-        if track_transaction?(transaction, from)
-          track_transaction(from, to, account, transaction)
-          next
-        end
-
-        modified_transaction(from, to, account, transaction)
-
-        output += output_transaction(transaction['category'], format_amount(calculate_amount(transaction['amount'])),
-                                     transaction['description'])
-      end
-
-      return "" unless output != ""
-
-      output = if to
-                 "#{frequency} #{from} to #{to}  * #{extract_descriptions(transactions,
-                                                                          from)}\n" << output
-               else
-                 "#{frequency} #{from}  * #{extract_descriptions(transactions, from)}\n" << output
-               end
-
-      output += "    #{account}\n\n"
-      output
+      @options[:currency] = Money::Currency.new(forecast.fetch('settings', {}).fetch('currency', 'USD'))
+      @options[:show_symbol] = forecast.fetch('settings', {}).fetch('show_symbol', true)
+      # @options[:sign_before_symbol] = forecast.fetch('settings', {}).fetch('sign_before_symbol', false)
+      @options[:thousands_separator] = forecast.fetch('settings', {}).fetch('thousands_separator', true)
     end
 
-    def self.ending_transaction(frequency, from, transactions, account)
-      output = ""
+    def self.process_block(period, block)
+      output = []
 
-      transactions.each do |transaction|
-        to = transaction['to'] ? calculate_date(from, transaction['to']) : nil
-        next unless to
+      output << {
+        account: block['account'],
+        from: Date.parse(block['from']),
+        to: block['to'] ? Date.parse(block['to']) : nil,
+        type: period,
+        frequency: block['frequency'],
+        transactions: []
+      }
 
-        if track_transaction?(transaction, from)
-          track_transaction(from, to, account, transaction)
-          next
-        end
-
-        modified_transaction(from, to, account, transaction)
-
-        output += "#{frequency} #{from} to #{to}  * #{transaction['description']}\n"
-        output += output_transaction(transaction['category'], format_amount(calculate_amount(transaction['amount'])),
-                                     transaction['description'])
-        output += "    #{account}\n\n"
-      end
-
-      output
-    end
-
-    def self.custom_transaction(forecasts)
-      output = ""
-
-      forecasts.each do |forecast|
-        account = forecast['account']
-        from = Date.parse(forecast['from'])
-        to = forecast['to'] ? Date.parse(forecast['to']) : nil
-        frequency = forecast['frequency']
-        transactions = forecast['transactions']
-
-        output += "~ #{frequency} from #{from}  * #{extract_descriptions(transactions, from)}\n"
-
-        transactions.each do |transaction|
-          to = transaction['to'] ? calculate_date(from, transaction['to']) : to
-
-          if track_transaction?(transaction, from)
-            track_transaction(from, to, account, transaction)
-            next
-          end
-
-          modified_transaction(from, to, account, transaction)
-
-          output += output_transaction(transaction['category'], format_amount(calculate_amount(transaction['amount'])),
-                                       transaction['description'])
-        end
-
-        output += "    #{account}\n\n"
-      end
-
-      output
-    end
-
-    def self.output_transaction(category, amount, description)
-      "    #{category.ljust(@options[:max_category])}    #{amount.ljust(@options[:max_amount])};  #{description}\n"
-    end
-
-    def self.output_modified_transaction(transactions)
-      output = ""
-
-      transactions.each do |_key, transaction|
-        date = "date:#{transaction['from']}"
-        date += "..#{transaction['to']}" if transaction['to']
-
-        output += "= #{transaction['category']} #{date}\n"
-        output += "    #{transaction['category'].ljust(@options[:max_category])}    *#{transaction['amount'].to_s.ljust(@options[:max_amount] - 1)};  #{transaction['description']}\n"
-        output += "    #{transaction['account'].ljust(@options[:max_category])}    *#{transaction['amount'] * -1}\n\n"
-      end
-
-      output
-    end
-
-    def self.output_tracked_transaction(transactions)
-      output = ""
-
-      transactions.each do |_key, transaction|
-        next if transaction['found']
-
-        output += "~ #{transaction['from']}  * [TRACKED] #{transaction['transaction']['description']}\n"
-        output += "    #{transaction['transaction']['category'].ljust(@options[:max_category])}    #{transaction['transaction']['amount'].ljust(@options[:max_amount])};  #{transaction['transaction']['description']}\n"
-        output += "    #{transaction['account']}\n\n"
-      end
-
-      output
-    end
-
-    def self.extract_descriptions(transactions, from)
-      descriptions = []
-
-      transactions.each do |transaction|
-        next if track_transaction?(transaction, from)
-
-        description = transaction['description']
-        descriptions << description
-      end
-
-      descriptions.join(', ')
-    end
-
-    def self.modified_transaction(from, to, account, transaction)
-      return unless transaction['modifiers']
-
-      transaction['modifiers'].each do |modifier|
-        description = transaction['description']
-        description += ' - ' + modifier['description'] unless modifier['description'].empty?
-
-        @modified[@modified.length] = {
-          'account' => account,
-          'amount' => modifier['amount'],
-          'category' => transaction['category'],
-          'description' => description,
-          'from' => modifier['from'] ? Date.parse(modifier['from']) : (from || nil),
-          'to' => modifier['to'] ? Date.parse(modifier['to']) : (to || nil)
+      block['transactions'].each do |t|
+        output.last[:transactions] << {
+          category: t['category'],
+          amount: Formatter.format(get_amount(t['amount']), @options),
+          description: t['description'],
+          to: t['to'] ? get_date(Date.parse(block['from']), t['to']) : nil,
+          modifiers: t['modifiers'] ? get_modifiers(t, block) : [],
+          track: track?(t, block) ? true : false
         }
       end
+
+      output.map do |item|
+        transactions = item[:transactions].group_by { |t| t[:to] }
+        item.merge(transactions:)
+      end
     end
 
-    def self.track_transaction?(transaction, from)
-      transaction['track'] && from <= Date.today
+    def self.compile_transaction(data)
+      output = []
+
+      data.each_value do |blocks|
+        blocks.each do |block|
+          block[:transactions].each do |to, transactions|
+            to = header_to_date(block[:to], to)
+            frequency = get_periodic_rules(block[:type], block[:frequency])
+
+            block[:descriptions] = transactions.map do |t|
+              next if t[:track]
+
+              t[:description]
+            end.compact.join(', ')
+
+            transaction_lines = transactions.map do |t|
+              next if t[:track]
+
+              t[:amount] = t[:amount].to_s.ljust(@options[:max_amount])
+              t[:category] = t[:category].ljust(@options[:max_category])
+
+              "    #{t[:category]}    #{t[:amount]};  #{t[:description]}\n"
+            end
+
+            header = "#{frequency} #{block[:from]}#{to}  * #{block[:descriptions]}\n"
+            footer = "    #{block[:account]}\n\n"
+
+            output << { header:, transactions: transaction_lines, footer: }
+          end
+        end
+      end
+
+      output
     end
 
-    def self.track_transaction(from, to, account, transaction)
-      amount = calculate_amount(transaction['amount'])
-      transaction['amount'] = format_amount(amount)
-      transaction['inverse_amount'] = format_amount(amount * -1)
+    def self.compile_modifier(data)
+      return nil unless modifiers?(data)
 
-      @tracked[@tracked.length] = {
-        'account' => account,
-        'from' => from,
-        'to' => to,
-        'transaction' => transaction
-      }
+      output = []
+
+      extract_modifiers(data).each do |modifier|
+        account = modifier[:account].ljust(@options[:max_category])
+        category = modifier[:category].ljust(@options[:max_category])
+        amount = modifier[:amount].to_s.ljust(@options[:max_amount])
+        to = modifier[:to] ? "..#{modifier[:to]}" : nil
+
+        header = "= #{modifier[:category]} date:#{modifier[:from]}#{to}\n"
+        transactions = "    #{category}    *#{amount};  #{modifier[:description]}\n"
+        footer = "    #{account}    *#{modifier[:amount] * -1}\n\n"
+
+        output << { header:, transactions: [transactions], footer: }
+      end
+
+      output
     end
 
-    def self.convert_period_to_frequency(period)
+    def self.compile_tracked_transaction(data)
+      return nil unless tracked_transactions?(data)
+
+      output = []
+
+      # TODO: Reduce the number of loops in this
+      data.each do |_key, blocks|
+        blocks.each do |block|
+          block[:transactions].each do |_date, transaction|
+            transaction.each do |t|
+              next unless t[:track]
+
+              category = t[:category].ljust(@options[:max_category])
+              amount = t[:amount].to_s.ljust(@options[:max_amount])
+
+              header = "~ #{Date.new(Date.today.year, Date.today.month,
+                                     1).next_month}  * [TRACKED] #{t[:description]}\n"
+              transactions = "    #{category}    #{amount};  #{t[:description]}\n"
+              footer = "    #{block[:account]}\n\n"
+
+              output << { header:, transactions: [transactions], footer: }
+            end
+          end
+        end
+      end
+
+      output
+    end
+
+    def self.header_to_date(block, transaction)
+      return " to #{transaction}" if transaction
+      return " to #{block}" if block
+
+      return nil
+    end
+
+    # TODO: Move this to the formatter class
+    def self.format_to_ledger(*compiled_data)
+      compiled_data.compact.map do |data|
+        data.map do |item|
+          next unless item[:transactions].any?
+
+          item[:header] + item[:transactions].join + item[:footer]
+        end.join
+      end.join("\n")
+    end
+
+    def self.get_periodic_rules(type, frequency)
       map = {
         'once' => '~',
         'monthly' => '~ monthly from',
         'quarterly' => '~ every 3 months from',
         'half-yearly' => '~ every 6 months from',
-        'yearly' => '~ yearly from'
+        'yearly' => '~ yearly from',
+        'custom' => "~ #{frequency} from"
       }
 
-      map[period]
+      map[type]
     end
 
-    def self.calculate_amount(amount)
+    def self.get_amount(amount)
       return amount unless amount.is_a?(String)
+
+      @calculator = Dentaku::Calculator.new if @calculator.nil?
 
       @calculator.evaluate(amount.slice(1..-1))
     end
 
-    def self.calculate_date(from, to)
+    def self.get_date(from, to)
       return to unless to[0] == "="
+
+      @calculator = Dentaku::Calculator.new if @calculator.nil?
 
       # Subtract a day from the final date
       (from >> @calculator.evaluate(to.slice(1..-1))) - 1
     end
 
-    def self.format_amount(amount)
-      Money.from_cents(amount.to_f * 100, @options[:currency]).format(
-        symbol: @options[:show_symbol],
-        sign_before_symbol: @options[:sign_before_symbol],
-        thousands_separator: @options[:thousands_separator] ? ',' : nil
-      )
+    def self.get_modifiers(transaction, block)
+      modifiers = []
+
+      transaction['modifiers'].each do |modifier|
+        description = transaction['description']
+        description += " - #{modifier['description']}" unless modifier['description'].empty?
+
+        modifiers << {
+          account: block['account'],
+          amount: modifier['amount'],
+          category: transaction['category'],
+          description:,
+          from: Date.parse(modifier['from'] || block['from']),
+          to: modifier['to'] ? Date.parse(modifier['to']) : nil
+        }
+      end
+
+      modifiers
     end
 
-    def self.get_max_field_size(forecast_data, field)
+    def self.extract_modifiers(data)
+      data.each_with_object([]) do |(_key, blocks), result|
+        blocks.each do |block|
+          block[:transactions].each_value do |transactions|
+            transactions.each do |t|
+              result.concat(t[:modifiers]) if t[:modifiers]
+            end
+          end
+        end
+      end
+    end
+
+    def self.modifiers?(data)
+      data.any? do |_, blocks|
+        blocks.any? do |block|
+          block[:transactions].any? do |_, transactions|
+            transactions.any? { |t| !t[:modifiers].empty? }
+          end
+        end
+      end
+    end
+
+    def self.track?(transaction, data)
+      transaction['track'] && Date.parse(data['from']) <= Date.today && Tracker.track(transaction, data, @options)
+    end
+
+    def self.tracked_transactions?(data)
+      data.any? do |_, blocks|
+        blocks.any? do |block|
+          block[:transactions].any? do |_, transactions|
+            transactions.any? { |t| t[:track] }
+          end
+        end
+      end
+    end
+
+    def self.get_max_field_size(forecast, field)
       max_size = 0
 
-      forecast_data.each do |period, forecasts|
+      forecast.each do |period, items|
         next if period == 'settings'
 
-        forecasts.each do |forecast|
-          transactions = forecast['transactions']
-          transactions.each do |transaction|
-            field_value = if transaction[field].is_a?(Integer) || transaction[field].is_a?(Float)
-                            ((transaction[field] + 3) * 100).to_s
+        items.each do |item|
+          transactions = item['transactions']
+          transactions.each do |t|
+            field_value = if t[field].is_a?(Integer) || t[field].is_a?(Float)
+                            ((t[field] + 3) * 100).to_s
                           else
-                            transaction[field].to_s
+                            t[field].to_s
                           end
             max_size = [max_size, field_value.length].max
           end

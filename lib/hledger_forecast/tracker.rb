@@ -1,14 +1,20 @@
 module HledgerForecast
   # Checks for the existence of a transaction in a journal file and tracks it
   class Tracker
-    def self.track(transactions, transaction_file)
-      next_month = Date.new(Date.today.year, Date.today.month, 1).next_month
+    def self.track(transaction, data, options)
+      !exists?(transaction, data['account'], data['from'], Date.today, options)
+    end
 
-      transactions.each_with_object({}) do |(key, transaction), updated_transactions|
-        found = transaction_exists?(transaction_file, transaction['from'], Date.today, transaction['account'],
-                                    transaction['transaction'])
-        updated_transactions[key] = transaction.merge('from' => next_month, 'found' => found)
-      end
+    def self.exists?(transaction, account, from, to, options)
+      # Format the money
+      amount = Formatter.format(transaction['amount'], options)
+      inverse_amount = Formatter.format(transaction['amount'] * -1, options)
+
+      # We run two commands and check to see if category +/- amount or account +/- amount exists
+      command1 = %(hledger print -f #{options[:transaction_file]} "date:#{from}..#{to}" | tr -s '[:space:]' ' ' | grep -q -Eo "#{escape_str(transaction['category'])} (#{amount}|#{inverse_amount})")
+      command2 = %(hledger print -f #{options[:transaction_file]} "date:#{from}..#{to}" | tr -s '[:space:]' ' ' | grep -q -Eo "#{account} (#{amount}|#{inverse_amount})")
+
+      system(command1) || system(command2)
     end
 
     def self.latest_date(file)
@@ -16,18 +22,6 @@ module HledgerForecast
 
       date_output = `#{command}`
       date_output.strip
-    end
-
-    def self.transaction_exists?(file, from, to, account, transaction)
-      category = escape_str(transaction['category'])
-      amount = transaction['amount']
-      inverse_amount = transaction['inverse_amount']
-
-      # We run two commands and check to see if category +/- amount or account +/- amount exists
-      command1 = %(hledger print -f #{file} "date:#{from}..#{to}" | tr -s '[:space:]' ' ' | grep -q -Eo "#{category} (#{amount}|#{inverse_amount})")
-      command2 = %(hledger print -f #{file} "date:#{from}..#{to}" | tr -s '[:space:]' ' ' | grep -q -Eo "#{account} (#{amount}|#{inverse_amount})")
-
-      system(command1) || system(command2)
     end
 
     def self.escape_str(str)
