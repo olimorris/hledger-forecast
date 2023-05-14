@@ -22,8 +22,8 @@ module HledgerForecast
 
       format_to_ledger(
         HledgerForecast::Transactions::Default.generate(output_block, @options),
-        compile_tracked_transaction(output_block),
-        HledgerForecast::Transactions::Modifiers.generate(output_block, @options),
+        HledgerForecast::Transactions::Trackers.generate(output_block, @options),
+        HledgerForecast::Transactions::Modifiers.generate(output_block, @options)
       )
     end
 
@@ -66,35 +66,6 @@ module HledgerForecast
         transactions = item[:transactions].group_by { |t| t[:to] }
         item.merge(transactions:)
       end
-    end
-
-    def self.compile_tracked_transaction(data)
-      return nil unless tracked_transactions?(data)
-
-      output = []
-
-      # TODO: Reduce the number of loops in this
-      data.each do |_key, blocks|
-        blocks.each do |block|
-          block[:transactions].each do |_date, transaction|
-            transaction.each do |t|
-              next unless t[:track]
-
-              category = t[:category].ljust(@options[:max_category])
-              amount = t[:amount].to_s.ljust(@options[:max_amount])
-
-              header = "~ #{Date.new(Date.today.year, Date.today.month,
-                                     1).next_month}  * [TRACKED] #{t[:description]}\n"
-              transactions = "    #{category}    #{amount};  #{t[:description]}\n"
-              footer = "    #{block[:account]}\n\n"
-
-              output << { header:, transactions: [transactions], footer: }
-            end
-          end
-        end
-      end
-
-      output
     end
 
     # TODO: Move this to the formatter class
@@ -149,15 +120,6 @@ module HledgerForecast
       transaction['track'] && Date.parse(data['from']) <= Date.today && Tracker.track(transaction, data, @options)
     end
 
-    def self.tracked_transactions?(data)
-      data.any? do |_, blocks|
-        blocks.any? do |block|
-          block[:transactions].any? do |_, transactions|
-            transactions.any? { |t| t[:track] }
-          end
-        end
-      end
-    end
 
     def self.get_max_field_size(forecast, field)
       max_size = 0

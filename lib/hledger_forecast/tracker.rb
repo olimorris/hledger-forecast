@@ -17,13 +17,6 @@ module HledgerForecast
       system(command1) || system(command2)
     end
 
-    def self.latest_date(file)
-      command = %(hledger print --file #{file} | grep '^[0-9]\\{4\\}-[0-9]\\{2\\}-[0-9]\\{2\\}' | awk '{print $1}' | sort -r | head -n 1)
-
-      date_output = `#{command}`
-      date_output.strip
-    end
-
     def self.escape_str(str)
       str.gsub('[', '\\[').gsub(']', '\\]').gsub('(', '\\(').gsub(')', '\\)')
     end
