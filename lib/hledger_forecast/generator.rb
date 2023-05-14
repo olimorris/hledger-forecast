@@ -9,9 +9,7 @@ module HledgerForecast
 
     def self.generate(forecast, options = nil)
       forecast = YAML.safe_load(forecast)
-      config_options(forecast)
-
-      @options.merge!(options) if options
+      config_options(forecast, options)
 
       output_block = {}
       forecast.each do |period, blocks|
@@ -23,13 +21,13 @@ module HledgerForecast
       end
 
       format_to_ledger(
-        compile_transaction(output_block),
-        compile_modifier(output_block),
-        compile_tracked_transaction(output_block)
+        HledgerForecast::Transactions::Default.generate(output_block, @options),
+        compile_tracked_transaction(output_block),
+        HledgerForecast::Transactions::Modifiers.generate(output_block, @options),
       )
     end
 
-    def self.config_options(forecast)
+    def self.config_options(forecast, options)
       @options[:max_amount] = get_max_field_size(forecast, 'amount') + 1 # +1 for the negatives
       @options[:max_category] = get_max_field_size(forecast, 'category')
 
@@ -37,6 +35,8 @@ module HledgerForecast
       @options[:show_symbol] = forecast.fetch('settings', {}).fetch('show_symbol', true)
       # @options[:sign_before_symbol] = forecast.fetch('settings', {}).fetch('sign_before_symbol', false)
       @options[:thousands_separator] = forecast.fetch('settings', {}).fetch('thousands_separator', true)
+
+      @options.merge!(options) if options
     end
 
     def self.process_block(period, block)
@@ -68,62 +68,6 @@ module HledgerForecast
       end
     end
 
-    def self.compile_transaction(data)
-      output = []
-
-      data.each_value do |blocks|
-        blocks.each do |block|
-          block[:transactions].each do |to, transactions|
-            to = header_to_date(block[:to], to)
-            frequency = get_periodic_rules(block[:type], block[:frequency])
-
-            block[:descriptions] = transactions.map do |t|
-              next if t[:track]
-
-              t[:description]
-            end.compact.join(', ')
-
-            transaction_lines = transactions.map do |t|
-              next if t[:track]
-
-              t[:amount] = t[:amount].to_s.ljust(@options[:max_amount])
-              t[:category] = t[:category].ljust(@options[:max_category])
-
-              "    #{t[:category]}    #{t[:amount]};  #{t[:description]}\n"
-            end
-
-            header = "#{frequency} #{block[:from]}#{to}  * #{block[:descriptions]}\n"
-            footer = "    #{block[:account]}\n\n"
-
-            output << { header:, transactions: transaction_lines, footer: }
-          end
-        end
-      end
-
-      output
-    end
-
-    def self.compile_modifier(data)
-      return nil unless modifiers?(data)
-
-      output = []
-
-      extract_modifiers(data).each do |modifier|
-        account = modifier[:account].ljust(@options[:max_category])
-        category = modifier[:category].ljust(@options[:max_category])
-        amount = modifier[:amount].to_s.ljust(@options[:max_amount])
-        to = modifier[:to] ? "..#{modifier[:to]}" : nil
-
-        header = "= #{modifier[:category]} date:#{modifier[:from]}#{to}\n"
-        transactions = "    #{category}    *#{amount};  #{modifier[:description]}\n"
-        footer = "    #{account}    *#{modifier[:amount] * -1}\n\n"
-
-        output << { header:, transactions: [transactions], footer: }
-      end
-
-      output
-    end
-
     def self.compile_tracked_transaction(data)
       return nil unless tracked_transactions?(data)
 
@@ -153,13 +97,6 @@ module HledgerForecast
       output
     end
 
-    def self.header_to_date(block, transaction)
-      return " to #{transaction}" if transaction
-      return " to #{block}" if block
-
-      return nil
-    end
-
     # TODO: Move this to the formatter class
     def self.format_to_ledger(*compiled_data)
       compiled_data.compact.map do |data|
@@ -169,19 +106,6 @@ module HledgerForecast
           item[:header] + item[:transactions].join + item[:footer]
         end.join
       end.join("\n")
-    end
-
-    def self.get_periodic_rules(type, frequency)
-      map = {
-        'once' => '~',
-        'monthly' => '~ monthly from',
-        'quarterly' => '~ every 3 months from',
-        'half-yearly' => '~ every 6 months from',
-        'yearly' => '~ yearly from',
-        'custom' => "~ #{frequency} from"
-      }
-
-      map[type]
     end
 
     def self.get_amount(amount)
@@ -219,28 +143,6 @@ module HledgerForecast
       end
 
       modifiers
-    end
-
-    def self.extract_modifiers(data)
-      data.each_with_object([]) do |(_key, blocks), result|
-        blocks.each do |block|
-          block[:transactions].each_value do |transactions|
-            transactions.each do |t|
-              result.concat(t[:modifiers]) if t[:modifiers]
-            end
-          end
-        end
-      end
-    end
-
-    def self.modifiers?(data)
-      data.any? do |_, blocks|
-        blocks.any? do |block|
-          block[:transactions].any? do |_, transactions|
-            transactions.any? { |t| !t[:modifiers].empty? }
-          end
-        end
-      end
     end
 
     def self.track?(transaction, data)
