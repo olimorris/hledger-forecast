@@ -29,7 +29,7 @@ module HledgerForecast
             account: block['account'],
             amount: modifier['amount'],
             category: transaction['category'],
-            description:,
+            description: description,
             from: Date.parse(modifier['from'] || block['from']),
             to: modifier['to'] ? Date.parse(modifier['to']) : nil
           }
@@ -69,7 +69,7 @@ module HledgerForecast
           transactions = "    #{category}    *#{amount};  #{modifier[:description]}\n"
           footer = "    #{account}    *#{modifier[:amount] * -1}\n\n"
 
-          output << { header:, transactions: [transactions], footer: }
+          output << { header: header, transactions: [transactions], footer: footer }
         end
       end
 

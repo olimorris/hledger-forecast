@@ -39,7 +39,7 @@ module HledgerForecast
           header = "#{frequency} #{block[:from]}#{to}  * #{block[:descriptions]}\n"
           footer = "    #{block[:account]}\n\n"
 
-          output << { header:, transactions: write_transactions(transactions), footer: }
+          output << { header: header, transactions: write_transactions(transactions), footer: footer }
         end
       end
 

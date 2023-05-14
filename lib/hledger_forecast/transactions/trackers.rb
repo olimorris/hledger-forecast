@@ -78,7 +78,7 @@ module HledgerForecast
             transactions = "    #{category}    #{amount};  #{t[:description]}\n"
             footer = "    #{block[:account]}\n\n"
 
-            output << { header:, transactions: [transactions], footer: }
+            output << { header: header, transactions: [transactions], footer: footer }
           end
         end
       end

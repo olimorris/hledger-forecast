@@ -56,7 +56,7 @@ module HledgerForecast
 
       output.map do |item|
         transactions = item[:transactions].group_by { |t| t[:to] }
-        item.merge(transactions:)
+        item.merge(transactions: transactions)
       end
     end
 
