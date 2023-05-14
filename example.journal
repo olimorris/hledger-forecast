@@ -30,11 +30,13 @@
     Expenses:Car:Fuel    £150.00   ;  Car fuel
     Assets:Bank
 
+
 ~ 2023-06-01  * [TRACKED] Forecast new car cost
     Expenses:Car         £5,000.00 ;  Forecast new car cost
     Assets:Bank
 
+
 = Expenses:Food date:2024-01-01..2024-12-31
-    Expenses:Food        *0.1      ;  Food - Inflation
+    Expenses:Food        *0.1       ;  Food - Inflation
     Assets:Bank          *-0.1
 
