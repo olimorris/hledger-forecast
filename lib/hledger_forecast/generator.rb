@@ -1,13 +1,11 @@
 module HledgerForecast
   # Generate periodic transactions from a YAML file, compatible with hledger
   class Generator
-    class << self
-      attr_accessor :options
+    def self.generate(forecast, options = nil)
+      new.generate(forecast, options)
     end
 
-    self.options = {}
-
-    def self.generate(forecast, options = nil)
+    def generate(forecast, options = nil)
       forecast = YAML.safe_load(forecast)
       config_options(forecast, options)
 
@@ -20,26 +18,29 @@ module HledgerForecast
         end
       end
 
-      format_to_ledger(
-        HledgerForecast::Transactions::Default.generate(output_block, @options),
-        HledgerForecast::Transactions::Trackers.generate(output_block, @options),
-        HledgerForecast::Transactions::Modifiers.generate(output_block, @options)
+      Formatter.output_to_ledger(
+        Transactions::Default.generate(output_block, @options),
+        Transactions::Trackers.generate(output_block, @options),
+        Transactions::Modifiers.generate(output_block, @options)
       )
     end
 
-    def self.config_options(forecast, options)
+    private
+
+    def config_options(forecast, options)
+      @options = {}
+
       @options[:max_amount] = get_max_field_size(forecast, 'amount') + 1 # +1 for the negatives
       @options[:max_category] = get_max_field_size(forecast, 'category')
 
       @options[:currency] = Money::Currency.new(forecast.fetch('settings', {}).fetch('currency', 'USD'))
       @options[:show_symbol] = forecast.fetch('settings', {}).fetch('show_symbol', true)
-      # @options[:sign_before_symbol] = forecast.fetch('settings', {}).fetch('sign_before_symbol', false)
       @options[:thousands_separator] = forecast.fetch('settings', {}).fetch('thousands_separator', true)
 
       @options.merge!(options) if options
     end
 
-    def self.process_block(period, block)
+    def process_block(period, block)
       output = []
 
       output << {
@@ -51,16 +52,7 @@ module HledgerForecast
         transactions: []
       }
 
-      block['transactions'].each do |t|
-        output.last[:transactions] << {
-          category: t['category'],
-          amount: Formatter.format(get_amount(t['amount']), @options),
-          description: t['description'],
-          to: t['to'] ? get_date(Date.parse(block['from']), t['to']) : nil,
-          modifiers: t['modifiers'] ? get_modifiers(t, block) : [],
-          track: track?(t, block) ? true : false
-        }
-      end
+      output = process_transactions(block, output)
 
       output.map do |item|
         transactions = item[:transactions].group_by { |t| t[:to] }
@@ -68,18 +60,22 @@ module HledgerForecast
       end
     end
 
-    # TODO: Move this to the formatter class
-    def self.format_to_ledger(*compiled_data)
-      compiled_data.compact.map do |data|
-        data.map do |item|
-          next unless item[:transactions].any?
+    def process_transactions(block, output)
+      block['transactions'].each do |t|
+        output.last[:transactions] << {
+          category: t['category'],
+          amount: Formatter.format_money(get_amount(t['amount']), @options),
+          description: t['description'],
+          to: t['to'] ? get_date(Date.parse(block['from']), t['to']) : nil,
+          modifiers: t['modifiers'] ? Transactions::Modifiers.get_modifiers(t, block) : [],
+          track: Transactions::Trackers.track?(t, block, @options) ? true : false
+        }
+      end
 
-          item[:header] + item[:transactions].join + item[:footer]
-        end.join
-      end.join("\n")
+      output
     end
 
-    def self.get_amount(amount)
+    def get_amount(amount)
       return amount unless amount.is_a?(String)
 
       @calculator = Dentaku::Calculator.new if @calculator.nil?
@@ -87,7 +83,7 @@ module HledgerForecast
       @calculator.evaluate(amount.slice(1..-1))
     end
 
-    def self.get_date(from, to)
+    def get_date(from, to)
       return to unless to[0] == "="
 
       @calculator = Dentaku::Calculator.new if @calculator.nil?
@@ -96,40 +92,14 @@ module HledgerForecast
       (from >> @calculator.evaluate(to.slice(1..-1))) - 1
     end
 
-    def self.get_modifiers(transaction, block)
-      modifiers = []
-
-      transaction['modifiers'].each do |modifier|
-        description = transaction['description']
-        description += " - #{modifier['description']}" unless modifier['description'].empty?
-
-        modifiers << {
-          account: block['account'],
-          amount: modifier['amount'],
-          category: transaction['category'],
-          description:,
-          from: Date.parse(modifier['from'] || block['from']),
-          to: modifier['to'] ? Date.parse(modifier['to']) : nil
-        }
-      end
-
-      modifiers
-    end
-
-    def self.track?(transaction, data)
-      transaction['track'] && Date.parse(data['from']) <= Date.today && Tracker.track(transaction, data, @options)
-    end
-
-
-    def self.get_max_field_size(forecast, field)
+    def get_max_field_size(block, field)
       max_size = 0
 
-      forecast.each do |period, items|
-        next if period == 'settings'
+      block.each do |period, items|
+        next if %w[settings].include?(period)
 
         items.each do |item|
-          transactions = item['transactions']
-          transactions.each do |t|
+          item['transactions'].each do |t|
             field_value = if t[field].is_a?(Integer) || t[field].is_a?(Float)
                             ((t[field] + 3) * 100).to_s
                           else

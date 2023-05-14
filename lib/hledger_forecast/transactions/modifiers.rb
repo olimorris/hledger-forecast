@@ -18,6 +18,26 @@ module HledgerForecast
         output
       end
 
+      def self.get_modifiers(transaction, block)
+        modifiers = []
+
+        transaction['modifiers'].each do |modifier|
+          description = transaction['description']
+          description += " - #{modifier['description']}" unless modifier['description'].empty?
+
+          modifiers << {
+            account: block['account'],
+            amount: modifier['amount'],
+            category: transaction['category'],
+            description:,
+            from: Date.parse(modifier['from'] || block['from']),
+            to: modifier['to'] ? Date.parse(modifier['to']) : nil
+          }
+        end
+
+        modifiers
+      end
+
       private
 
       attr_reader :data, :options, :output
@@ -42,7 +62,7 @@ module HledgerForecast
         get_transactions.each do |modifier|
           account = modifier[:account].ljust(@options[:max_category])
           category = modifier[:category].ljust(@options[:max_category])
-          amount = modifier[:amount].to_s.ljust(@options[:max_amount])
+          amount = modifier[:amount].to_s.ljust(@options[:max_amount] - 1)
           to = modifier[:to] ? "..#{modifier[:to]}" : nil
 
           header = "= #{modifier[:category]} date:#{modifier[:from]}#{to}\n"

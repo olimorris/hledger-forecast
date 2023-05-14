@@ -42,17 +42,16 @@ base_journal = <<~JOURNAL
       Assets:Bank           $500.00;  Savings
       Assets:Savings
 
-
   = Expenses:Groceries date:2024-01-01..2024-12-31
-      Expenses:Groceries    *0.02  ;  Food shopping - Y1 inflation
+      Expenses:Groceries    *0.02 ;  Food shopping - Y1 inflation
       Assets:Bank           *-0.02
 
   = Expenses:Groceries date:2025-01-01..2025-12-31
-      Expenses:Groceries    *0.05  ;  Food shopping - Y2 inflation
+      Expenses:Groceries    *0.05 ;  Food shopping - Y2 inflation
       Assets:Bank           *-0.05
 
   = Assets:Bank date:2024-05-01..2025-04-30
-      Assets:Bank           *0.1   ;  Savings - Savings uplift
+      Assets:Bank           *0.1  ;  Savings - Savings uplift
       Assets:Savings        *-0.1
 
 JOURNAL
@@ -78,9 +77,8 @@ no_date_journal = <<~JOURNAL
       Expenses:Groceries    $500.00;  Food shopping
       Assets:Bank
 
-
   = Expenses:Groceries date:2023-01-01
-      Expenses:Groceries    *0.1   ;  Food shopping - Inflation
+      Expenses:Groceries    *0.1  ;  Food shopping - Inflation
       Assets:Bank           *-0.1
 
 JOURNAL

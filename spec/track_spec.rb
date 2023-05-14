@@ -31,7 +31,6 @@ base_output = <<~JOURNAL
       Expenses:Food    £100.00 ;  Food expenses
       Assets:Bank
 
-
   ~ #{next_month}  * [TRACKED] Tax owed
       Expenses:Tax     £3,000.00;  Tax owed
       Assets:Bank
