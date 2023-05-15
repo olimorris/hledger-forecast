@@ -156,7 +156,7 @@ module HledgerForecast
 
     def self.summarize(options)
       forecast = File.read(options[:forecast_file])
-      puts Summarize.generate(forecast)
+      puts Summarizer.Summarize(forecast)
     end
   end
 end

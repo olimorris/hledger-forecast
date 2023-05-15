@@ -1,9 +1,14 @@
 module HledgerForecast
   # Summarise a forecast YAML file and output it to the CLI
   # TODO: Rename this to Summarizer and the main method becomes summarize
-  class Summarize
+  class Summarizer
     @table = nil
     @generator = nil
+
+    def self.summarize(forecast)
+      # Read the forecast file and set the options
+
+    end
 
     def self.init_table
       table = Terminal::Table.new
@@ -12,13 +17,6 @@ module HledgerForecast
       table.add_separator
 
       @table = table
-    end
-
-    def self.init_generator(forecast_data)
-      generator = HledgerForecast::Generator
-      generator.set_options(forecast_data)
-
-      @generator = generator
     end
 
     def self.sum_transactions(forecast_data, period)
