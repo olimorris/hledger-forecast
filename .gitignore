@@ -10,6 +10,7 @@ pkg/*
 .rvmrc
 .ruby-version
 .ruby-gemset
+.tool-versions
 
 # Spec artifacts
 /coverage
