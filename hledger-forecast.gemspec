@@ -4,6 +4,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'hledger_forecast/version'
 
 Gem::Specification.new do |s|
+  s.required_ruby_version = '~> 2.6'
   s.name        = 'hledger-forecast'
   s.version     = HledgerForecast::VERSION
   s.authors     = ['Oli Morris']
