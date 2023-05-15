@@ -1,6 +1,11 @@
-# Hledger-Forecast
+<h1 align="center">Hledger-Forecast</h1>
 
-[![Tests](https://github.com/olimorris/hledger-forecast/actions/workflows/ci.yml/badge.svg)](https://github.com/olimorris/hledger-forecast/actions/workflows/ci.yml)
+<p align="center">
+<a href="https://github.com/olimorris/hledger-forecast/stargazers"><img src="https://img.shields.io/github/stars/olimorris/onedarkpro.nvim?color=c678dd&logoColor=e06c75&style=for-the-badge"></a>
+<a href="https://github.com/olimorris/hledger-forecast/issues"><img src="https://img.shields.io/github/issues/olimorris/hledger-forecast?color=%23d19a66&style=for-the-badge"></a>
+<a href="https://github.com/olimorris/hledger-forecast/blob/main/LICENSE"><img src="https://img.shields.io/github/license/olimorris/hledger-forecast?color=%2361afef&style=for-the-badge"></a>
+<a href="https://github.com/olimorris/hledger-forecast/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/olimorris/hledger-forecast/ci.yml?branch=main&label=tests&style=for-the-badge"></a>
+</p>
 
 A wrapper which builds on [hledger's](https://github.com/simonmichael/hledger) [forecasting](https://hledger.org/dev/hledger.html#forecasting) capability. Uses a `yaml` config file to generate forecasts whilst adding functionality for future cost rises (e.g. inflation) and the automatic tracking of planned transactions.
 
