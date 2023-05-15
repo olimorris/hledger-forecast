@@ -1,5 +1,5 @@
 module HledgerForecast
-  # Generate periodic transactions from a YAML file, compatible with hledger
+  # Generate forecasts for hledger from a yaml file
   class Generator
     def self.generate(forecast, options = nil)
       new.generate(forecast, options)
