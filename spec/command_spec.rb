@@ -22,4 +22,11 @@ RSpec.describe 'command' do
 
     expect(File.read(generated_journal)).to eq(output)
   end
+
+  it 'uses the CLI to generate a summary' do
+    # Delete the file if it exists
+    output = system("./bin/hledger-forecast summarize -f ./spec/stubs/forecast.yml")
+
+    expect(true).to eq(output)
+  end
 end

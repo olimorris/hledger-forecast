@@ -62,6 +62,7 @@ module HledgerForecast
         get_transactions.each do |modifier|
           account = modifier[:account].ljust(@options[:max_category])
           category = modifier[:category].ljust(@options[:max_category])
+          # Fix the ljust by counting strings in amount
           amount = modifier[:amount].to_s.ljust(@options[:max_amount] - 1)
           to = modifier[:to] ? "..#{modifier[:to]}" : nil
 

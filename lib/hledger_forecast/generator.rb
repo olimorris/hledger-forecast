@@ -1,44 +1,31 @@
 module HledgerForecast
-  # Generate forecasts for hledger from a yaml file
+  # Generate forecasts for hledger from a yaml config file
   class Generator
-    def self.generate(forecast, options = nil)
-      new.generate(forecast, options)
+    def self.generate(config, cli_options = nil)
+      new.generate(config, cli_options)
     end
 
-    def generate(forecast, options = nil)
-      forecast = YAML.safe_load(forecast)
-      config_options(forecast, options)
+    def generate(config, cli_options = nil)
+      forecast = YAML.safe_load(config)
+      @settings = Settings.config(forecast, cli_options)
 
-      output_block = {}
+      output = {}
       forecast.each do |period, blocks|
         next if %w[settings].include?(period)
 
         blocks.each do |block|
-          output_block[output_block.length] = process_block(period, block)
+          output[output.length] = process_block(period, block)
         end
       end
 
       Formatter.output_to_ledger(
-        Transactions::Default.generate(output_block, @options),
-        Transactions::Trackers.generate(output_block, @options),
-        Transactions::Modifiers.generate(output_block, @options)
+        Transactions::Default.generate(output, @settings),
+        Transactions::Trackers.generate(output, @settings),
+        Transactions::Modifiers.generate(output, @settings)
       )
     end
 
     private
-
-    def config_options(forecast, options)
-      @options = {}
-
-      @options[:max_amount] = get_max_field_size(forecast, 'amount') + 1 # +1 for the negatives
-      @options[:max_category] = get_max_field_size(forecast, 'category')
-
-      @options[:currency] = Money::Currency.new(forecast.fetch('settings', {}).fetch('currency', 'USD'))
-      @options[:show_symbol] = forecast.fetch('settings', {}).fetch('show_symbol', true)
-      @options[:thousands_separator] = forecast.fetch('settings', {}).fetch('thousands_separator', true)
-
-      @options.merge!(options) if options
-    end
 
     def process_block(period, block)
       output = []
@@ -64,53 +51,15 @@ module HledgerForecast
       block['transactions'].each do |t|
         output.last[:transactions] << {
           category: t['category'],
-          amount: Formatter.format_money(get_amount(t['amount']), @options),
+          amount: Formatter.format_money(Calculator.new.evaluate(t['amount']), @settings),
           description: t['description'],
-          to: t['to'] ? get_date(Date.parse(block['from']), t['to']) : nil,
+          to: t['to'] ? Calculator.new.evaluate_date(Date.parse(block['from']), t['to']) : nil,
           modifiers: t['modifiers'] ? Transactions::Modifiers.get_modifiers(t, block) : [],
-          track: Transactions::Trackers.track?(t, block, @options) ? true : false
+          track: Transactions::Trackers.track?(t, block, @settings) ? true : false
         }
       end
 
       output
-    end
-
-    def get_amount(amount)
-      return amount unless amount.is_a?(String)
-
-      @calculator = Dentaku::Calculator.new if @calculator.nil?
-
-      @calculator.evaluate(amount.slice(1..-1))
-    end
-
-    def get_date(from, to)
-      return to unless to[0] == "="
-
-      @calculator = Dentaku::Calculator.new if @calculator.nil?
-
-      # Subtract a day from the final date
-      (from >> @calculator.evaluate(to.slice(1..-1))) - 1
-    end
-
-    def get_max_field_size(block, field)
-      max_size = 0
-
-      block.each do |period, items|
-        next if %w[settings].include?(period)
-
-        items.each do |item|
-          item['transactions'].each do |t|
-            field_value = if t[field].is_a?(Integer) || t[field].is_a?(Float)
-                            ((t[field] + 3) * 100).to_s
-                          else
-                            t[field].to_s
-                          end
-            max_size = [max_size, field_value.length].max
-          end
-        end
-      end
-
-      max_size
     end
   end
 end
