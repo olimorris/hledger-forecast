@@ -1,3 +1,7 @@
+<p align="center">
+<img src="https://github.com/olimorris/hledger-forecast/assets/9512444/0420de37-8e1d-4e5e-b7fe-bb3e09eb1253" alt="hledger-forecast" />
+</p>
+
 <h1 align="center">Hledger-Forecast</h1>
 
 <p align="center">
@@ -76,7 +80,9 @@ The command will generate a forecast up to the end of Feb 2024, showing the bala
 
 ### Summarize command
 
-As your `yaml` configuration file grows, it can be helpful to sum up the total amounts and output them to the CLI. This can be achieved by:
+As your `yaml` configuration file grows, it can be helpful to sum up the total amounts and output them to the CLI.
+Furthermore, being able to see your monthly profit and loss statement _if_ you were to purchase that new item may
+influence your buying decision. In hledger-forecast, this can be achieved by:
 
     hledger-forecast summarize -f my_forecast.yml
 
@@ -84,8 +90,10 @@ The available options are:
 
     Usage: hledger-forecast summarize [options]
 
-        -f, --forecast FILE              The path to the FORECAST yaml file to summarize
-        -h, --help                       Show this help message
+    -f, --forecast FILE              The path to the FORECAST yaml file to summarize
+    -r, --roll-up PERIOD             The period to roll-up your forecasts into. One of:
+                                     [yearly], [half-yearly], [quarterly], [monthly], [weekly], [daily]
+    -h, --help                       Show this help message
 
 ## :gear: Configuration
 
@@ -183,9 +191,9 @@ monthly:
 It can also be useful to compute a `to` date by adding on a number of months to the `from` date. Extending the example above:
 
 ```yaml
-- amount: 2000
-  category: "Expenses:Mortgage"
-  description: Mortgage
+- amount: 125
+  category: "Expenses:Holiday"
+  description: Holiday
   to: "=12"
 ```
 
@@ -219,13 +227,13 @@ To mark transactions as available for tracking you may use the `track` option in
 
 ```yaml
 once:
-  account: "Assets:Bank"
-  from: "2023-03-05"
-  transactions:
-    - amount: 3000
-      category: "Expenses:Shopping"
-      description: Refund for that damn laptop
-      track: true
+  - account: "Assets:Bank"
+    from: "2023-03-05"
+    transactions:
+      - amount: -3000
+        category: "Expenses:Shopping"
+        description: Refund for that damn laptop
+        track: true
 ```
 
 > **Note**: This feature has been designed to work with one-off transactions only
@@ -274,6 +282,32 @@ modifiers:
     from: "2025-01-01"
     to: "2025-12-31"
 ```
+
+### Roll-ups
+
+As part of the summarize command, it can be useful to sum-up all of the transactions in your `yaml` file and see what
+your income and expenditure is over a given period (e.g. "how much profit do I _actually_ make every year?").
+
+In order to do this, custom forecasts need to have the `roll-up` key defined. That is, given the custom period you've
+specified, what number do you need to multiply the amount by in order to get it into an annualised figure. Let's look at the example below:
+
+```yaml
+custom:
+  - frequency: "every 2 weeks"
+    account: "Assets:Bank"
+    from: "2023-03-01"
+    roll-up: 26
+    transactions:
+      - amount: 80
+        category: "Expenses:Personal Care"
+        description: Hair and beauty
+```
+
+Every 2 weeks a planned expense of £80 is made. So over the course of a year, we'd need to multiply that amount by 26. So that is the number which is entered next to the `roll-up` key.
+
+After this, the following command can be executed to see the monthly summary of your `yaml` file:
+
+    hledger-forecast summarize -f my_forecast.yml -r monthly
 
 ### Additional config settings
 
