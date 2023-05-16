@@ -76,6 +76,7 @@ once:
       - amount: -3000
         category: "Expenses:Shopping"
         description: Refund for that damn laptop
+        summary_exclude: true
         track: true
 
 custom:

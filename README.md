@@ -307,6 +307,22 @@ To see the monthly summary of your `yaml` file, the following command can be use
 
     hledger-forecast summarize -f my_forecast.yml -r monthly
 
+### Summary exclusions
+
+It can also be useful to exclude certain items from your summary such as one-off items. This can be achieved by specifying `summary_exclude: true` next to a transaction:
+
+```yaml
+once:
+  - account: "Assets:Bank"
+    from: "2023-03-05"
+    transactions:
+      - amount: -3000
+        category: "Expenses:Shopping"
+        description: Refund for that damn laptop
+        summary_exclude: true
+        track: true
+```
+
 ### Additional config settings
 
 Additional settings in the config file to consider:

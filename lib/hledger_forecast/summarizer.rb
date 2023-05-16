@@ -27,7 +27,7 @@ module HledgerForecast
         end
       end
 
-      output = flatten_and_merge(output)
+      output = filter_out(flatten_and_merge(output))
       output = calculate_rolled_up_amount(output)
 
       add_rows_to_table(output)
@@ -68,6 +68,7 @@ module HledgerForecast
           annualised_amount: amount * (block['roll-up'] || annualise(period)),
           rolled_up_amount: 0,
           category: t['category'],
+          exclude: t['summary_exclude'],
           description: t['description'],
           to: t['to'] ? Calculator.new.evaluate_date(Date.parse(block['from']), t['to']) : nil
         }
@@ -88,6 +89,10 @@ module HledgerForecast
       }
 
       annualise[period]
+    end
+
+    def filter_out(data)
+      data.reject { |item| item[:exclude] == true }
     end
 
     def flatten_and_merge(blocks)
