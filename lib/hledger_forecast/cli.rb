@@ -118,6 +118,12 @@ module HledgerForecast
           options[:forecast_file] = file
         end
 
+        opts.on("-r", "--roll-up PERIOD",
+                "The period to roll-up your forecasts into. One of:",
+                "[yearly], [half-yearly], [quarterly], [monthly], [weekly], [daily]") do |rollup|
+          options[:roll_up] = rollup
+        end
+
         opts.on_tail("-h", "--help", "Show this help message") do
           puts opts
           exit

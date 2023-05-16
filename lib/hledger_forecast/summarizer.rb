@@ -1,6 +1,5 @@
 module HledgerForecast
-  # Summarise a forecast YAML file and output it to the CLI
-  # TODO: Rename this to Summarizer and the main method becomes summarize
+  # Summarise a forecast yaml file and output it to the CLI
   class Summarizer
     def self.summarize(config, cli_options)
       new.summarize(config, cli_options)
@@ -19,53 +18,97 @@ module HledgerForecast
     def generate(forecast)
       init_table
 
-      category_totals = {}
-      %w[monthly quarterly half-yearly yearly once custom].each do |period|
-        category_totals[period] = sum_transactions(forecast, period)
+      output = {}
+      forecast.each do |period, blocks|
+        next if %w[settings].include?(period)
+
+        blocks.each do |block|
+          output[output.length] = process_block(period, block)
+        end
       end
 
-      add_categories_to_table(category_totals, forecast)
+      output = flatten_and_merge(output)
+      output = calculate_rolled_up_amount(output)
 
-      @table.add_separator
-      format_total("TOTAL", category_totals.values.map(&:values).flatten.sum)
+      add_rows_to_table(output)
+      add_total_row_to_table(output, :rolled_up_amount)
 
       @table
     end
 
     def init_table
-      @table.add_row([{ value: 'FORECAST SUMMARY'.bold, colspan: 3, alignment: :center }])
+      title = 'FORECAST SUMMARY'
+      title += " (#{@settings[:roll_up].upcase} ROLL UP)" if @settings[:roll_up]
+
+      @table.add_row([{ value: title.bold, colspan: 3, alignment: :center }])
       @table.add_separator
     end
 
-    def sum_transactions(forecast, period)
-      category_total = Hash.new(0)
-      forecast[period]&.each do |entry|
-        entry['transactions'].each do |transaction|
-          category_total[transaction['category']] += Calculator.new.evaluate(transaction['amount'])
-        end
-      end
+    def process_block(period, block)
+      output = []
 
-      category_total
+      output << {
+        account: block['account'],
+        from: Date.parse(block['from']),
+        to: block['to'] ? Date.parse(block['to']) : nil,
+        type: period,
+        frequency: block['frequency'],
+        transactions: []
+      }
+
+      process_transactions(period, block, output)
     end
 
-    def sum_custom_transactions(forecast_data)
-      category_total = Hash.new(0)
-      custom_periods = []
+    def process_transactions(period, block, output)
+      block['transactions'].each do |t|
+        amount = Calculator.new.evaluate(t['amount'])
 
-      forecast_data['custom']&.each do |entry|
-        period_data = {}
-        period_data[:frequency] = entry['frequency']
-        period_data[:category] = entry['transactions'].first['category']
-        period_data[:amount] = entry['transactions'].first['amount']
-
-        entry['transactions'].each do |transaction|
-          category_total[transaction['category']] += transaction['amount']
-        end
-
-        custom_periods << period_data
+        output.last[:transactions] << {
+          amount: amount,
+          annualised_amount: amount * (block['roll-up'] || annualise(period)),
+          rolled_up_amount: 0,
+          category: t['category'],
+          description: t['description'],
+          to: t['to'] ? Calculator.new.evaluate_date(Date.parse(block['from']), t['to']) : nil
+        }
       end
 
-      { totals: category_total, periods: custom_periods }
+      output
+    end
+
+    def annualise(period)
+      annualise = {
+        'monthly' => 12,
+        'quarterly' => 4,
+        'half-yearly' => 2,
+        'yearly' => 1,
+        'once' => 1,
+        'daily' => 352,
+        'weekly' => 52
+      }
+
+      annualise[period]
+    end
+
+    def flatten_and_merge(blocks)
+      blocks.values.flatten.flat_map do |block|
+        block[:transactions].map do |transaction|
+          block.slice(:account, :from, :to, :type, :frequency).merge(transaction)
+        end
+      end
+    end
+
+    def calculate_rolled_up_amount(data)
+      data.map do |item|
+        item[:rolled_up_amount] = item[:annualised_amount] / annualise(@settings[:roll_up])
+        item
+      end
+    end
+
+    def group_by(data, group_by, sum_up)
+      data.map do |key, value|
+        { group_by => key, sum_up => value }
+      end
     end
 
     def format_amount(amount)
@@ -73,25 +116,48 @@ module HledgerForecast
       amount.to_f < 0 ? formatted_amount.green : formatted_amount.red
     end
 
-    def add_rows_to_table(row_data, period_total, custom: false)
-      if custom
-        row_data[:periods].each do |period|
-          @table.add_row [{ value: period[:category], alignment: :left },
-                          { value: period[:frequency], alignment: :right },
-                          { value: format_amount(period[:amount]), alignment: :right }]
+    def add_rows_to_table(data)
+      sum_hash = Hash.new { |h, k| h[k] = { sum: 0, descriptions: [] } }
 
-          period_total += period[:amount]
-        end
-      else
-        row_data.each do |category, amount|
-          @table.add_row [{ value: category, colspan: 2, alignment: :left },
-                          { value: format_amount(amount), alignment: :right }]
-
-          period_total += amount
-        end
+      data.each do |item|
+        sum_hash[item[:category]][:sum] += item[:rolled_up_amount]
+        sum_hash[item[:category]][:descriptions] << item[:description]
       end
 
-      period_total
+      # Convert arrays of descriptions to single strings
+      sum_hash.each do |_category, values|
+        values[:descriptions] = values[:descriptions].join(", ")
+      end
+
+      # Sort the array
+      sorted_sums = sort_data(sum_hash, :sum)
+
+      sorted_sums.each do |hash|
+        @table.add_row [{ value: hash[:category], colspan: 2, alignment: :left },
+                        { value: format_amount(hash[:sum]), alignment: :right }]
+      end
+    end
+
+    def sort_data(data, sort_by)
+      # Convert the hash to an array of hashes
+      array = data.map do |category, values|
+        { category: category, sum: values[sort_by], descriptions: values[:descriptions] }
+      end
+
+      # Sort the array
+      array.sort_by do |hash|
+        value = hash[:sum]
+        [value >= 0 ? 1 : 0, value >= 0 ? -value : value]
+      end
+    end
+
+    def add_total_row_to_table(data, row_to_sum)
+      total = data.reduce(0) do |sum, item|
+        sum + item[row_to_sum]
+      end
+
+      @table.add_row [{ value: "TOTAL".bold, colspan: 2, alignment: :left },
+                      { value: format_amount(total).bold, alignment: :right }]
     end
 
     def add_categories_to_table(categories, forecast_data)
@@ -126,7 +192,7 @@ module HledgerForecast
 
     def format_total(text, total)
       @table.add_row [{ value: text.bold, colspan: 2, alignment: :left },
-                     { value: format_amount(total).bold, alignment: :right }]
+                      { value: format_amount(total).bold, alignment: :right }]
     end
   end
 end

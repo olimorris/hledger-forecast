@@ -68,7 +68,7 @@ The available options are:
 
 Running the command with no options will assume a `forecast.yml` file exists.
 
-### Using with Hledger
+### Using with hledger
 
 To work with hledger, include the forecast file and use the `--forecast` flag:
 
@@ -285,11 +285,9 @@ modifiers:
 
 ### Roll-ups
 
-As part of the summarize command, it can be useful to sum-up all of the transactions in your `yaml` file and see what
-your income and expenditure is over a given period (e.g. "how much profit do I _actually_ make every year?").
+As part of the summarize command, it can be useful to sum-up all of the transactions in your `yaml` file and see what your income and expenditure is over a given period (e.g. "how much profit do I _actually_ make every year?").
 
-In order to do this, custom forecasts need to have the `roll-up` key defined. That is, given the custom period you've
-specified, what number do you need to multiply the amount by in order to get it into an annualised figure. Let's look at the example below:
+In order to do this, custom forecasts need to have the `roll-up` key defined. That is, given the custom period you've specified, what number do you need to multiply the amount by in order to "roll it up" into an annualised figure. Let's look at the example below:
 
 ```yaml
 custom:
@@ -303,9 +301,9 @@ custom:
         description: Hair and beauty
 ```
 
-Every 2 weeks a planned expense of £80 is made. So over the course of a year, we'd need to multiply that amount by 26. So that is the number which is entered next to the `roll-up` key.
+Every 2 weeks a planned expense of £80 is made. So over the course of a year, we'd need to multiply that amount by 26 to get to an annualised figure. Of course for periods like `monthly` and `quarterly` it's easy for hledger-forecast to annual those amounts so no `roll-up` is required.
 
-After this, the following command can be executed to see the monthly summary of your `yaml` file:
+To see the monthly summary of your `yaml` file, the following command can be used:
 
     hledger-forecast summarize -f my_forecast.yml -r monthly
 
