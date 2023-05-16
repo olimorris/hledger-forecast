@@ -2,7 +2,7 @@
 <img src="https://github.com/olimorris/hledger-forecast/assets/9512444/0420de37-8e1d-4e5e-b7fe-bb3e09eb1253" alt="hledger-forecast" />
 </p>
 
-<h1 align="center">Hledger-Forecast</h1>
+<h1 align="center">hledger-forecast</h1>
 
 <p align="center">
 <a href="https://github.com/olimorris/hledger-forecast/stargazers"><img src="https://img.shields.io/github/stars/olimorris/hledger-forecast?color=c678dd&logoColor=e06c75&style=for-the-badge"></a>
