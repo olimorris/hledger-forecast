@@ -11,8 +11,13 @@ module HledgerForecast
 
       init_table
 
-      add_rows_to_table(output)
-      add_total_row_to_table(output, :rolled_up_amount)
+      if @settings[:roll_up].nil?
+        add_rows_to_table(output)
+      else
+        add_rolled_up_rows_to_table(output)
+      end
+
+      add_total_row_to_table(output, :amount)
 
       @table
     end
@@ -28,6 +33,36 @@ module HledgerForecast
     end
 
     def add_rows_to_table(data)
+      data = data.group_by { |item| item[:type] }
+
+      data = sort(data)
+
+      data.each_with_index do |(type, items), index|
+        @table.add_row([{ value: type.capitalize.bold, colspan: 3, alignment: :center }])
+        total = 0
+        items.each do |item|
+          total += item[:amount]
+          @table.add_row [{ value: item[:category], colspan: 2, alignment: :left },
+                          { value: format_amount(item[:amount]), alignment: :right }]
+        end
+
+        @table.add_row [{ value: "TOTAL".bold, colspan: 2, alignment: :left },
+                        { value: format_amount(total).bold, alignment: :right }]
+
+        @table.add_separator if index != data.size - 1
+      end
+    end
+
+    def sort(data)
+      data.each do |type, items|
+        data[type] = items.sort_by do |item|
+          value = item[:amount]
+          [value >= 0 ? 1 : 0, value >= 0 ? -value : value]
+        end
+      end
+    end
+
+    def add_rolled_up_rows_to_table(data)
       sum_hash = Hash.new { |h, k| h[k] = { sum: 0, descriptions: [] } }
 
       data.each do |item|
@@ -41,7 +76,7 @@ module HledgerForecast
       end
 
       # Sort the array
-      sorted_sums = sort_data(sum_hash, :sum)
+      sorted_sums = sort_roll_up(sum_hash, :sum)
 
       sorted_sums.each do |hash|
         @table.add_row [{ value: hash[:category], colspan: 2, alignment: :left },
@@ -49,7 +84,7 @@ module HledgerForecast
       end
     end
 
-    def sort_data(data, sort_by)
+    def sort_roll_up(data, sort_by)
       # Convert the hash to an array of hashes
       array = data.map do |category, values|
         { category: category, sum: values[sort_by], descriptions: values[:descriptions] }
@@ -67,41 +102,14 @@ module HledgerForecast
         sum + item[row_to_sum]
       end
 
+      @table.add_separator
       @table.add_row [{ value: "TOTAL".bold, colspan: 2, alignment: :left },
                       { value: format_amount(total).bold, alignment: :right }]
-    end
-
-    def add_categories_to_table(categories, forecast_data)
-      first_period = true
-      categories.each do |period, total|
-        category_total = total.reject { |_, amount| amount == 0 }
-        next if category_total.empty?
-
-        sorted_category_total = sort_transactions(category_total)
-
-        @table.add_separator unless first_period
-        @table.add_row([{ value: period.capitalize.bold, colspan: 3, alignment: :center }])
-
-        period_total = 0
-        period_total += if period == 'custom'
-                          add_rows_to_table(sum_custom_transactions(forecast_data), period_total, custom: true)
-                        else
-                          add_rows_to_table(sorted_category_total, period_total)
-                        end
-
-        format_total("#{period.capitalize} TOTAL", period_total)
-        first_period = false
-      end
     end
 
     def format_amount(amount)
       formatted_amount = Formatter.format_money(amount, @settings)
       amount.to_f < 0 ? formatted_amount.green : formatted_amount.red
-    end
-
-    def format_total(text, total)
-      @table.add_row [{ value: text.bold, colspan: 2, alignment: :left },
-                      { value: format_amount(total).bold, alignment: :right }]
     end
   end
 end

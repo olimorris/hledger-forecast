@@ -20,12 +20,21 @@ module HledgerForecast
         next if %w[settings].include?(period)
 
         blocks.each do |block|
-          output[output.length] = process_block(period, block)
+          key = if @settings[:roll_up].nil?
+                  period
+                else
+                  output.length
+                end
+
+          output[key] ||= []
+          output[key] << process_block(period, block)
         end
       end
 
       output = filter_out(flatten_and_merge(output))
-      calculate_rolled_up_amount(output)
+      output = calculate_rolled_up_amount(output) unless @settings[:roll_up].nil?
+
+      output
     end
 
     def process_block(period, block)
@@ -92,19 +101,6 @@ module HledgerForecast
         item[:rolled_up_amount] = item[:annualised_amount] / annualise(@settings[:roll_up])
         item
       end
-    end
-
-    def group_by(data, group_by, sum_up)
-      data.map do |key, value|
-        { group_by => key, sum_up => value }
-      end
-    end
-
-    def sort_transactions(category_total)
-      negatives = category_total.select { |_, amount| amount < 0 }.sort_by { |_, amount| amount }
-      positives = category_total.select { |_, amount| amount > 0 }.sort_by { |_, amount| -amount }
-
-      negatives.concat(positives).to_h
     end
   end
 end

@@ -8,6 +8,7 @@ config = <<~YAML
         - amount: 2000.55
           category: "Expenses:Mortgage"
           description: Mortgage
+          to: "=24"
         - amount: 100
           category: "Expenses:Food"
           description: Food
@@ -54,7 +55,32 @@ RSpec.describe HledgerForecast::Summarizer do
     it 'generates the correct output' do
       output = summarizer.send(:generate, forecast)
 
-      expect(output.first).to include(:account, :from, :to, :type, :frequency, :transactions)
+      expect(output.first).to include(:account, :from, :to, :type, :frequency)
+      expect(output.first[:amount]).to eq(2000.55)
+      expect(output.last[:rolled_up_amount]).to eq(304) # ((50 * 73) / 12)
+      expect(output.length).to eq(5)
+    end
+
+    it 'transaction TO date take precedence over block TO date' do
+      output = summarizer.send(:generate, forecast)
+
+      expect(output.first[:to]).to eq(Date.parse("2025-02-28"))
+    end
+  end
+
+  describe '#generate' do
+    let(:forecast) { YAML.safe_load(config) }
+    let(:cli_options) { nil }
+
+    before do
+      summarizer.summarize(config, cli_options)
+    end
+
+    it 'generates the correct output' do
+      output = summarizer.send(:generate, forecast)
+
+      # expect(output.first).to include(:account, :from, :to, :type, :frequency)
+      expect(output.length).to eq(5)
     end
   end
 end
