@@ -13,11 +13,11 @@ module HledgerForecast
 
       if @settings[:roll_up].nil?
         add_rows_to_table(output)
+        add_total_row_to_table(output, :amount)
       else
         add_rolled_up_rows_to_table(output)
+        add_total_row_to_table(output, :rolled_up_amount)
       end
-
-      add_total_row_to_table(output, :amount)
 
       @table
     end
