@@ -23,14 +23,14 @@ config = <<~YAML
 YAML
 
 output = <<~JOURNAL
-~ monthly from 2023-03-01  * Mortgage, Food
-    Expenses:Mortgage    £2,000.55;  Mortgage
-    Expenses:Food        £100.00  ;  Food
-    Assets:Bank
+  ~ monthly from 2023-03-01  * Mortgage, Food
+      Expenses:Mortgage    £2,000.55;  Mortgage
+      Expenses:Food        £100.00  ;  Food
+      Assets:Bank
 
-~ monthly from 2023-03-01  * Savings
-    Assets:Bank          £-1,000.00;  Savings
-    Assets:Savings
+  ~ monthly from 2023-03-01  * Savings
+      Assets:Bank          £-1,000.00;  Savings
+      Assets:Savings
 
 JOURNAL
 

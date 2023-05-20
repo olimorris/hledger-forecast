@@ -1,5 +1,5 @@
 <p align="center">
-<img src="https://github.com/olimorris/hledger-forecast/assets/9512444/0420de37-8e1d-4e5e-b7fe-bb3e09eb1253" alt="hledger-forecast" />
+<img src="https://github.com/olimorris/hledger-forecast/assets/9512444/5edb77e3-0ec6-4158-9b16-3978c1259879" alt="hledger-forecast" />
 </p>
 
 <h1 align="center">hledger-forecast</h1>
@@ -11,19 +11,20 @@
 <a href="https://github.com/olimorris/hledger-forecast/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/olimorris/hledger-forecast/ci.yml?branch=main&label=tests&style=for-the-badge"></a>
 </p>
 
-A wrapper which builds on [hledger's](https://github.com/simonmichael/hledger) [forecasting](https://hledger.org/dev/hledger.html#forecasting) capability. Uses a `yaml` config file to generate forecasts whilst adding functionality for future cost rises (e.g. inflation) and the automatic tracking of planned transactions.
+<p align="center">Improved forecasting with hledger</p>
 
-See the [rationale](#brain-rationale) section for why this gem may be useful to you.
+**"Improved", you say?** Using a `yaml` file, forecasts can be quickly generated into a `journal` file ready to be fed into [hledger](https://github.com/simonmichael/hledger). Forecasts can be easily constrained between dates, inflated by modifiers, tracked until they appear in your bank statements and summarized into your own daily(/weekly/monthly etc) personal forecast income and expenditure statement.
+
+I **strongly** recommend you read the [rationale](#rainbow-rationale) section to see if this app might be useful to you.
 
 ## :sparkles: Features
 
 - :book: Uses a simple yaml file to generate forecasts which can be used with hledger
-- :date: Can smartly track forecasted transactions against actuals
+- :date: Can smartly track forecasts against your bank statement
 - :moneybag: Can automatically apply modifiers such as inflation/deflation to forecasts
-- :abacus: Supports calculated amounts in forecasts (uses the [Dentaku](https://github.com/rubysolo/dentaku) gem)
-- :heavy_dollar_sign: Full currency support (uses the [RubyMoney](https://github.com/RubyMoney/money) gem)
+- :abacus: Enables the use of maths in your forecasts (for amounts and dates)
+- :chart_with_upwards_trend: Display your forecasts as income and expenditure reports (e.g. daily, weekly, monthly)
 - :computer: Simple and easy to use CLI
-- :chart_with_upwards_trend: Summarize your forecasts by period and category and output to the CLI
 
 ## :package: Installation
 
@@ -68,7 +69,7 @@ The available options are:
 
 Running the command with no options will assume a `forecast.yml` file exists.
 
-### Using with Hledger
+### Using with hledger
 
 To work with hledger, include the forecast file and use the `--forecast` flag:
 
@@ -285,11 +286,9 @@ modifiers:
 
 ### Roll-ups
 
-As part of the summarize command, it can be useful to sum-up all of the transactions in your `yaml` file and see what
-your income and expenditure is over a given period (e.g. "how much profit do I _actually_ make every year?").
+As part of the summarize command, it can be useful to sum-up all of the transactions in your `yaml` file and see what your income and expenditure is over a given period (e.g. "how much profit do I _actually_ make every year when all of my costs are taken into account?").
 
-In order to do this, custom forecasts need to have the `roll-up` key defined. That is, given the custom period you've
-specified, what number do you need to multiply the amount by in order to get it into an annualised figure. Let's look at the example below:
+In order to do this, custom forecasts need to have the `roll-up` key defined. That is, given the custom period you've specified, what number do you need to multiply the amount by in order to "roll it up" into an annualised figure. Let's look at the example below:
 
 ```yaml
 custom:
@@ -303,11 +302,27 @@ custom:
         description: Hair and beauty
 ```
 
-Every 2 weeks a planned expense of £80 is made. So over the course of a year, we'd need to multiply that amount by 26. So that is the number which is entered next to the `roll-up` key.
+Every 2 weeks a planned expense of £80 is made. So over the course of a year, we'd need to multiply that amount by 26 to get to an annualised figure. Of course for periods like `monthly` and `quarterly` it's easy for hledger-forecast to annual those amounts so no `roll-up` is required.
 
-After this, the following command can be executed to see the monthly summary of your `yaml` file:
+To see the monthly summary of your `yaml` file, the following command can be used:
 
     hledger-forecast summarize -f my_forecast.yml -r monthly
+
+### Summary exclusions
+
+It can also be useful to exclude certain items from your summary such as one-off items. This can be achieved by specifying `summary_exclude: true` next to a transaction:
+
+```yaml
+once:
+  - account: "Assets:Bank"
+    from: "2023-03-05"
+    transactions:
+      - amount: -3000
+        category: "Expenses:Shopping"
+        description: Refund for that damn laptop
+        summary_exclude: true
+        track: true
+```
 
 ### Additional config settings
 
@@ -332,12 +347,8 @@ settings:
 
 ## :paintbrush: Rationale
 
-Firstly, I've come to realise from reading countless blog and Reddit posts on [plain text accounting](https://plaintextaccounting.org), that everyone does it **completely** differently! There is _great_ support in hledger for [forecasting](https://hledger.org/1.29/hledger.html#forecasting) using periodic transactions. Infact, it's nearly perfect for my needs. My only wishes were to be able to sum up monthly transactions much faster (so I can see my forecasted monthly I&E), apply future cost pressures more easily (such as inflation) and to be able to track and monitor specific transactions.
+I moved to hledger from my trusty Excel macro workbook. This thing had been with me for 5+ years. I used it to workout whether I could afford that new gadget and when I'd be in a position to buy a house. I used it to see if I was on track to have £X in my savings accounts by a given date as well as see how much money I could save on a monthly basis. That time I accidentally double counted my bonus or thought I'd accounted for my credit card bill? Painful! Set me back a few months in terms of my savings plans. In summary, I relied _heavily_ on having a detailed and accurate forecast.
 
-Regarding the latter; I may be expecting a material amount of money to leave my account in May (perhaps for a holiday booking). But maybe, that booking ends up leaving in July instead. Whilst I would have accounted for that expense in my forecast, it will be tied to some date in May. So if that transaction doesn't appear in the "actuals" of my May bank statement (which I import into hledger), it won't be included in my forecast at all (as the latest transaction period will be greater than the forecast period). The impact is that my forecasted balance in any future month could be $X better off than reality. Being able to automatically look out for these transactions, and include them if they're not present, is a nice time saver.
+I love hledger. Switching from Excel has been a breath of fresh air. There's only so many bank transactions a workbook can take before it starts groaning (yes, even on an M1 Mac). However there were a few forecasting features that I missed. The sort of features that in Excel terms mean I'd just copy a bunch of cells and paste them into columns which represented future dates or apply a neat little formula to divide a big number by 12 to get to a monthly repayment. Because I like to plan 3-5 years out at a time, I wanted to crudely account for future price and salary increases. Sure, I can add some auto-postings to the end of my journal file but I bet a lot of users didn't know about this or even know how to constrain them between two dates. I also made an assumption that a lot of users probably think of their finances in terms of their monthly costs (e.g. car payments, mortgage, food), half-yearly costs (e.g. service charge if you have an apartment in the UK) and yearly costs (e.g. holidays, gifts) etc. But likely never do the math to add them all together and workout how much money they have left over by the end of it all. Well I built that into this app and my daily profit figure hit me hard :rofl:. Give it a try!
 
-Also, I like to look ahead up to 3 years at a time and understand what my bank balances might look like. For this to be really accurate, factors such as inflation and salary expectations should be included. This is where the idea for modifiers came in. Being able to apply a percentage to a given category between two dates and automatically have the impact included any extended forecasts.
-
-Now I'll freely admit these are two minor issues. So minor infact that they can probably be addressed by a dedicated 5 minutes every month as part of your hledger workflow. However I liked the idea of automating as much of my month end process as possible and saw this as an interesting challenge to try and solve.
-
-Whilst I tried to work within the constraints of a `journal` file, moving to a `yaml` format made the implementation of these features much easier and allowed me to stay true to how you'd accomplish forecasting in hledger, manually. Whilst the config file can end up being many lines long, the output journal should be relatively streamlined and easy to follow.
+So I thought I'd share this little Ruby gem in the hope that people find it useful. Perhaps for those who are moving from an Excel based approach to [plain text accounting](https://plaintextaccounting.org), or for those who want a little bit of improvement to the existing capabilities within hledger.

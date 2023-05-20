@@ -2,32 +2,44 @@ monthly:
   - account: "Assets:Bank"
     from: "2023-03-01"
     transactions:
-      - amount: -100
-        category: "Income:Bonus"
-        description: Bonus
-      - amount: -2000
+      - amount: -3500
         category: "Income:Salary"
         description: Salary
+      - amount: 2000
+        category: "Expenses:Mortgage"
+        description: Mortgage
+        to: "2025-01-01"
+      - amount: 175
+        category: "Expenses:Bills"
+        description: Bills
       - amount: 500
         category: "Expenses:Food"
         description: Food
         modifiers:
-          - amount: 0.1
+          - amount: 0.02
             description: "Inflation"
             from: "2024-01-01"
             to: "2024-12-31"
-      - amount: 75
-        category: "Expenses:Phone"
-        description: New cell phone
-      - amount: "=2500/12"
+          - amount: 0.05
+            description: "Inflation"
+            from: "2025-01-01"
+            to: "2025-12-31"
+      - amount: "=5000/24"
+        category: "Expenses:House"
+        description: New Kitchen
+      - amount: 125
         category: "Expenses:Holiday"
-        description: Holiday savings
-      - amount: 1000
-        category: "Expenses:Mortgage"
-        description: Mortgage
-        to: "2024-01-01"
-  - account: "Assets:Savings"
+        description: Holiday
+        to: "=12"
+  - account: "Assets:Bank"
     from: "2023-03-01"
+    to: "2025-01-01"
+    transactions:
+      - amount: 300
+        category: "Assets:Savings"
+        description: "Rainy day fund"
+  - account: "Assets:Pension"
+    from: "2024-01-01"
     transactions:
       - amount: -500
         category: "Income:Pension"
@@ -39,7 +51,7 @@ quarterly:
     transactions:
       - amount: -1000.00
         category: "Income:Bonus"
-        description: Bonus
+        description: Quarterly bonus
 
 half-yearly:
   - account: "Assets:Bank"
@@ -47,7 +59,7 @@ half-yearly:
     transactions:
       - amount: 500
         category: "Expenses:Holiday"
-        description: Holiday
+        description: Top up holiday funds
 
 yearly:
   - account: "Assets:Bank"
@@ -59,21 +71,23 @@ yearly:
 
 once:
   - account: "Assets:Bank"
-    from: "2023-03-01"
+    from: "2023-03-05"
     transactions:
-      - amount: 5000.00
-        category: "Expenses:Car"
-        description: Forecast new car cost
+      - amount: -3000
+        category: "Expenses:Shopping"
+        description: Refund for that damn laptop
+        summary_exclude: true
         track: true
 
 custom:
-  - frequency: "every 5 days"
+  - frequency: "every 2 weeks"
     account: "Assets:Bank"
     from: "2023-03-01"
+    roll-up: 26
     transactions:
-      - amount: 150
-        category: "Expenses:Car:Fuel"
-        description: Car fuel
+      - amount: 80
+        category: "Expenses:Personal Care"
+        description: Hair and beauty
 
 settings:
-  currency: GBP
+  currency: USD

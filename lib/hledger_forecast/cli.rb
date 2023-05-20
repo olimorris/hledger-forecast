@@ -118,6 +118,29 @@ module HledgerForecast
           options[:forecast_file] = file
         end
 
+        opts.on("-r", "--roll-up PERIOD",
+                "The period to roll-up your forecasts into. One of:",
+                "[yearly], [half-yearly], [quarterly], [monthly], [weekly], [daily]") do |rollup|
+          options[:roll_up] = rollup
+        end
+
+        opts.on("--from DATE",
+                "Include transactions that start FROM a given DATE [yyyy-mm-dd]") do |from|
+          options[:from] = from
+        end
+
+        opts.on("--to DATE",
+                "Include transactions that run TO a given DATE [yyyy-mm-dd]") do |to|
+          options[:to] = to
+        end
+
+        opts.on("-s", "--scenario \"NAMES\"",
+                "Include transactions from given scenarios, e.g.:",
+                "\"base, rennovation, car purchase\"") do |_scenario|
+          # Loop through scenarios, seperated by a comma
+          options[:scenario] = {}
+        end
+
         opts.on_tail("-h", "--help", "Show this help message") do
           puts opts
           exit
@@ -156,7 +179,9 @@ module HledgerForecast
 
     def self.summarize(options)
       config = File.read(options[:forecast_file])
-      puts Summarizer.summarize(config, options)
+      summarizer = Summarizer.summarize(config, options)
+
+      puts SummarizerFormatter.format(summarizer[:output], summarizer[:settings])
     end
   end
 end
