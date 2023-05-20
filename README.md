@@ -11,9 +11,7 @@
 <a href="https://github.com/olimorris/hledger-forecast/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/olimorris/hledger-forecast/ci.yml?branch=main&label=tests&style=for-the-badge"></a>
 </p>
 
-<p align="center">Improved forecasting with hledger</p>
-
-**"Improved", you say?** Using a `yaml` file, forecasts can be quickly generated into a `journal` file ready to be fed into [hledger](https://github.com/simonmichael/hledger). Forecasts can be easily constrained between dates, inflated by modifiers, tracked until they appear in your bank statements and summarized into your own daily(/weekly/monthly etc) personal forecast income and expenditure statement.
+**"Improved", you say?** Using a _yaml_ file, forecasts can be quickly generated into a _journal_ file ready to be fed into [hledger](https://github.com/simonmichael/hledger). Forecasts can be easily constrained between dates, inflated by modifiers, tracked until they appear in your bank statements and summarized into your own daily(/weekly/monthly etc) personal forecast income and expenditure statement.
 
 I **strongly** recommend you read the [rationale](#rainbow-rationale) section to see if this app might be useful to you.
 
