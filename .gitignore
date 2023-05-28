@@ -18,3 +18,4 @@ pkg/*
 # Misc
 test_output.journal
 todo.md
+.vscode

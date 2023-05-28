@@ -42,8 +42,15 @@ module HledgerForecast
         total = 0
         items.each do |item|
           total += item[:amount]
-          @table.add_row [{ value: item[:category], colspan: 2, alignment: :left },
-                          { value: format_amount(item[:amount]), alignment: :right }]
+
+          if @settings[:verbose]
+            @table.add_row [{ value: item[:category], alignment: :left },
+                            { value: item[:description], alignment: :left },
+                            { value: format_amount(item[:amount]), alignment: :right }]
+          else
+            @table.add_row [{ value: item[:category], colspan: 2, alignment: :left },
+                            { value: format_amount(item[:amount]), alignment: :right }]
+          end
         end
 
         @table.add_row [{ value: "TOTAL".bold, colspan: 2, alignment: :left },

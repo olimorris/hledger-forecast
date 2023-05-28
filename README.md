@@ -92,6 +92,7 @@ The available options are:
     -f, --forecast FILE              The path to the FORECAST yaml file to summarize
     -r, --roll-up PERIOD             The period to roll-up your forecasts into. One of:
                                      [yearly], [half-yearly], [quarterly], [monthly], [weekly], [daily]
+    -v, --verbose                    Show additional information in the summary
     -h, --help                       Show this help message
 
 ## :gear: Configuration
