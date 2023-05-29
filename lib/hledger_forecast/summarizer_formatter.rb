@@ -85,9 +85,17 @@ module HledgerForecast
       # Sort the array
       sorted_sums = sort_roll_up(sum_hash, :sum)
 
-      sorted_sums.each do |hash|
-        @table.add_row [{ value: hash[:category], colspan: 2, alignment: :left },
-                        { value: format_amount(hash[:sum]), alignment: :right }]
+      if @settings[:verbose]
+        sorted_sums.each do |hash|
+          @table.add_row [{ value: hash[:category], colspan: 1, alignment: :left },
+                          { value: hash[:descriptions], colspan: 1, alignment: :left },
+                          { value: format_amount(hash[:sum]), alignment: :right }]
+        end
+      else
+        sorted_sums.each do |hash|
+          @table.add_row [{ value: hash[:category], colspan: 2, alignment: :left },
+                          { value: format_amount(hash[:sum]), alignment: :right }]
+        end
       end
     end
 
