@@ -347,11 +347,11 @@ settings:
 
 **Yaml config file and output**
 
-<img src="https://user-images.githubusercontent.com/9512444/234382872-b81ac84d-2bcc-4488-a041-364f72627087.png" alt="Hledger-Forecast" />
+<img src="https://github.com/olimorris/hledger-forecast/assets/9512444/c3c3222e-f797-4643-bebd-9c94134bee92" alt="Hledger-Forecast" />
 
 **Summarize command**
 
-<img src="https://user-images.githubusercontent.com/9512444/234386807-1301c8d9-af77-4f58-a3c3-a345b5e890a2.png" alt="Summarize command" />
+<img src="https://github.com/olimorris/hledger-forecast/assets/9512444/f5017ea2-9606-46ec-8b38-8840dc175e7b" alt="Summarize command" />
 
 ## :paintbrush: Rationale
 
