@@ -24,6 +24,17 @@ I **strongly** recommend you read the [rationale](#paintbrush-rationale) section
 - :chart_with_upwards_trend: Display your forecasts as income and expenditure reports (e.g. daily, weekly, monthly)
 - :computer: Simple and easy to use CLI
 
+## :camera_flash: Screenshots
+
+**Config file and journal output**
+
+<img src="https://github.com/olimorris/hledger-forecast/assets/9512444/c3c3222e-f797-4643-bebd-9c94134bee92" alt="Hledger-Forecast" />
+
+**Output from the `summarize` command**
+
+<img src="https://github.com/olimorris/hledger-forecast/assets/9512444/f5017ea2-9606-46ec-8b38-8840dc175e7b" alt="Summarize command" />
+
+
 ## :package: Installation
 
 Assuming you have Ruby and [Rubygems](http://rubygems.org/pages/download) installed on your system, simply run:
@@ -156,9 +167,7 @@ custom:
 
 ### Dates
 
-The core of any solid forecast is predicting the correct periods that costs will fall into. When running the app from the CLI, you can specify specific dates to generate transactions over (see the [usage](#rocket-usage) section).
-
-You can further control the dates at a period/top-level as well as at a transaction level:
+The core of any solid forecast is predicting the correct periods that costs will fall into. You can control the dates at a period/top-level as well as at a transaction level:
 
 #### Top level
 
@@ -343,17 +352,7 @@ settings:
   thousands_separator: true # Separate thousands with a comma?
 ```
 
-## :camera_flash: Screenshots
-
-**Yaml config file and output**
-
-<img src="https://github.com/olimorris/hledger-forecast/assets/9512444/c3c3222e-f797-4643-bebd-9c94134bee92" alt="Hledger-Forecast" />
-
-**Summarize command**
-
-<img src="https://github.com/olimorris/hledger-forecast/assets/9512444/f5017ea2-9606-46ec-8b38-8840dc175e7b" alt="Summarize command" />
-
-## :paintbrush: Rationale
+## :thinking: Rationale
 
 I moved to hledger from my trusty Excel macro workbook. This thing had been with me for 5+ years. I used it to workout whether I could afford that new gadget and when I'd be in a position to buy a house. I used it to see if I was on track to have £X in my savings accounts by a given date as well as see how much money I could save on a monthly basis. That time I accidentally double counted my bonus or thought I'd accounted for my credit card bill? Painful! Set me back a few months in terms of my savings plans. In summary, I relied _heavily_ on having a detailed and accurate forecast.
 
@@ -362,3 +361,8 @@ I love hledger. Switching from Excel has been a breath of fresh air. There's onl
 I also made an assumption that a lot of users probably think of their finances in terms of their monthly costs (e.g. car payments, mortgage, food), half-yearly costs (e.g. service charge if you have an apartment in the UK) and yearly costs (e.g. holidays, gifts) etc. But likely never do the math to add them all together and workout how much money they have left over by the end of it all. Well I built that into this app and my daily profit figure hit me hard :rofl:. Give it a try!
 
 So I thought I'd share this little Ruby gem in the hope that people find it useful. Perhaps for those who are moving from an Excel based approach to [plain text accounting](https://plaintextaccounting.org), or for those who want a little bit of improvement to the existing capabilities within hledger.
+
+## :pencil2: Contributing
+
+I am open to any pull requests that fix bugs but would ask that any new functionality is discussed before it could be accepted.
+
