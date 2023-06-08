@@ -19,7 +19,7 @@ jobs:
       - name: Update packages
         run: sudo apt-get update
       - name: Install packages
-        run: sudo apt-get -y install ledger hledger
+        run: sudo apt-get -y install hledger
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
