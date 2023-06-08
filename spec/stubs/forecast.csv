@@ -1,0 +1,5 @@
+type,frequency,account,from,to,description,category,amount,roll-up,summary_exclude,track
+monthly,,Assets:Bank,01/03/2023,,Mortgage,Expenses:Mortgage,2000.55,,,
+monthly,,Assets:Bank,01/03/2023,,Food,Expenses:Food,100,,,
+monthly,,Assets:Savings,01/03/2023,,Savings,Assets:Bank,-1000,,,
+settings,currency,GBP,,,,,,,,
