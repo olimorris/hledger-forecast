@@ -15,7 +15,7 @@ module HledgerForecast
 
         transaction = {
           'account' => row['account'],
-          'from' => Date.strptime(row['from'], '%m/%d/%Y').strftime('%Y-%m-%d'),
+          'from' => Date.parse(row['from']),
           'transactions' => []
         }
 
@@ -25,7 +25,7 @@ module HledgerForecast
           'description' => row['description']
         }
 
-        transaction_data['to'] = Date.strptime(row['to'], '%m/%d/%Y').strftime('%Y-%m-%d') if row['to']
+        transaction_data['to'] = Date.parse(row['to']) if row['to']
 
         if yaml_data[frequency].any? do |existing_trans|
              existing_trans['account'] == transaction['account'] && existing_trans['from'] == transaction['from']
@@ -39,7 +39,7 @@ module HledgerForecast
         end
       end
 
-      yaml_data['monthly'].to_yaml.prepend("monthly:\n")
+      yaml_data.to_yaml.gsub!(/^---\n/, '')
     end
   end
 end

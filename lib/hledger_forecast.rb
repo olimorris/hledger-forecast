@@ -26,4 +26,3 @@ require_relative 'hledger_forecast/version'
 require_relative 'hledger_forecast/transactions/default'
 require_relative 'hledger_forecast/transactions/modifiers'
 require_relative 'hledger_forecast/transactions/trackers'
-
