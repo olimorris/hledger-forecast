@@ -122,6 +122,11 @@ module HledgerForecast
 
         opts.on("-f", "--forecast FILE",
                 "The path to the FORECAST csv/yaml file to summarize") do |file|
+          options[:file_type] = if File.extname(file) == '.csv'
+                                  "csv"
+                                else
+                                  "yaml"
+                                end
           options[:forecast_file] = file
         end
 
@@ -192,6 +197,8 @@ module HledgerForecast
 
     def self.summarize(options)
       config = File.read(options[:forecast_file])
+      config = HledgerForecast::CSVParser.parse(config) if options[:file_type] == "csv"
+
       summarizer = Summarizer.summarize(config, options)
 
       puts SummarizerFormatter.format(summarizer[:output], summarizer[:settings])
