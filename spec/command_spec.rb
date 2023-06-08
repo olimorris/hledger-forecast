@@ -22,4 +22,14 @@ RSpec.describe 'command' do
 
     expect(File.read(generated_journal)).to eq(output)
   end
+
+  it 'uses the CLI to generate an output with a CSV config file' do
+    # Delete the file if it exists
+    generated_journal = './test_output.journal'
+    File.delete(generated_journal) if File.exist?(generated_journal)
+
+    system("./bin/hledger-forecast generate -f ./spec/stubs/forecast.csv -o ./test_output.journal --force")
+
+    expect(File.read(generated_journal)).to eq(output)
+  end
 end
