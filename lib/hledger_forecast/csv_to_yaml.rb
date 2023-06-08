@@ -9,34 +9,31 @@ module HledgerForecast
       csv_data = CSV.parse(csv_data, headers: true)
       yaml_data = {}
 
-      csv_data.each do |row|
-        frequency = row['frequency']
+      grouped_data = csv_data.group_by { |row| [row['account'], row['from']] }
+
+      grouped_data.each do |(account, from), transactions|
+        frequency = transactions.first['frequency']
         yaml_data[frequency] ||= []
 
         transaction = {
-          'account' => row['account'],
-          'from' => Date.parse(row['from']),
+          'account' => account,
+          'from' => Date.parse(from).strftime('%Y-%m-%d'),
           'transactions' => []
         }
 
-        transaction_data = {
-          'amount' => row['amount'].to_i,
-          'category' => row['category'],
-          'description' => row['description']
-        }
+        transactions.each do |row|
+          transaction_data = {
+            'amount' => row['amount'].to_i,
+            'category' => row['category'],
+            'description' => row['description']
+          }
 
-        transaction_data['to'] = Date.parse(row['to']) if row['to']
+          transaction_data['to'] = Date.parse(row['to']).strftime('%Y-%m-%d') if row['to']
 
-        if yaml_data[frequency].any? do |existing_trans|
-             existing_trans['account'] == transaction['account'] && existing_trans['from'] == transaction['from']
-           end
-          yaml_data[frequency].find do |existing_trans|
-            existing_trans['account'] == transaction['account'] && existing_trans['from'] == transaction['from']
-          end['transactions'] << transaction_data
-        else
           transaction['transactions'] << transaction_data
-          yaml_data[frequency] << transaction
         end
+
+        yaml_data[frequency] << transaction
       end
 
       yaml_data.to_yaml.gsub!(/^---\n/, '')
