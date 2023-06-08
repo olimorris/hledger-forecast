@@ -96,14 +96,14 @@ output = <<~YAML
     frequency: every 2 weeks
     roll-up: 26
   settings:
-    currency: GBP
+    currency: USD
     show_symbol: true
     thousands_separator: true
 YAML
 
 RSpec.describe 'CSV to YAML' do
   it 'converts a CSV file to the YAML file format needed for the plugin' do
-    computed_yaml = HledgerForecast::CSV2YAML.convert(input)
+    computed_yaml = HledgerForecast::CSVParser.parse(input)
 
     expect(computed_yaml).to eq(output)
   end

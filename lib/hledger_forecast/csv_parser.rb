@@ -1,11 +1,11 @@
 module HledgerForecast
   # Formats various items used throughout the application
-  class CSV2YAML
-    def self.convert(csv_data, cli_options = nil)
-      new.convert(csv_data, cli_options)
+  class CSVParser
+    def self.parse(csv_data, cli_options = nil)
+      new.parse(csv_data, cli_options)
     end
 
-    def convert(csv_data, _cli_options)
+    def parse(csv_data, _cli_options)
       csv_data = CSV.parse(csv_data, headers: true)
       yaml_data = {}
       group_by_type(csv_data, yaml_data)
