@@ -8,35 +8,69 @@ module HledgerForecast
     def convert(csv_data, _cli_options)
       csv_data = CSV.parse(csv_data, headers: true)
       yaml_data = {}
+      group_by_type(csv_data, yaml_data)
+      yaml_data.to_yaml
+    end
 
-      grouped_data = csv_data.group_by { |row| [row['account'], row['from']] }
+    private
 
-      grouped_data.each do |(account, from), transactions|
-        frequency = transactions.first['frequency']
-        yaml_data[frequency] ||= []
+    def group_by_type(csv_data, yaml_data)
+      csv_data.group_by { |row| row['type'] }.each do |type, rows|
+        yaml_data[type] ||= []
+        group_by_account_and_from(rows, yaml_data[type], type)
+      end
+    end
 
-        transaction = {
-          'account' => account,
-          'from' => Date.parse(from).strftime('%Y-%m-%d'),
-          'transactions' => []
-        }
+    def group_by_account_and_from(rows, yaml_rows, type)
+      rows.group_by { |row| [row['account'], row['from']] }.each do |(account, from), transactions|
+        yaml_rows << if type == 'custom'
+                       build_custom_transaction(account, from, transactions)
+                     else
+                       build_transaction(account, from, transactions)
+                     end
+      end
+    end
 
-        transactions.each do |row|
-          transaction_data = {
-            'amount' => row['amount'].to_i,
-            'category' => row['category'],
-            'description' => row['description']
-          }
+    def build_transaction(account, from, transactions)
+      transaction = {
+        'account' => account,
+        'from' => Date.parse(from).strftime('%Y-%m-%d'),
+        'transactions' => []
+      }
 
-          transaction_data['to'] = Date.parse(row['to']).strftime('%Y-%m-%d') if row['to']
-
-          transaction['transactions'] << transaction_data
-        end
-
-        yaml_data[frequency] << transaction
+      transactions.each do |row|
+        transaction['transactions'] << build_transaction_data(row)
       end
 
-      yaml_data.to_yaml.gsub!(/^---\n/, '')
+      transaction
+    end
+
+    def build_custom_transaction(account, from, transactions)
+      transaction = build_transaction(account, from, transactions)
+      transaction['frequency'] = transactions.first['frequency']
+      transaction['roll-up'] = transactions.first['roll-up'].to_i if transactions.first['roll-up']
+      transaction
+    end
+
+    def build_transaction_data(row)
+      transaction_data = {
+        'amount' => row['amount'].start_with?("=") ? row['amount'].to_s : row['amount'].to_f,
+        'category' => row['category'],
+        'description' => row['description']
+      }
+
+      if row['to']
+        transaction_data['to'] = if row['to'].start_with?("=")
+                                   row['to']
+                                 else
+                                   Date.parse(row['to']).strftime('%Y-%m-%d')
+                                 end
+      end
+
+      transaction_data['summary_exclude'] = true if row['summary_exclude'] && row['summary_exclude'].downcase == "true"
+      transaction_data['track'] = true if row['track'] && row['track'].downcase == "true"
+
+      transaction_data
     end
   end
 end
