@@ -16,8 +16,19 @@ module HledgerForecast
 
     def group_by_type(csv_data, yaml_data)
       csv_data.group_by { |row| row['type'] }.each do |type, rows|
-        yaml_data[type] ||= []
-        group_by_account_and_from(rows, yaml_data[type], type)
+        if type == 'settings'
+          handle_settings(rows, yaml_data)
+        else
+          yaml_data[type] ||= []
+          group_by_account_and_from(rows, yaml_data[type], type)
+        end
+      end
+    end
+
+    def handle_settings(rows, yaml_data)
+      yaml_data['settings'] ||= {}
+      rows.each do |row|
+        yaml_data['settings'][row['frequency']] = cast_to_proper_type(row['account'])
       end
     end
 
@@ -71,6 +82,15 @@ module HledgerForecast
       transaction_data['track'] = true if row['track'] && row['track'].downcase == "true"
 
       transaction_data
+    end
+
+    def cast_to_proper_type(str)
+      case str.downcase
+      when 'true', 'false'
+        str.downcase == 'true'
+      else
+        str
+      end
     end
   end
 end
