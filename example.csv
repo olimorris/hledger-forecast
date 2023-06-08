@@ -1,0 +1,5 @@
+﻿frequency,account,from,to,description,category,amount,summary_exclude,track
+monthly,Assets:Bank,01/03/2023,,Salary,Income:Salary,-3500,,
+monthly,Assets:Bank,01/03/2023,01/01/2025,Mortgage,Expenses:Mortgage,2000,,
+monthly,Assets:Bank,01/03/2023,,Bills,Expenses:Bills,175,,
+monthly,Assets:Bank,01/03/2023,,Food,Expenses:Food,500,,

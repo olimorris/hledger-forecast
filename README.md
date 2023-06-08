@@ -11,13 +11,13 @@
 <a href="https://github.com/olimorris/hledger-forecast/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/olimorris/hledger-forecast/ci.yml?branch=main&label=tests&style=for-the-badge"></a>
 </p>
 
-**"Improved", you say?** Using a _yaml_ file, forecasts can be quickly generated into a _journal_ file ready to be fed into [hledger](https://github.com/simonmichael/hledger). Forecasts can be easily constrained between dates, inflated by modifiers, tracked until they appear in your bank statements and summarized into your own daily/weekly/monthly/yearly personal forecast income and expenditure statement.
+**"Improved", you say?** Using a _csv_ or _yaml_ file, forecasts can be quickly generated into a _journal_ file ready to be fed into [hledger](https://github.com/simonmichael/hledger). Forecasts can be easily constrained between dates, inflated by modifiers, tracked until they appear in your bank statements and summarized into your own daily/weekly/monthly/yearly personal forecast income and expenditure statement.
 
-I **strongly** recommend you read the [rationale](#paintbrush-rationale) section to see if this app might be useful to you.
+I **strongly** recommend you read the [rationale](#thinking-rationale) section to see if this app might be useful to you.
 
 ## :sparkles: Features
 
-- :book: Uses a simple yaml file to generate forecasts which can be used with hledger
+- :book: Uses a simple csv/yaml file to generate forecasts which can be used with hledger
 - :date: Can smartly track forecasts against your bank statement
 - :moneybag: Can automatically apply modifiers such as inflation/deflation to forecasts
 - :abacus: Enables the use of maths in your forecasts (for amounts and dates)
@@ -67,7 +67,7 @@ The available options are:
 
     Usage: hledger-forecast generate [options]
 
-      -f, --forecast FILE              The path to the FORECAST yaml file to generate from
+      -f, --forecast FILE              The path to the FORECAST csv/yaml file to generate from
       -o, --output-file FILE           The path to the OUTPUT file to create
       -t, --transaction FILE           The path to the TRANSACTION journal file
           --force                      Force an overwrite of the output file
@@ -76,7 +76,7 @@ The available options are:
 
 > **Note**: For the tracking of transactions you need to include the `-t` flag
 
-Running the command with no options will assume a `forecast.yml` file exists.
+Running the command with no options will assume a `forecast.csv` or `forecast.yml` file exists.
 
 ### Using with hledger
 
@@ -90,7 +90,7 @@ The command will generate a forecast up to the end of Feb 2024, showing the bala
 
 ### Summarize command
 
-As your `yaml` configuration file grows, it can be helpful to sum up the total amounts and output them to the CLI.
+As your configuration file grows, it can be helpful to sum up the total amounts and output them to the CLI.
 Furthermore, being able to see your monthly profit and loss statement _if_ you were to purchase that new item may
 influence your buying decision. In hledger-forecast, this can be achieved by:
 
@@ -356,7 +356,7 @@ settings:
 
 I moved to hledger from my trusty Excel macro workbook. This thing had been with me for 5+ years. I used it to workout whether I could afford that new gadget and when I'd be in a position to buy a house. I used it to see if I was on track to have £X in my savings accounts by a given date as well as see how much money I could save on a monthly basis. That time I accidentally double counted my bonus or thought I'd accounted for my credit card bill? Painful! Set me back a few months in terms of my savings plans. In summary, I relied _heavily_ on having a detailed and accurate forecast.
 
-I love hledger. Switching from Excel has been a breath of fresh air. There's only so many bank transactions a workbook can take before it starts groaning (yes, even on an M1 Mac). However there were a few forecasting features that I missed. The sort of features that in Excel terms mean I'd just copy a bunch of cells and paste them into columns which represented future dates or apply a neat little formula to divide a big number by 12 to get to a monthly repayment. Because I like to plan 3-5 years out at a time, I wanted to crudely account for future price and salary increases. Sure, I can add some auto-postings to the end of my journal file but I bet a lot of users didn't know about this or even know how to constrain them between two dates.
+I love hledger. Switching from Excel has been a breath of fresh air. There's only so many bank transactions a workbook can take before it starts groaning (yes, even on an M1 Mac). However there were a few forecasting features that I missed. The sort of features that in Excel terms mean I'd just copy a bunch of cells and paste them into columns which represented future dates or apply a neat little formula to divide a big number by 12 to get to a monthly repayment. Because I like to plan 3-5 years out at a time, I wanted to crudely account for future price and salary increases. Sure, with hledger I can add some auto-postings to the end of my journal file but I bet a lot of users don't know about this or know how to constrain them between two dates.
 
 I also made an assumption that a lot of users probably think of their finances in terms of their monthly costs (e.g. car payments, mortgage, food), half-yearly costs (e.g. service charge if you have an apartment in the UK) and yearly costs (e.g. holidays, gifts) etc. But likely never do the math to add them all together and workout how much money they have left over by the end of it all. Well I built that into this app and my daily profit figure hit me hard :rofl:. Give it a try!
 
