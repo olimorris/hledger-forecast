@@ -19,7 +19,7 @@ jobs:
       - name: Update packages
         run: sudo apt-get update
       - name: Install packages
-        run: sudo apt-get -y install hledger
+        run: sudo apt install hledger hledger-ui hledger-web
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
