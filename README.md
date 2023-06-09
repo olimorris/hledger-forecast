@@ -28,7 +28,7 @@ Forecasts can also be constrained between dates, inflated by modifiers, tracked 
 
 **Config file and journal output**
 
-<img src="https://github.com/olimorris/hledger-forecast/assets/9512444/c3c3222e-f797-4643-bebd-9c94134bee92" alt="Hledger-Forecast" />
+<img src="https://github.com/olimorris/hledger-forecast/assets/9512444/430503b5-f447-4972-b122-b48f8628aff9" alt="Hledger-Forecast" />
 
 **Output from the `summarize` command**
 
