@@ -57,7 +57,7 @@ RSpec.describe HledgerForecast::Summarizer do
 
       expect(output.first).to include(:account, :from, :to, :type, :frequency)
       expect(output.first[:amount]).to eq(2000.55)
-      expect(output.last[:rolled_up_amount]).to eq(304) # ((50 * 73) / 12)
+      expect(output.last[:rolled_up_amount]).to eq((50.0 * 73.0) / 12.0) # ((50 * 73) / 12)
       expect(output.length).to eq(5)
     end
 
