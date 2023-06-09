@@ -69,13 +69,13 @@ module HledgerForecast
         opts.separator ""
 
         opts.on("-f", "--forecast FILE",
-                "The path to the FORECAST csv/yaml file to generate from") do |file|
+                "The path to the FORECAST csv/yml file to generate from") do |file|
           options[:forecast_file] = file
 
           options[:file_type] = if File.extname(file) == '.csv'
                                   "csv"
                                 else
-                                  "yaml"
+                                  "yml"
                                 end
 
           options[:output_file] ||= file.sub(options[:file_type], 'journal')
@@ -107,7 +107,8 @@ module HledgerForecast
         end
       end.parse!(args)
 
-      options[:forecast_file] = "forecast.yml" unless options[:forecast_file]
+      options[:forecast_file] = "forecast.csv" unless options[:forecast_file]
+      options[:file_type] = "csv" unless options[:file_type]
       options[:output_file] = "forecast.journal" unless options[:output_file]
 
       options
@@ -121,11 +122,11 @@ module HledgerForecast
         opts.separator ""
 
         opts.on("-f", "--forecast FILE",
-                "The path to the FORECAST csv/yaml file to summarize") do |file|
+                "The path to the FORECAST csv/yml file to summarize") do |file|
           options[:file_type] = if File.extname(file) == '.csv'
                                   "csv"
                                 else
-                                  "yaml"
+                                  "yml"
                                 end
           options[:forecast_file] = file
         end
@@ -179,6 +180,7 @@ module HledgerForecast
       end
 
       output_file = options[:output_file]
+
       if File.exist?(output_file) && !options[:force]
         print "\nFile '#{output_file}' already exists. Overwrite? (y/n): "
         overwrite = gets.chomp.downcase
