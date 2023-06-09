@@ -57,9 +57,19 @@ module HledgerForecast
     end
 
     def build_custom_transaction(account, from, transactions)
-      transaction = build_transaction(account, from, transactions)
-      transaction['frequency'] = transactions.first['frequency']
-      transaction['roll-up'] = transactions.first['roll-up'].to_i if transactions.first['roll-up']
+      transaction = {
+        'account' => account,
+        'from' => Date.parse(from).strftime('%Y-%m-%d'),
+        'transactions' => []
+      }
+
+      transactions.each do |row|
+        transaction_data = build_transaction_data(row)
+        transaction_data['frequency'] = row['frequency']
+        transaction_data['roll-up'] = row['roll-up'].to_f if row['roll-up']
+        transaction['transactions'] << transaction_data
+      end
+
       transaction
     end
 

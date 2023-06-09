@@ -12,4 +12,5 @@ half-yearly,,Assets:Bank,01/04/2023,,Top up holiday funds,Expenses:Holiday,500,,
 yearly,,Assets:Bank,01/04/2023,,Annual bonus,Income:Bonus,-2000,,,
 once,,Assets:Bank,05/03/2023,,Refund for that damn laptop,Expenses:Shopping,-3000,,TRUE,TRUE
 custom,every 2 weeks,Assets:Bank,01/03/2023,,Hair and beauty,Expenses:Personal Care,80,26,,
+custom,every 5 weeks,Assets:Bank,01/03/2023,,Misc expenses,Expenses:General Expenses,30,10.4,,
 settings,currency,USD,,,,,,,,

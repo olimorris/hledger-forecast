@@ -261,14 +261,19 @@ once:
         track: true
 
 custom:
-  - frequency: "every 2 weeks"
-    account: "Assets:Bank"
+  - account: "Assets:Bank"
     from: "2023-03-01"
-    roll-up: 26
     transactions:
       - amount: 80
         category: "Expenses:Personal Care"
         description: Hair and beauty
+        frequency: "every 2 weeks"
+        roll-up: 26
+      - amount: 30
+        category: "Expenses:General Expenses"
+        description: Misc expenses
+        frequency: "every 5 weeks"
+        roll-up: 10.4
 
 settings:
   currency: USD

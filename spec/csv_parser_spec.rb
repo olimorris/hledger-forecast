@@ -93,8 +93,8 @@ output = <<~YAML
     - amount: 80.0
       category: Expenses:Personal Care
       description: Hair and beauty
-    frequency: every 2 weeks
-    roll-up: 26
+      frequency: every 2 weeks
+      roll-up: 26.0
   settings:
     currency: USD
     show_symbol: true
