@@ -5,10 +5,10 @@ RSpec.describe 'CSV and yml outputs' do
     generated_journal = './test_output.journal'
     File.delete(generated_journal) if File.exist?(generated_journal)
 
-    system("./bin/hledger-forecast generate -f ./spec/stubs/csv_and_yml/forecast.csv -o ./test_output.journal --force > /dev/null 2>&1")
+    system("./bin/hledger-forecast generate -f example.csv -o ./test_output.journal --force > /dev/null 2>&1")
     csv_output = `hledger -f ./test_output.journal --forecast bal -b=2023-01 -e=2023-06`
 
-    system("./bin/hledger-forecast generate -f ./spec/stubs/csv_and_yml/forecast.yml -o ./test_output.journal --force > /dev/null 2>&1")
+    system("./bin/hledger-forecast generate -f example.yml -o ./test_output.journal --force > /dev/null 2>&1")
     yml_output = `hledger -f ./test_output.journal --forecast bal -b=2023-01 -e=2023-06`
 
     expect(csv_output).to eq(yml_output)
