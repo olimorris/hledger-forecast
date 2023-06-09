@@ -6,7 +6,7 @@ module HledgerForecast
     end
 
     def evaluate(amount)
-      return amount unless amount.is_a?(String)
+      return amount.to_f unless amount.is_a?(String)
 
       @calculator.evaluate(amount.slice(1..-1))
     end

@@ -20,22 +20,22 @@ config = <<~YAML
           description: Savings
 
   custom:
-    - frequency: "every 2 weeks"
+    - account: "[Assets:Bank]"
       from: "2023-05-01"
-      account: "[Assets:Bank]"
-      roll-up: 26
       transactions:
         - amount: 80
           category: "[Expenses:Personal Care]"
           description: Hair and beauty
-    - frequency: "every 5 days"
+          frequency: "every 2 weeks"
+          roll-up: 26
+    - account: "[Assets:Checking]"
       from: "2023-05-01"
-      account: "[Assets:Checking]"
-      roll-up: 73
       transactions:
         - amount: 50
           category: "[Expenses:Groceries]"
           description: Gotta feed that stomach
+          frequency: "every 5 days"
+          roll-up: 73
 
   settings:
     currency: GBP
@@ -57,7 +57,7 @@ RSpec.describe HledgerForecast::Summarizer do
 
       expect(output.first).to include(:account, :from, :to, :type, :frequency)
       expect(output.first[:amount]).to eq(2000.55)
-      expect(output.last[:rolled_up_amount]).to eq(304) # ((50 * 73) / 12)
+      expect(output.last[:rolled_up_amount]).to eq((50.0 * 73.0) / 12.0) # ((50 * 73) / 12)
       expect(output.length).to eq(5)
     end
 

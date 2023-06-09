@@ -58,7 +58,7 @@ module HledgerForecast
 
         output.last[:transactions] << {
           amount: amount,
-          annualised_amount: amount * (block['roll-up'] || annualise(period)),
+          annualised_amount: amount * (t['roll-up'] || annualise(period)),
           rolled_up_amount: 0,
           category: t['category'],
           exclude: t['summary_exclude'],

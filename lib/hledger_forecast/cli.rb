@@ -69,9 +69,16 @@ module HledgerForecast
         opts.separator ""
 
         opts.on("-f", "--forecast FILE",
-                "The path to the FORECAST yaml file to generate from") do |file|
+                "The path to the FORECAST csv/yml file to generate from") do |file|
           options[:forecast_file] = file
-          options[:output_file] ||= file.sub(/\.yml$/, '.journal')
+
+          options[:file_type] = if File.extname(file) == '.csv'
+                                  "csv"
+                                else
+                                  "yml"
+                                end
+
+          options[:output_file] ||= file.sub(options[:file_type], 'journal')
         end
 
         opts.on("-o", "--output-file FILE",
@@ -100,7 +107,8 @@ module HledgerForecast
         end
       end.parse!(args)
 
-      options[:forecast_file] = "forecast.yml" unless options[:forecast_file]
+      options[:forecast_file] = "forecast.csv" unless options[:forecast_file]
+      options[:file_type] = "csv" unless options[:file_type]
       options[:output_file] = "forecast.journal" unless options[:output_file]
 
       options
@@ -114,7 +122,12 @@ module HledgerForecast
         opts.separator ""
 
         opts.on("-f", "--forecast FILE",
-                "The path to the FORECAST yaml file to summarize") do |file|
+                "The path to the FORECAST csv/yml file to summarize") do |file|
+          options[:file_type] = if File.extname(file) == '.csv'
+                                  "csv"
+                                else
+                                  "yml"
+                                end
           options[:forecast_file] = file
         end
 
@@ -159,6 +172,7 @@ module HledgerForecast
       forecast = File.read(options[:forecast_file])
 
       begin
+        forecast = HledgerForecast::CSVParser.parse(forecast) if options[:file_type] == "csv"
         transactions = Generator.generate(forecast, options)
       rescue StandardError => e
         puts "An error occurred while generating transactions: #{e.message}"
@@ -166,6 +180,7 @@ module HledgerForecast
       end
 
       output_file = options[:output_file]
+
       if File.exist?(output_file) && !options[:force]
         print "\nFile '#{output_file}' already exists. Overwrite? (y/n): "
         overwrite = gets.chomp.downcase
@@ -184,6 +199,8 @@ module HledgerForecast
 
     def self.summarize(options)
       config = File.read(options[:forecast_file])
+      config = HledgerForecast::CSVParser.parse(config) if options[:file_type] == "csv"
+
       summarizer = Summarizer.summarize(config, options)
 
       puts SummarizerFormatter.format(summarizer[:output], summarizer[:settings])

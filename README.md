@@ -11,13 +11,13 @@
 <a href="https://github.com/olimorris/hledger-forecast/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/olimorris/hledger-forecast/ci.yml?branch=main&label=tests&style=for-the-badge"></a>
 </p>
 
-**"Improved", you say?** Using a _yaml_ file, forecasts can be quickly generated into a _journal_ file ready to be fed into [hledger](https://github.com/simonmichael/hledger). Forecasts can be easily constrained between dates, inflated by modifiers, tracked until they appear in your bank statements and summarized into your own daily/weekly/monthly/yearly personal forecast income and expenditure statement.
+**"Improved", you say?** Using a _CSV_ (or _YML_) file, forecasts can be quickly generated into a _journal_ file ready to be fed into [hledger](https://github.com/simonmichael/hledger). **A 15 line [CSV file](https://github.com/olimorris/hledger-forecast/blob/main/example.csv) can generate a 42 line hledger [forecast file](https://github.com/olimorris/hledger-forecast/blob/main/example.journal)!**
 
-I **strongly** recommend you read the [rationale](#paintbrush-rationale) section to see if this app might be useful to you.
+Forecasts can also be constrained between dates, inflated by modifiers, tracked until they appear in your bank statements and summarized into your own daily/weekly/monthly/yearly personal forecast income and expenditure statement.
 
 ## :sparkles: Features
 
-- :book: Uses a simple yaml file to generate forecasts which can be used with hledger
+- :muscle: Uses a simple CSV (or YML) file to generate forecasts which can be used with hledger
 - :date: Can smartly track forecasts against your bank statement
 - :moneybag: Can automatically apply modifiers such as inflation/deflation to forecasts
 - :abacus: Enables the use of maths in your forecasts (for amounts and dates)
@@ -26,9 +26,9 @@ I **strongly** recommend you read the [rationale](#paintbrush-rationale) section
 
 ## :camera_flash: Screenshots
 
-**Config file and journal output**
+**CSV forecast and corresponding journal output**
 
-<img src="https://github.com/olimorris/hledger-forecast/assets/9512444/c3c3222e-f797-4643-bebd-9c94134bee92" alt="Hledger-Forecast" />
+<img src="https://github.com/olimorris/hledger-forecast/assets/9512444/430503b5-f447-4972-b122-b48f8628aff9" alt="Hledger-Forecast" />
 
 **Output from the `summarize` command**
 
@@ -61,13 +61,13 @@ The available options are:
 
 ### Generate command
 
-The `hledger-forecast generate` command will generate a forecast _from_ a `yaml` file _to_ a journal file. You can see the output of this command in the [example.journal](https://github.com/olimorris/hledger-forecast/blob/main/example.journal) file.
+The `hledger-forecast generate` command will generate a forecast _from_ a `CSV` or `YML` file _to_ a journal file. You can see the output of this command in the [example.journal](https://github.com/olimorris/hledger-forecast/blob/main/example.journal) file.
 
 The available options are:
 
     Usage: hledger-forecast generate [options]
 
-      -f, --forecast FILE              The path to the FORECAST yaml file to generate from
+      -f, --forecast FILE              The path to the FORECAST CSV/YML file to generate from
       -o, --output-file FILE           The path to the OUTPUT file to create
       -t, --transaction FILE           The path to the TRANSACTION journal file
           --force                      Force an overwrite of the output file
@@ -84,96 +84,236 @@ To work with hledger, include the forecast file and use the `--forecast` flag:
 
     hledger -f bank_transactions.journal -f forecast.journal --forecast bal assets -e 2024-02
 
-The command will generate a forecast up to the end of Feb 2024, showing the balance for any asset accounts, overlaying some bank transactions with the forecast journal file. Of course, refer to the [hledger](https://hledger.org/dev/hledger.html) documentation for more information on how to query your finances.
-
-> **Note**: To apply any modifiers, use the `--auto` flag at the end of your command.
+The command will generate a forecast up to the end of Feb 2024, showing the balance for any asset accounts, overlaying some bank transactions with the forecast journal file. Forecasting in hledger can be complicated so be sure to refer to the [documentation](https://hledger.org/dev/hledger.html) or start a [discussion](https://github.com/olimorris/hledger-forecast/discussions/new?category=q-a).
 
 ### Summarize command
 
-As your `yaml` configuration file grows, it can be helpful to sum up the total amounts and output them to the CLI.
+As your configuration file grows, it can be helpful to sum up the total amounts and output them to the CLI.
 Furthermore, being able to see your monthly profit and loss statement _if_ you were to purchase that new item may
 influence your buying decision. In hledger-forecast, this can be achieved by:
 
-    hledger-forecast summarize -f my_forecast.yml
+    hledger-forecast summarize -f my_forecast.csv
 
 The available options are:
 
     Usage: hledger-forecast summarize [options]
 
-    -f, --forecast FILE              The path to the FORECAST yaml file to summarize
+    -f, --forecast FILE              The path to the FORECAST CSV/YML file to summarize
     -r, --roll-up PERIOD             The period to roll-up your forecasts into. One of:
                                      [yearly], [half-yearly], [quarterly], [monthly], [weekly], [daily]
     -v, --verbose                    Show additional information in the summary
     -h, --help                       Show this help message
 
-## :gear: Configuration
+## :gear: Creating your forecast
 
-### The yaml file
+The app makes it easy to generate a comprehensive _journal_ file with very few lines of code, making it much easier to stay on top of your forecasting from month to month.
 
-> **Note**: See the [example.yml](https://github.com/olimorris/hledger-forecast/blob/main/example.yml) file for an example config and its corresponding [output](https://github.com/olimorris/hledger-forecast/blob/main/example.journal)
+### Columns
 
-Firstly, create a `yaml` file which will contain the transactions you'd like to forecast:
+The _CSV_ file _should_ contain a header row with the following columns:
 
-```yaml
-# forecast.yml
+- `type` - (string) - The type of forecast entry. One of `monthly`, `quarterly`, `half-yearly`, `yearly`, `once` or `custom`
+- `frequency` - (string) - The frequency that the type repeats with (only if `custom`). As per hledger's [periodic rule syntax](https://hledger.org/dev/hledger.html#periodic-transactions)
+- `account` - (string) - The account the transaction applies to e.g. _Expenses:Food_
+- `from` - (date) - The date the transaction should start from e.g. _2023-06-01_
+- `to` - (date) _(optional)_ - The date the transaction should end on e.g. _2023-12-31_
+- `description` - (string) - A description of the transaction
+- `category` - (string) - The classification or category of the transaction
+- `amount` - (integer/float) - The amount of the transaction
+- `roll-up` - (integer/float) _(optional)_ - For use with the summarizer, the value you need to multiply the amount by to get it into a yearly amount
+- `summary_exclude` - (boolean) _(optional)_ - Exclude the transaction from the summarizer?
+- `track` - (boolean) _(optional)_ - Track the transaction against your confirmed transactions?
+
+### An example CSV forecast
+
+Putting it together, we end up with a CSV file like:
+
+```csv
+type,frequency,account,from,to,description,category,amount,roll-up,summary_exclude,track
+monthly,,Assets:Bank,01/03/2023,,Salary,Income:Salary,-3500,,,
+monthly,,Assets:Bank,01/03/2023,01/01/2025,Mortgage,Expenses:Mortgage,2000,,,
+monthly,,Assets:Bank,01/03/2023,,Bills,Expenses:Bills,175,,,
+monthly,,Assets:Bank,01/03/2023,,Food,Expenses:Food,500,,,
+monthly,,Assets:Bank,01/03/2023,,New Kitchen,Expenses:House,=5000/24,,,
+monthly,,Assets:Bank,01/03/2023,=12,Holiday,Expenses:Holiday,125,,,
+monthly,,Assets:Bank,01/03/2023,01/03/2025,Rainy day fund,Assets:Savings,300,,,
+monthly,,Assets:Pension,01/01/2024,,Pension draw down,Income:Pension,-500,,,
+quarterly,,Assets:Bank,01/04/2023,,Quarterly bonus,Income:Bonus,-1000,,,
+half-yearly,,Assets:Bank,01/04/2023,,Top up holiday funds,Expenses:Holiday,500,,,
+yearly,,Assets:Bank,01/04/2023,,Annual bonus,Income:Bonus,-2000,,,
+once,,Assets:Bank,05/03/2023,,Refund for that damn laptop,Expenses:Shopping,-3000,,TRUE,TRUE
+custom,every 2 weeks,Assets:Bank,01/03/2023,,Hair and beauty,Expenses:Personal Care,80,26,,
+custom,every 5 weeks,Assets:Bank,01/03/2023,,Misc expenses,Expenses:General Expenses,30,10.4,,
+settings,currency,USD,,,,,,,,
+```
+
+### Additional features
+
+From the example above, there are a few additional features that may be useful.
+
+#### Calculated amounts
+
+> **Note**: Calculations will be determined up to two decimal places
+
+It may be helpful to let the app calculate the forecasted amount in your transactions on your behalf. This can be especially useful if you're spreading a payment out over a number of months:
+
+```csv
+type,frequency,account,from,to,description,category,amount,roll-up,summary_exclude,track
+monthly,,Assets:Bank,01/03/2023,,New Kitchen,Expenses:House,=5000/24,,,
+```
+
+Simply start the `amount` column with a `=` sign and use standard Excel based math formatting.
+
+#### Calculated dates
+
+It may also be helpful for `to` dates to be calculated:
+
+```csv
+type,frequency,account,from,to,description,category,amount,roll-up,summary_exclude,track
+monthly,,Assets:Bank,01/03/2023,=12,Holiday,Expenses:Holiday,125,,,
+```
+
+### Settings
+
+There are also additional settings that can be applied in the forecast. The defaults are:
+
+```csv
+type,frequency,account,from,to,description,category,amount,roll-up,summary_exclude,track
+settings,currency,USD,,,,,,,,
+settings,show_symbol,true,,,,,,,,
+settings,thousands_separator,true,,,,,,,,
+```
+
+### An example YML forecast
+
+> **Note**: The app uses `yml` in place of `yaml` by default
+
+Taking the _CSV_ example above and applying it to a _YML_ file:
+
+```yml
 monthly:
   - account: "Assets:Bank"
     from: "2023-03-01"
     transactions:
+      - amount: -3500
+        category: "Income:Salary"
+        description: Salary
       - amount: 2000
         category: "Expenses:Mortgage"
         description: Mortgage
+        to: "2025-01-01"
+      - amount: 175
+        category: "Expenses:Bills"
+        description: Bills
       - amount: 500
         category: "Expenses:Food"
         description: Food
+      - amount: "=5000/24"
+        category: "Expenses:House"
+        description: New Kitchen
+      - amount: 125
+        category: "Expenses:Holiday"
+        description: Holiday
+        to: "=12"
+  - account: "Assets:Bank"
+    from: "2023-03-01"
+    to: "2025-01-01"
+    transactions:
+      - amount: 300
+        category: "Assets:Savings"
+        description: "Rainy day fund"
+  - account: "Assets:Pension"
+    from: "2024-01-01"
+    transactions:
+      - amount: -500
+        category: "Income:Pension"
+        description: Pension draw down
 
-settings:
-  currency: GBP
-```
+quarterly:
+  - account: "Assets:Bank"
+    from: "2023-04-01"
+    transactions:
+      - amount: -1000.00
+        category: "Income:Bonus"
+        description: Quarterly bonus
 
-Let's examine what's going on in this config file:
+half-yearly:
+  - account: "Assets:Bank"
+    from: "2023-04-01"
+    transactions:
+      - amount: 500
+        category: "Expenses:Holiday"
+        description: Top up holiday funds
 
-- We're telling the app to create two monthly transactions and repeat them, forever, starting from March 2023
-- We're telling the app to link them both to the `Assets:Bank` account
-- We've added descriptions to make it easy to follow in our output file
-- Finally, we're telling the app to use the `GBP` currency; the default (`USD`) will be used if this is not specified
+yearly:
+  - account: "Assets:Bank"
+    from: "2023-04-01"
+    transactions:
+      - amount: -2000.00
+        category: "Income:Bonus"
+        description: Annual Bonus
 
-### Periods
+once:
+  - account: "Assets:Bank"
+    from: "2023-03-05"
+    transactions:
+      - amount: -3000
+        category: "Expenses:Shopping"
+        description: Refund for that damn laptop
+        summary_exclude: true
+        track: true
 
-Besides monthly recurring transactions, the app also supports the following periods:
-
-- `quarterly` - For transactions every _3 months_
-- `half-yearly` - For transactions every _6 months_
-- `yearly` - Generate transactions _once a year_
-- `once` - Generate _one-time_ transactions on a specified date
-- `custom` - Generate transactions every _n days/weeks/months_
-
-These will write periodic transactions such as `~ every 3 months` or `~ every year` in the output journal file.
-
-#### Custom period
-
-When you need a bespoke time bound forecast, a custom period may be useful. Custom periods allow you to specify a periodic rule as per hledger's [periodic rule syntax](https://hledger.org/dev/hledger.html#periodic-transactions):
-
-```yaml
 custom:
-  - frequency: "every 2 weeks"
-    account: "Assets:Bank"
+  - account: "Assets:Bank"
     from: "2023-03-01"
     transactions:
       - amount: 80
         category: "Expenses:Personal Care"
         description: Hair and beauty
+        frequency: "every 2 weeks"
+        roll-up: 26
+      - amount: 30
+        category: "Expenses:General Expenses"
+        description: Misc expenses
+        frequency: "every 5 weeks"
+        roll-up: 10.4
+
+settings:
+  currency: USD
 ```
 
-### Dates
+#### Modifiers
 
-The core of any solid forecast is predicting the correct periods that costs will fall into. You can control the dates at a period/top-level as well as at a transaction level:
+> **Note**: For modifiers to be included in your hledger reporting, use the `--auto` flag
 
-#### Top level
+Currently, a YML forecast allows a user to include forecasted % uplifts or downshifts:
 
-In the example below, all transactions in the `monthly` block will be constrained by the `to` date:
+```yml
+monthly:
+  - account: "Assets:Bank"
+    from: "2023-03-01"
+    transactions:
+      - amount: 500
+        category: "Expenses:Food"
+        description: Food
+        modifiers:
+          - amount: 0.02
+            description: "Inflation"
+            from: "2024-01-01"
+            to: "2024-12-31"
+          - amount: 0.05
+            description: "Inflation"
+            from: "2025-01-01"
+            to: "2025-12-31"
+```
 
-```yaml
+This will generate an [auto-posting](https://hledger.org/dev/hledger.html#auto-postings) in your forecast which will uplift any transaction with an `Expenses:Food` category. In the first year the uplift with be 2% and in the following year, 5%.
+
+#### Additional YML features
+
+Dates in a YML file can be constrained by the `to` date in two ways:
+
+```yml
 monthly:
   - account: "Assets:Bank"
     from: "2023-03-01"
@@ -182,11 +322,9 @@ monthly:
       # details omitted for brevity
 ```
 
-#### Transaction level
+or:
 
-In the example below, only the single transaction will be constrained by the `to` date:
-
-```yaml
+```yml
 monthly:
   - account: "Assets:Bank"
     from: "2023-03-01"
@@ -197,36 +335,7 @@ monthly:
         to: "2025-01-01"
 ```
 
-It can also be useful to compute a `to` date by adding on a number of months to the `from` date. Extending the example above:
-
-```yaml
-- amount: 125
-  category: "Expenses:Holiday"
-  description: Holiday
-  to: "=12"
-```
-
-This will take the `to` date to _2024-02-29_. This can be useful if you know a payment is due to end in _n_ months time and don't wish to use one of the many date calculators on the internet.
-
-### Calculated amounts
-
-> **Note**: Calculations will be determined up to two decimal places
-
-It may be helpful to let the app calculate the forecasted amount in your transactions on your behalf. This can be especially useful if you're spreading a payment out over a number of months:
-
-```yaml
-monthly:
-  - account: "Liabilities:Amex"
-    from: "2023-05-01"
-    transactions:
-      - amount: "=5000/24"
-        category: "Expenses:House"
-        description: New Kitchen
-```
-
-Simply ensure that the amount starts with an `=` sign, is enclosed in quotation marks and uses standard mathematical notations. Of course, it may make sense to restrict this transaction with a `to` date in months, as per the [transaction level dates](#transaction-level) section.
-
-### Tracking transactions
+### Tracking
 
 > **Note**: Marking a transaction for tracking will ensure that it is only written into the forecast if it isn't found within a specified transaction file
 
@@ -234,7 +343,14 @@ Sometimes it can be useful to track and monitor forecasted transactions to ensur
 
 To mark transactions as available for tracking you may use the `track` option in your config file:
 
-```yaml
+```csv
+type,frequency,account,from,to,description,category,amount,roll-up,summary_exclude,track
+once,,Assets:Bank,2023-03-05,,Refund for that damn laptop,Expenses:Shopping,-3000,,,TRUE
+```
+
+Or:
+
+```yml
 once:
   - account: "Assets:Bank"
     from: "2023-03-05"
@@ -245,122 +361,13 @@ once:
         track: true
 ```
 
-> **Note**: This feature has been designed to work with one-off transactions only
+> **Note**: This feature has been designed to work with `once` transaction types only
 
 To use this feature, ensure you pass a filepath to the `-t` flag, such as:
 
     hledger-forecast generate -t [journal_file_to_search] -f [path_to_yaml_file] -o [path_to_output_journal]
 
 The app will use a hledger query to determine if the combination of category and amount is present in the periods between the `from` key and the current date in the journal file you've specified. If not, then the app will include it as a forecast transaction in the output file.
-
-### Modifiers
-
-> **Note**: For modifiers to be included in your hledger reporting, use the `--auto` flag
-
-Within your forecasts, it can be useful to reflect future increases/decreases in certain categories. For example, next year, I expect the cost of groceries to increase by 2%:
-
-```yaml
-monthly:
-  account: "Assets:Bank"
-  from: "2023-03-05"
-  transactions:
-    - amount: 450
-      category: "Expenses:Groceries"
-      description: Food shopping
-      modifiers:
-        - amount: 0.02
-          description: "Inflation"
-          from: "2024-01-01"
-          to: "2024-12-31"
-```
-
-This will generate an [auto-posting](https://hledger.org/dev/hledger.html#auto-postings) in your forecast which will
-uplift any transaction with an `Expenses:Groceries` category.
-
-Of course you may wish to apply 2% for next year and another 3% for the year after:
-
-```yaml
-# details above omitted for brevity
-modifiers:
-  - amount: 0.02
-    description: "Inflation"
-    from: "2024-01-01"
-    to: "2024-12-31"
-  - amount: 0.05
-    description: "Inflation"
-    from: "2025-01-01"
-    to: "2025-12-31"
-```
-
-### Roll-ups
-
-As part of the summarize command, it can be useful to sum-up all of the transactions in your `yaml` file and see what your income and expenditure is over a given period (e.g. "how much profit do I _actually_ make every year when all of my costs are taken into account?").
-
-In order to do this, custom forecasts need to have the `roll-up` key defined. That is, given the custom period you've specified, what number do you need to multiply the amount by in order to "roll it up" into an annualised figure. Let's look at the example below:
-
-```yaml
-custom:
-  - frequency: "every 2 weeks"
-    account: "Assets:Bank"
-    from: "2023-03-01"
-    roll-up: 26
-    transactions:
-      - amount: 80
-        category: "Expenses:Personal Care"
-        description: Hair and beauty
-```
-
-Every 2 weeks a planned expense of £80 is made. So over the course of a year, we'd need to multiply that amount by 26 to get to an annualised figure. Of course for periods like `monthly` and `quarterly` it's easy for hledger-forecast to annualise those amounts so no `roll-up` is required.
-
-To see the monthly summary of your `yaml` file, the following command can be used:
-
-    hledger-forecast summarize -f my_forecast.yml -r monthly
-
-You can also roll-up with the following periods:
-
-- daily
-- weekly
-- monthly
-- quarterly
-- half-yearly
-- yearly
-
-### Summary exclusions
-
-It can be useful to exclude certain items from your summary, like one-off items. This can be achieved by specifying `summary_exclude: true` next to a transaction:
-
-```yaml
-once:
-  - account: "Assets:Bank"
-    from: "2023-03-05"
-    transactions:
-      - amount: -3000
-        category: "Expenses:Shopping"
-        description: Refund for that damn laptop
-        summary_exclude: true
-        track: true
-```
-
-### Additional config settings
-
-Additional settings in the config file to consider:
-
-```yaml
-settings:
-  currency: GBP # Specify the currency to use
-  show_symbol: true # Show the currency symbol?
-  thousands_separator: true # Separate thousands with a comma?
-```
-
-## :thinking: Rationale
-
-I moved to hledger from my trusty Excel macro workbook. This thing had been with me for 5+ years. I used it to workout whether I could afford that new gadget and when I'd be in a position to buy a house. I used it to see if I was on track to have £X in my savings accounts by a given date as well as see how much money I could save on a monthly basis. That time I accidentally double counted my bonus or thought I'd accounted for my credit card bill? Painful! Set me back a few months in terms of my savings plans. In summary, I relied _heavily_ on having a detailed and accurate forecast.
-
-I love hledger. Switching from Excel has been a breath of fresh air. There's only so many bank transactions a workbook can take before it starts groaning (yes, even on an M1 Mac). However there were a few forecasting features that I missed. The sort of features that in Excel terms mean I'd just copy a bunch of cells and paste them into columns which represented future dates or apply a neat little formula to divide a big number by 12 to get to a monthly repayment. Because I like to plan 3-5 years out at a time, I wanted to crudely account for future price and salary increases. Sure, I can add some auto-postings to the end of my journal file but I bet a lot of users didn't know about this or even know how to constrain them between two dates.
-
-I also made an assumption that a lot of users probably think of their finances in terms of their monthly costs (e.g. car payments, mortgage, food), half-yearly costs (e.g. service charge if you have an apartment in the UK) and yearly costs (e.g. holidays, gifts) etc. But likely never do the math to add them all together and workout how much money they have left over by the end of it all. Well I built that into this app and my daily profit figure hit me hard :rofl:. Give it a try!
-
-So I thought I'd share this little Ruby gem in the hope that people find it useful. Perhaps for those who are moving from an Excel based approach to [plain text accounting](https://plaintextaccounting.org), or for those who want a little bit of improvement to the existing capabilities within hledger.
 
 ## :pencil2: Contributing
 

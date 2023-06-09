@@ -13,7 +13,11 @@ module HledgerForecast
       def generate
         data.each_value do |blocks|
           blocks.each do |block|
-            process_block(block)
+            if block[:type] == "custom"
+              process_custom_block(block)
+            else
+              process_block(block)
+            end
           end
         end
 
@@ -30,10 +34,23 @@ module HledgerForecast
         @output = []
       end
 
+      def process_custom_block(block)
+        block[:transactions].each do |to, transactions|
+          to = get_header(block[:to], to)
+
+          transactions.each do |t|
+            header = "~ #{t[:frequency]} from #{block[:from]}#{to}  * #{t[:description]}\n"
+            footer = "    #{block[:account]}\n\n"
+            output << { header: header, transactions: write_transactions([t]), footer: footer }
+          end
+        end
+      end
+
       def process_block(block)
         block[:transactions].each do |to, transactions|
           to = get_header(block[:to], to)
           block[:descriptions] = get_descriptions(transactions)
+
           frequency = get_periodic_rules(block[:type], block[:frequency])
 
           header = "#{frequency} #{block[:from]}#{to}  * #{block[:descriptions]}\n"

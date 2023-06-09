@@ -32,6 +32,13 @@ module HledgerForecast
       end
 
       def self.exists?(transaction, account, from, to, options)
+
+        if !options[:transaction_file]
+          puts "\nWarning: ".bold.yellow + "For tracked transactions, please specify a file with the `-t` flag"
+          puts "ERROR: ".bold.red + "Tracked transactions ignored for now"
+          return
+        end
+
         # Format the money
         amount = Formatter.format_money(transaction['amount'], options)
         inverse_amount = Formatter.format_money(transaction['amount'] * -1, options)

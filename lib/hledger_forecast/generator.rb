@@ -55,7 +55,8 @@ module HledgerForecast
           description: t['description'],
           to: t['to'] ? Calculator.new.evaluate_date(Date.parse(block['from']), t['to']) : nil,
           modifiers: t['modifiers'] ? Transactions::Modifiers.get_modifiers(t, block) : [],
-          track: Transactions::Trackers.track?(t, block, @settings) ? true : false
+          track: Transactions::Trackers.track?(t, block, @settings) ? true : false,
+          frequency: t['frequency'] || nil
         }
       end
 
