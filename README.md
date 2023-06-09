@@ -26,7 +26,7 @@ Forecasts can also be constrained between dates, inflated by modifiers, tracked 
 
 ## :camera_flash: Screenshots
 
-**Config file and journal output**
+**CSV forecast and corresponding journal output**
 
 <img src="https://github.com/olimorris/hledger-forecast/assets/9512444/430503b5-f447-4972-b122-b48f8628aff9" alt="Hledger-Forecast" />
 
