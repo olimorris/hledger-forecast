@@ -84,8 +84,6 @@ To work with hledger, include the forecast file and use the `--forecast` flag:
 
 The command will generate a forecast up to the end of Feb 2024, showing the balance for any asset accounts, overlaying some bank transactions with the forecast journal file. Forecasting in hledger can be complicated so be sure to refer to the [documentation](https://hledger.org/dev/hledger.html) or start a [discussion](https://github.com/olimorris/hledger-forecast/discussions/new?category=q-a).
 
-> **Note**: To apply any modifiers, use the `--auto` flag at the end of your command.
-
 ### Summarize command
 
 As your configuration file grows, it can be helpful to sum up the total amounts and output them to the CLI.
@@ -106,25 +104,23 @@ The available options are:
 
 ## :gear: Creating your forecast
 
-> **Note**: The app allows you to specify a forecast in either a `csv` or `yml` file
+This app makes it easy to generate a comprehensive _journal_ file with very few lines of code. In the [example](https://github.com/olimorris/hledger-forecast/blob/main/example.csv) file in the repository, a 14 line CSV file generates a 43 line forecast file. This makes it much easier to stay on top of your forecasting from month to month.
 
-This app makes it easy to generate a comprehensive _journal_ file with very few lines of code. In the example files in the repository, a 14 line CSV file generates a 43 line forecast file. This makes it much easier to maintain your forecasting from month to month.
-
-### Required columns
+### Columns
 
 The `csv` file _should_ contain a header row with the following columns:
 
-- `type` - (string) - The type of forecast entry one of `monthly`, `quarterly`, `half-yearly`, `yearly`, `once` or `custom`
-- `frequency` - (string) - The frequency that the type repeats with (only if `custom`). As per hledger's [periodic rule syntax](https://hledger.org/dev/hledger.html#periodic-transactions):
+- `type` - (string) - The type of forecast entry. One of `monthly`, `quarterly`, `half-yearly`, `yearly`, `once` or `custom`
+- `frequency` - (string) - The frequency that the type repeats with (only if `custom`). As per hledger's [periodic rule syntax](https://hledger.org/dev/hledger.html#periodic-transactions)
 - `account` - (string) - The account the transaction applies to e.g. _Expenses:Food_
 - `from` - (date) - The date the transaction should start from e.g. _2023-06-01_
-- `to` - (date) _(optional)_ The date the transaction should end on e.g. _2023-12-31_
+- `to` - (date) _(optional)_ - The date the transaction should end on e.g. _2023-12-31_
 - `description` - (string) - A description of the transaction
 - `category` - (string) - The classification or category of the transaction
 - `amount` - (integer/float) - The amount of the transaction
-- `roll-up` - (integer/float) _(optional)_ For use with the summarizer, the value you need to multiply the amount by to get it into a yearly amount
-- `summary_exclude` - (boolean) _(optional)_ Exclude the transaction from the summarizer?
-- `track` - (boolean) _(optional)_ Track the transaction against your confirmed transactions?
+- `roll-up` - (integer/float) _(optional)_ - For use with the summarizer, the value you need to multiply the amount by to get it into a yearly amount
+- `summary_exclude` - (boolean) _(optional)_ - Exclude the transaction from the summarizer?
+- `track` - (boolean) _(optional)_ - Track the transaction against your confirmed transactions?
 
 ### An example CSV forecast
 
@@ -328,6 +324,40 @@ monthly:
         description: Mortgage
         to: "2025-01-01"
 ```
+
+### Tracking
+
+> **Note**: Marking a transaction for tracking will ensure that it is only written into the forecast if it isn't found within a specified transaction file
+
+Sometimes it can be useful to track and monitor forecasted transactions to ensure that they are accounted for in any financial projections. If they are present, then these should be discarded from your forecast as this will create a double count against your actuals. However, if they can't be found then they should be carried forward into a future period to ensure accurate recording.
+
+To mark transactions as available for tracking you may use the `track` option in your config file:
+
+```csv
+type,frequency,account,from,to,description,category,amount,roll-up,summary_exclude,track
+once,,Assets:Bank,2023-03-05,,Refund for that damn laptop,Expenses:Shopping,-3000,,,TRUE
+```
+
+Or:
+
+```yml
+once:
+  - account: "Assets:Bank"
+    from: "2023-03-05"
+    transactions:
+      - amount: -3000
+        category: "Expenses:Shopping"
+        description: Refund for that damn laptop
+        track: true
+```
+
+> **Note**: This feature has been designed to work with `once` transaction types only
+
+To use this feature, ensure you pass a filepath to the `-t` flag, such as:
+
+    hledger-forecast generate -t [journal_file_to_search] -f [path_to_yaml_file] -o [path_to_output_journal]
+
+The app will use a hledger query to determine if the combination of category and amount is present in the periods between the `from` key and the current date in the journal file you've specified. If not, then the app will include it as a forecast transaction in the output file.
 
 ## :pencil2: Contributing
 
