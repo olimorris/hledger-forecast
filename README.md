@@ -106,11 +106,11 @@ The available options are:
 
 ## :gear: Creating your forecast
 
-This app makes it easy to generate a comprehensive _journal_ file with very few lines of code. In the [example](https://github.com/olimorris/hledger-forecast/blob/main/example.csv) file in the repository, a 14 line CSV file generates a 43 line forecast file. This makes it much easier to stay on top of your forecasting from month to month.
+The app makes it easy to generate a comprehensive _journal_ file with very few lines of code, making it much easier to stay on top of your forecasting from month to month.
 
 ### Columns
 
-The `CSV` file _should_ contain a header row with the following columns:
+The _CSV_ file _should_ contain a header row with the following columns:
 
 - `type` - (string) - The type of forecast entry. One of `monthly`, `quarterly`, `half-yearly`, `yearly`, `once` or `custom`
 - `frequency` - (string) - The frequency that the type repeats with (only if `custom`). As per hledger's [periodic rule syntax](https://hledger.org/dev/hledger.html#periodic-transactions)
@@ -186,7 +186,9 @@ settings,thousands_separator,true,,,,,,,,
 
 ### An example YML forecast
 
-Taking the example above and applying it to a YML file:
+> **Note**: The app uses `yml` in place of `yaml` by default
+
+Taking the _CSV_ example above and applying it to a _YML_ file:
 
 ```yml
 monthly:
