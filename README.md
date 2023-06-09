@@ -11,7 +11,9 @@
 <a href="https://github.com/olimorris/hledger-forecast/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/olimorris/hledger-forecast/ci.yml?branch=main&label=tests&style=for-the-badge"></a>
 </p>
 
-**"Improved", you say?** Using a _csv_ (or _yml_) file, forecasts can be quickly generated into a _journal_ file ready to be fed into [hledger](https://github.com/simonmichael/hledger). Forecasts can be easily constrained between dates, inflated by modifiers, tracked until they appear in your bank statements and summarized into your own daily/weekly/monthly/yearly personal forecast income and expenditure statement.
+**"Improved", you say?** Using a _CSV_ (or _yml_) file, forecasts can be quickly generated into a _journal_ file ready to be fed into [hledger](https://github.com/simonmichael/hledger). A 14 line CSV file can generate a 42 line hledger forecast file!
+
+Forecasts can also be constrained between dates, inflated by modifiers, tracked until they appear in your bank statements and summarized into your own daily/weekly/monthly/yearly personal forecast income and expenditure statement.
 
 ## :sparkles: Features
 
