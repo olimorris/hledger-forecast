@@ -11,13 +11,13 @@
 <a href="https://github.com/olimorris/hledger-forecast/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/olimorris/hledger-forecast/ci.yml?branch=main&label=tests&style=for-the-badge"></a>
 </p>
 
-**"Improved", you say?** Using a _CSV_ (or _yml_) file, forecasts can be quickly generated into a _journal_ file ready to be fed into [hledger](https://github.com/simonmichael/hledger). **A 15 line [CSV file](https://github.com/olimorris/hledger-forecast/blob/main/example.csv) can generate a 42 line hledger [forecast file](https://github.com/olimorris/hledger-forecast/blob/main/example.journal)!**
+**"Improved", you say?** Using a _CSV_ (or _YML_) file, forecasts can be quickly generated into a _journal_ file ready to be fed into [hledger](https://github.com/simonmichael/hledger). **A 15 line [CSV file](https://github.com/olimorris/hledger-forecast/blob/main/example.csv) can generate a 42 line hledger [forecast file](https://github.com/olimorris/hledger-forecast/blob/main/example.journal)!**
 
 Forecasts can also be constrained between dates, inflated by modifiers, tracked until they appear in your bank statements and summarized into your own daily/weekly/monthly/yearly personal forecast income and expenditure statement.
 
 ## :sparkles: Features
 
-- :muscle: Uses a simple csv (or yml) file to generate forecasts which can be used with hledger
+- :muscle: Uses a simple CSV (or YML) file to generate forecasts which can be used with hledger
 - :date: Can smartly track forecasts against your bank statement
 - :moneybag: Can automatically apply modifiers such as inflation/deflation to forecasts
 - :abacus: Enables the use of maths in your forecasts (for amounts and dates)
@@ -61,13 +61,13 @@ The available options are:
 
 ### Generate command
 
-The `hledger-forecast generate` command will generate a forecast _from_ a `csv` or `yml` file _to_ a journal file. You can see the output of this command in the [example.journal](https://github.com/olimorris/hledger-forecast/blob/main/example.journal) file.
+The `hledger-forecast generate` command will generate a forecast _from_ a `CSV` or `YML` file _to_ a journal file. You can see the output of this command in the [example.journal](https://github.com/olimorris/hledger-forecast/blob/main/example.journal) file.
 
 The available options are:
 
     Usage: hledger-forecast generate [options]
 
-      -f, --forecast FILE              The path to the FORECAST csv/yml file to generate from
+      -f, --forecast FILE              The path to the FORECAST CSV/YML file to generate from
       -o, --output-file FILE           The path to the OUTPUT file to create
       -t, --transaction FILE           The path to the TRANSACTION journal file
           --force                      Force an overwrite of the output file
@@ -98,7 +98,7 @@ The available options are:
 
     Usage: hledger-forecast summarize [options]
 
-    -f, --forecast FILE              The path to the FORECAST csv/yml file to summarize
+    -f, --forecast FILE              The path to the FORECAST CSV/YML file to summarize
     -r, --roll-up PERIOD             The period to roll-up your forecasts into. One of:
                                      [yearly], [half-yearly], [quarterly], [monthly], [weekly], [daily]
     -v, --verbose                    Show additional information in the summary
@@ -110,7 +110,7 @@ This app makes it easy to generate a comprehensive _journal_ file with very few 
 
 ### Columns
 
-The `csv` file _should_ contain a header row with the following columns:
+The `CSV` file _should_ contain a header row with the following columns:
 
 - `type` - (string) - The type of forecast entry. One of `monthly`, `quarterly`, `half-yearly`, `yearly`, `once` or `custom`
 - `frequency` - (string) - The frequency that the type repeats with (only if `custom`). As per hledger's [periodic rule syntax](https://hledger.org/dev/hledger.html#periodic-transactions)
@@ -183,9 +183,9 @@ settings,show_symbol,true,,,,,,,,
 settings,thousands_separator,true,,,,,,,,
 ```
 
-### An example yml forecast
+### An example YML forecast
 
-Taking the example above and applying it to a yml file:
+Taking the example above and applying it to a YML file:
 
 ```yml
 monthly:
@@ -278,7 +278,7 @@ settings:
 
 > **Note**: For modifiers to be included in your hledger reporting, use the `--auto` flag
 
-Currently, a yml forecast allows a user to include forecasted % uplifts or downshifts:
+Currently, a YML forecast allows a user to include forecasted % uplifts or downshifts:
 
 ```yml
 monthly:
@@ -301,9 +301,9 @@ monthly:
 
 This will generate an [auto-posting](https://hledger.org/dev/hledger.html#auto-postings) in your forecast which will uplift any transaction with an `Expenses:Food` category. In the first year the uplift with be 2% and in the following year, 5%.
 
-#### Additional yml features
+#### Additional YML features
 
-Dates in a yml file can be constrained by the `to` date in two ways:
+Dates in a YML file can be constrained by the `to` date in two ways:
 
 ```yml
 monthly:
