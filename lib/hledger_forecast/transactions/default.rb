@@ -13,11 +13,7 @@ module HledgerForecast
       def generate
         data.each_value do |blocks|
           blocks.each do |block|
-            if block[:type] == "custom"
-              process_custom_block(block)
-            else
-              process_block(block)
-            end
+            process_block(block)
           end
         end
 
@@ -34,30 +30,59 @@ module HledgerForecast
         @output = []
       end
 
-      def process_custom_block(block)
+      def process_block(block)
         block[:transactions].each do |to, transactions|
           to = get_header(block[:to], to)
 
-          transactions.each do |t|
-            header = "~ #{t[:frequency]} from #{block[:from]}#{to}  * #{t[:description]}\n"
-            footer = "    #{block[:account]}\n\n"
-            output << { header: header, transactions: write_transactions([t]), footer: footer }
+          if block[:type] == "custom"
+            process_custom_transactions(block, to, transactions)
+          else
+            process_standard_transactions(block, to, transactions)
           end
         end
       end
 
-      def process_block(block)
-        block[:transactions].each do |to, transactions|
-          to = get_header(block[:to], to)
-          block[:descriptions] = get_descriptions(transactions)
+      def process_custom_transactions(block, to, transactions)
+        transactions.each do |t|
+          frequency = get_periodic_rules(block[:type], t[:frequency])
 
-          frequency = get_periodic_rules(block[:type], block[:frequency])
-
-          header = "#{frequency} #{block[:from]}#{to}  * #{block[:descriptions]}\n"
-          footer = "    #{block[:account]}\n\n"
-
-          output << { header: header, transactions: write_transactions(transactions), footer: footer }
+          header = build_header(block, to, frequency, t[:description])
+          footer = build_footer(block)
+          output << build_transaction(header, [t], footer)
         end
+      end
+
+      def process_standard_transactions(block, to, transactions)
+        if @options[:verbose]
+          transactions.map do |t|
+            # Skip transactions that have been marked as tracked
+            next if t[:track]
+
+            frequency = get_periodic_rules(block[:type], block[:frequency])
+            header = build_header(block, to, frequency, t[:description])
+            footer = build_footer(block)
+            output << build_transaction(header, [t], footer)
+          end
+          return
+        end
+
+        block[:descriptions] = get_descriptions(transactions)
+        frequency = get_periodic_rules(block[:type], block[:frequency])
+        header = build_header(block, to, frequency, block[:descriptions])
+        footer = build_footer(block)
+        output << build_transaction(header, transactions, footer)
+      end
+
+      def build_header(block, to, frequency, description)
+        "#{frequency} #{block[:from]}#{to}  * #{description}\n"
+      end
+
+      def build_footer(block)
+        "    #{block[:account]}\n\n"
+      end
+
+      def build_transaction(header, transactions, footer)
+        { header: header, transactions: write_transactions(transactions), footer: footer }
       end
 
       def get_header(block, transaction)

@@ -70,6 +70,7 @@ The available options are:
       -f, --forecast FILE              The path to the FORECAST CSV/YML file to generate from
       -o, --output-file FILE           The path to the OUTPUT file to create
       -t, --transaction FILE           The path to the TRANSACTION journal file
+      -v, --verbose                    Don't group transactions by type in the output file
           --force                      Force an overwrite of the output file
           --no-track                   Don't track any transactions
       -h, --help                       Show this help message
@@ -85,6 +86,8 @@ To work with hledger, include the forecast file and use the `--forecast` flag:
     hledger -f bank_transactions.journal -f forecast.journal --forecast bal assets -e 2024-02
 
 The command will generate a forecast up to the end of Feb 2024, showing the balance for any asset accounts, overlaying some bank transactions with the forecast journal file. Forecasting in hledger can be complicated so be sure to refer to the [documentation](https://hledger.org/dev/hledger.html) or start a [discussion](https://github.com/olimorris/hledger-forecast/discussions/new?category=q-a).
+
+If you use the `hledger-ui` tool, it may be helpful to use the `--verbose` flag. This ensures that transactions are not grouped together in the forecast journal file, making descriptions much easier to read.
 
 ### Summarize command
 

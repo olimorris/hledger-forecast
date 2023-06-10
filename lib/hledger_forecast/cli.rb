@@ -91,6 +91,11 @@ module HledgerForecast
           options[:transaction_file] = file
         end
 
+        opts.on("-v", "--verbose",
+                "Don't group transactions by type in the output file") do
+          options[:verbose] = true
+        end
+
         opts.on("--force",
                 "Force an overwrite of the output file") do
           options[:force] = true
