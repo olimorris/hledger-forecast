@@ -8,6 +8,8 @@ module HledgerForecast
         generate(options)
       when 'summarize'
         summarize(options)
+      when 'compare'
+        compare(options)
       else
         puts "Unknown command: #{command}"
         exit(1)
@@ -24,6 +26,7 @@ module HledgerForecast
         opts.separator "Commands:"
         opts.separator "  generate    Generate the forecast file"
         opts.separator "  summarize   Summarize the forecast file and output to the terminal"
+        opts.separator "  compare     Compare and output data from two CSV files"
         opts.separator ""
         opts.separator "Options:"
 
@@ -52,6 +55,8 @@ module HledgerForecast
         options = parse_generate_options(args)
       when 'summarize'
         options = parse_summarize_options(args)
+      when 'compare'
+        options = parse_compare_options(args)
       else
         puts "Unknown command: #{command}"
         puts global
@@ -173,6 +178,25 @@ module HledgerForecast
       options
     end
 
+    def self.parse_compare_options(args)
+      options = {}
+
+      OptionParser.new do |opts|
+        opts.banner = "Usage: hledger-forecast compare [path/to/file1.csv] [path/to/file2.csv]"
+        opts.separator ""
+
+        opts.on("-f", "--forecast FILE",
+                "The path to the FORECAST csv/yml file to summarize") do |file|
+          options[:file_type] = if File.extname(file) == '.csv'
+                                  "csv"
+                                else
+                                  "yml"
+                                end
+          options[:forecast_file] = file
+        end
+      end
+    end
+
     def self.generate(options)
       forecast = File.read(options[:forecast_file])
 
@@ -209,6 +233,9 @@ module HledgerForecast
       summarizer = Summarizer.summarize(config, options)
 
       puts SummarizerFormatter.format(summarizer[:output], summarizer[:settings])
+    end
+
+    def self.compare(options)
     end
   end
 end

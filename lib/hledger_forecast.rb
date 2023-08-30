@@ -15,6 +15,7 @@ Money.rounding_mode = BigDecimal::ROUND_HALF_UP
 
 require_relative 'hledger_forecast/calculator'
 require_relative 'hledger_forecast/cli'
+require_relative 'hledger_forecast/comparator'
 require_relative 'hledger_forecast/csv_parser'
 require_relative 'hledger_forecast/formatter'
 require_relative 'hledger_forecast/generator'
