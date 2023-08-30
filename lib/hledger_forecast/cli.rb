@@ -185,16 +185,16 @@ module HledgerForecast
         opts.banner = "Usage: hledger-forecast compare [path/to/file1.csv] [path/to/file2.csv]"
         opts.separator ""
 
-        opts.on("-f", "--forecast FILE",
-                "The path to the FORECAST csv/yml file to summarize") do |file|
-          options[:file_type] = if File.extname(file) == '.csv'
-                                  "csv"
-                                else
-                                  "yml"
-                                end
-          options[:forecast_file] = file
+        opts.on_tail("-h", "--help", "Show this help message") do
+          puts opts
+          exit
         end
-      end
+
+        options[:file1] = args[0]
+        options[:file2] = args[1]
+      end.parse!(args)
+
+      options
     end
 
     def self.generate(options)
@@ -236,6 +236,7 @@ module HledgerForecast
     end
 
     def self.compare(options)
+      puts Comparator.compare(options[:file1], options[:file2])
     end
   end
 end
