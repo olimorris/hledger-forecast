@@ -26,7 +26,7 @@ module HledgerForecast
       @table.add_separator
 
       generate_diff(csv1, csv2).drop(1).each do |row|
-        @table.add_row [row[0].bold] + row[1..-1]
+        @table.add_row [row[0].bold] + row[1..]
       end
 
       puts @table
@@ -50,7 +50,7 @@ module HledgerForecast
     end
 
     def parse_money(value)
-      Money.new(value.delete("£").to_f * 100).to_f
+      Money.from_cents(value).to_f * 100
     end
 
     def format_difference(amount)
