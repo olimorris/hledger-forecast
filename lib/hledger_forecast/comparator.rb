@@ -19,10 +19,11 @@ module HledgerForecast
       csv1 = CSV.read(file1)
       csv2 = CSV.read(file2)
 
-      return puts "Files cannot be compared" unless csv1.length == csv2.length && csv1[0].length == csv2[0].length
+      unless csv1.length == csv2.length && csv1[0].length == csv2[0].length
+        return puts "\nError: ".bold.red + "The files have different formats and cannot be compared"
+      end
 
-      # Add bolded headers
-      @table.add_row csv1[0].map(&:bold)
+      @table.add_row csv2[0].map(&:bold)
       @table.add_separator
 
       generate_diff(csv1, csv2).drop(1).each do |row|
@@ -32,8 +33,8 @@ module HledgerForecast
       puts @table
     end
 
-    def header?(row_idx)
-      row_idx == 0
+    def header?(row_num)
+      row_num == 0
     end
 
     def generate_diff(csv1, csv2)
@@ -43,18 +44,33 @@ module HledgerForecast
             csv2[i][j]
           else
             difference = parse_money(cell) - parse_money(csv2[i][j])
-            format_difference(difference)
+            format_difference(difference, detect_currency(cell))
           end
         end
       end
     end
 
-    def parse_money(value)
-      Money.from_cents(value).to_f * 100
+    def detect_currency(str)
+      # Explicitly check for common currencies first
+      return "GBP" if str.include?("£")
+      return "EUR" if str.include?("€")
+      return "USD" if str.include?("$")
+
+      Money::Currency.table.each_value do |currency|
+        return currency[:iso_code] if str.include?(currency[:symbol])
+      end
+
+      nil
     end
 
-    def format_difference(amount)
-      formatted_amount = Formatter.format_money(amount, { currency: 'GBP' })
+    def parse_money(value)
+      # Remove currency symbols and parse the result as a float, then convert to cents
+      cleaned_value = value.gsub(/[^0-9.]/, '').to_f
+      cleaned_value.to_i
+    end
+
+    def format_difference(amount, currency)
+      formatted_amount = Formatter.format_money(amount, { currency: currency })
 
       return formatted_amount if amount == 0
 

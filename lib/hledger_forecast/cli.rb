@@ -24,9 +24,9 @@ module HledgerForecast
         opts.banner = "Usage: hledger-forecast [command] [options]"
         opts.separator ""
         opts.separator "Commands:"
-        opts.separator "  generate    Generate the forecast file"
+        opts.separator "  generate    Generate a forecast from a file"
         opts.separator "  summarize   Summarize the forecast file and output to the terminal"
-        opts.separator "  compare     Compare and output data from two CSV files"
+        opts.separator "  compare     Compare and highlight the differences between two CSV files"
         opts.separator ""
         opts.separator "Options:"
 
@@ -39,6 +39,11 @@ module HledgerForecast
           puts VERSION
           exit
         end
+      end
+
+      if args.empty?
+        puts global
+        exit(1)
       end
 
       begin
@@ -69,7 +74,7 @@ module HledgerForecast
     def self.parse_generate_options(args)
       options = {}
 
-      OptionParser.new do |opts|
+      global = OptionParser.new do |opts|
         opts.banner = "Usage: hledger-forecast generate [options]"
         opts.separator ""
 
@@ -115,11 +120,24 @@ module HledgerForecast
           puts opts
           exit
         end
-      end.parse!(args)
+      end
 
-      options[:forecast_file] = "forecast.csv" unless options[:forecast_file]
-      options[:file_type] = "csv" unless options[:file_type]
-      options[:output_file] = "forecast.journal" unless options[:output_file]
+      begin
+        global.parse!(args)
+      rescue OptionParser::InvalidOption => e
+        puts e
+        puts global
+        exit(1)
+      end
+
+      if options.empty?
+        puts global
+        exit(1)
+      end
+
+      options[:forecast_file] ||= "forecast.csv"
+      options[:file_type] ||= "csv"
+      options[:output_file] ||= "forecast.journal"
 
       options
     end
@@ -127,7 +145,7 @@ module HledgerForecast
     def self.parse_summarize_options(args)
       options = {}
 
-      OptionParser.new do |opts|
+      global = OptionParser.new do |opts|
         opts.banner = "Usage: hledger-forecast summarize [options]"
         opts.separator ""
 
@@ -173,7 +191,20 @@ module HledgerForecast
           puts opts
           exit
         end
-      end.parse!(args)
+      end
+
+      begin
+        global.parse!(args)
+      rescue OptionParser::InvalidOption => e
+        puts e
+        puts global
+        exit(1)
+      end
+
+      if options.empty?
+        puts global
+        exit(1)
+      end
 
       options
     end
@@ -181,18 +212,26 @@ module HledgerForecast
     def self.parse_compare_options(args)
       options = {}
 
-      OptionParser.new do |opts|
+      global = OptionParser.new do |opts|
         opts.banner = "Usage: hledger-forecast compare [path/to/file1.csv] [path/to/file2.csv]"
         opts.separator ""
+      end
 
-        opts.on_tail("-h", "--help", "Show this help message") do
-          puts opts
-          exit
-        end
+      begin
+        global.parse!(args)
+      rescue OptionParser::InvalidOption => e
+        puts e
+        puts global
+        exit(1)
+      end
 
-        options[:file1] = args[0]
-        options[:file2] = args[1]
-      end.parse!(args)
+      if args[0].nil? || args[1].nil?
+        puts global
+        exit(1)
+      end
+
+      options[:file1] = args[0]
+      options[:file2] = args[1]
 
       options
     end
@@ -236,6 +275,10 @@ module HledgerForecast
     end
 
     def self.compare(options)
+      if !File.exist?(options[:file1]) || !File.exist?(options[:file2])
+        return puts "\nError: ".bold.red + "One or more of the files could not be found to compare"
+      end
+
       puts Comparator.compare(options[:file1], options[:file2])
     end
   end

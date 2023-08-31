@@ -17,23 +17,23 @@ Forecasts can also be constrained between dates, inflated by modifiers, tracked 
 
 ## :sparkles: Features
 
-- :muscle: Uses a simple CSV (or YML) file to generate forecasts which can be used with hledger
-- :date: Can smartly track forecasts against your bank statement
-- :moneybag: Can automatically apply modifiers such as inflation/deflation to forecasts
-- :abacus: Enables the use of maths in your forecasts (for amounts and dates)
-- :chart_with_upwards_trend: Display your forecasts as income and expenditure reports (e.g. daily, weekly, monthly)
+- :rocket: Uses a simple CSV (or YML) file to generate forecasts which can be used with hledger
+- :calendar: Can smartly track forecasts against your bank statement
+- :dollar: Can automatically apply modifiers such as inflation/deflation to forecasts
+- :mag: Enables the use of maths in your forecasts (for amounts and dates)
+- :bar_chart: Display your forecasts as income and expenditure reports (e.g. daily, weekly, monthly)
+- :twisted_rightwards_arrows: Compare and display the difference between hledger outputs
 - :computer: Simple and easy to use CLI
 
 ## :camera_flash: Screenshots
 
-**CSV forecast and corresponding journal output**
+**A CSV forecast and the hledger journal it generates**
 
-<img src="https://github.com/olimorris/hledger-forecast/assets/9512444/430503b5-f447-4972-b122-b48f8628aff9" alt="Hledger-Forecast" />
+<img src="https://github.com/olimorris/hledger-forecast/assets/9512444/430503b5-f447-4972-b122-b48f8628aff9" alt="hledger-Forecast" />
 
-**Output from the `summarize` command**
+**The ouput from the `summarize` command**
 
 <img src="https://github.com/olimorris/hledger-forecast/assets/9512444/f5017ea2-9606-46ec-8b38-8840dc175e7b" alt="Summarize command" />
-
 
 ## :package: Installation
 
@@ -52,8 +52,9 @@ The available options are:
     Usage: hledger-forecast [command] [options]
 
     Commands:
-      generate    Generate the forecast file
+      generate    Generate a forecast from a file
       summarize   Summarize the forecast file and output to the terminal
+      compare     Compare and highlight the differences between two CSV files
 
     Options:
         -h, --help                       Show this help message
@@ -91,9 +92,7 @@ If you use the `hledger-ui` tool, it may be helpful to use the `--verbose` flag.
 
 ### Summarize command
 
-As your configuration file grows, it can be helpful to sum up the total amounts and output them to the CLI.
-Furthermore, being able to see your monthly profit and loss statement _if_ you were to purchase that new item may
-influence your buying decision. In hledger-forecast, this can be achieved by:
+As your forecast file grows, it can be helpful to sum up the total amounts and output them to the CLI. Think of this command as your own _profit and loss_ summarizer, generating a statement over a period you specify.
 
     hledger-forecast summarize -f my_forecast.csv
 
@@ -106,6 +105,18 @@ The available options are:
                                      [yearly], [half-yearly], [quarterly], [monthly], [weekly], [daily]
     -v, --verbose                    Show additional information in the summary
     -h, --help                       Show this help message
+
+### Compare command
+
+A core part of managing your personal finances is the comparison of what you _expected_ to happen versus what _actually_ happened. This can be challenging to accomplish with hledger so to make this easier, the app has a useful `compare` command:
+
+    hledger-forecast compare [path/to/file1.csv] [path/to/file2.csv]
+
+To generate CSV output with hledger, append `-O csv > output.csv` to your desired command.
+
+To make it easier to read horizontal output in the terminal, consider the use of a terminal pager like [most](https://en.wikipedia.org/wiki/Most_(Unix)) by appending `| most` to the compare command.
+
+> **Note:** The two CSV files being compared must have the same structure
 
 ## :gear: Creating your forecast
 
@@ -375,4 +386,3 @@ The app will use a hledger query to determine if the combination of category and
 ## :pencil2: Contributing
 
 I am open to any pull requests that fix bugs but would ask that any new functionality is discussed before it could be accepted.
-
