@@ -12,6 +12,19 @@ output = <<~JOURNAL
 
 JOURNAL
 
+def strip_ansi_codes(str)
+  str.gsub(/\e\[([;\d]+)?m/, "")
+end
+
+def capture_stdout
+  old_stdout = $stdout
+  $stdout = StringIO.new
+  yield
+  $stdout.string
+ensure
+  $stdout = old_stdout
+end
+
 RSpec.describe 'command' do
   it 'uses the CLI to generate an output' do
     generated_journal = './test_output.journal'
@@ -29,5 +42,20 @@ RSpec.describe 'command' do
     system("./bin/hledger-forecast generate -f ./spec/stubs/forecast.csv -o ./test_output.journal --force")
 
     expect(File.read(generated_journal)).to eq(output)
+  end
+
+  it 'uses the CLI to compare two CSV files' do
+    expected_output = strip_ansi_codes(<<~OUTPUT)
+      +---------+---------+---------+
+      | account | 2023-07 | 2023-08 |
+      +---------+---------+---------+
+      | total   | £-10.00 | €10.00  |
+      +---------+---------+---------+
+
+    OUTPUT
+
+    actual_output = `./bin/hledger-forecast compare ./spec/stubs/output1.csv ./spec/stubs/output2.csv`
+
+    expect(strip_ansi_codes(actual_output)).to eq(expected_output)
   end
 end
