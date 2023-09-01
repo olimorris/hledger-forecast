@@ -43,7 +43,7 @@ module HledgerForecast
           if header?(i) || j == 0 # Checking for the first column here
             csv2[i][j]
           else
-            difference = parse_money(cell) - parse_money(csv2[i][j])
+            difference = parse_money(csv2[i][j]) - parse_money(cell)
             format_difference(difference, detect_currency(cell))
           end
         end
@@ -51,7 +51,9 @@ module HledgerForecast
     end
 
     def detect_currency(str)
-      # Explicitly check for common currencies first
+      return nil if str == "0"
+
+      # Explicitly check for common currencies
       return "GBP" if str.include?("£")
       return "EUR" if str.include?("€")
       return "USD" if str.include?("$")
@@ -64,13 +66,17 @@ module HledgerForecast
     end
 
     def parse_money(value)
-      # Remove currency symbols and parse the result as a float, then convert to cents
-      cleaned_value = value.gsub(/[^0-9.]/, '').to_f
-      cleaned_value.to_i
+      return 0.0 if value.strip == '0'
+
+      value.gsub(/[^0-9.-]/, '').to_f
     end
 
     def format_difference(amount, currency)
-      formatted_amount = Formatter.format_money(amount, { currency: currency })
+      formatted_amount = if currency.nil?
+                           format("%.2f", amount)
+                         else
+                           Formatter.format_money(amount, { currency: currency })
+                         end
 
       return formatted_amount if amount == 0
 

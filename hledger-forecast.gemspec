@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
   s.version     = HledgerForecast::VERSION
   s.authors     = ['Oli Morris']
   s.summary     = "An extended wrapper around hledger's forecasting functionality"
-  s.description = 'Uses a YAML file to generate forecasts which can be used to extend the default functionality in hledger'
+  s.description = 'Use a CSV or YAML file for improved forecasting with hledger'
   s.email       = 'olimorris@users.noreply.github.com'
   s.homepage    = 'https://github.com/olimorris/hledger-forecast'
   s.license     = 'MIT'

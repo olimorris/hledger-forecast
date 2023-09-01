@@ -17,15 +17,15 @@ end
 RSpec.describe HledgerForecast::Comparator do
   let(:file1_content) do
     <<~CSV
-      "account","2023-07","2023-08"
-      "total","£100.00","€200.00"
+      "account","2023-07","2023-08","2023-09"
+      "total","£100.00","€200.00",0
     CSV
   end
 
   let(:file2_content) do
     <<~CSV
-      "account","2023-07","2023-08"
-      "total","£110.00","€190.00"
+      "account","2023-07","2023-08","2023-09"
+      "total","£110.00","-€200.00",£1144.00
     CSV
   end
 
@@ -41,11 +41,11 @@ RSpec.describe HledgerForecast::Comparator do
     comparator = described_class.new
 
     expected_output = strip_ansi_codes(<<~OUTPUT)
-      +---------+---------+---------+
-      | account | 2023-07 | 2023-08 |
-      +---------+---------+---------+
-      | total   | £-10.00 | €10.00  |
-      +---------+---------+---------+
+      +---------+---------+----------+---------+
+      | account | 2023-07 | 2023-08  | 2023-09 |
+      +---------+---------+----------+---------+
+      | total   | £10.00  | €-400.00 | 1144.00 |
+      +---------+---------+----------+---------+
     OUTPUT
 
     actual_output = capture_stdout { comparator.compare('file1.csv', 'file2.csv') }
