@@ -8,7 +8,7 @@
 <a href="https://github.com/olimorris/hledger-forecast/stargazers"><img src="https://img.shields.io/github/stars/olimorris/hledger-forecast?color=c678dd&logoColor=e06c75&style=for-the-badge"></a>
 <a href="https://github.com/olimorris/hledger-forecast/issues"><img src="https://img.shields.io/github/issues/olimorris/hledger-forecast?color=%23d19a66&style=for-the-badge"></a>
 <a href="https://github.com/olimorris/hledger-forecast/blob/main/LICENSE"><img src="https://img.shields.io/github/license/olimorris/hledger-forecast?color=%2361afef&style=for-the-badge"></a>
-<a href="https://github.com/olimorris/hledger-forecast/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/olimorris/hledger-forecast/ci.yml?branch=main&label=tests&style=for-the-badge"></a>
+<a href="https://github.com/olimorris/hledger-forecast/actions/workflows/test.yml"><img src="https://img.shields.io/github/actions/workflow/status/olimorris/hledger-forecast/test.yml?branch=main&label=tests&style=for-the-badge"></a>
 </p>
 
 **"Improved", you say?** Using a _CSV_ (or _YML_) file, forecasts can be quickly generated into a _journal_ file ready to be fed into [hledger](https://github.com/simonmichael/hledger). **A 16 line [CSV file](https://github.com/olimorris/hledger-forecast/blob/main/example.csv) can generate a 46 line hledger [forecast file](https://github.com/olimorris/hledger-forecast/blob/main/example.journal)!**
