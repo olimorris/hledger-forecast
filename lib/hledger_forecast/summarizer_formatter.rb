@@ -117,9 +117,18 @@ module HledgerForecast
         sum + item[row_to_sum]
       end
 
+      income = data.reduce(0) do |sum, item|
+        sum += item[row_to_sum] if item[row_to_sum] < 0
+        sum
+      end
+
+      savings = (total / income * 100).to_f.round(2)
+
       @table.add_separator
       @table.add_row [{ value: "TOTAL".bold, colspan: 2, alignment: :left },
                       { value: format_amount(total).bold, alignment: :right }]
+      @table.add_row [{ value: "as a % of income".italic, colspan: 2, alignment: :left },
+                      { value: "#{savings}%".italic, alignment: :right }]
     end
 
     def format_amount(amount)
