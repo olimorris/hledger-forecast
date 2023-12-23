@@ -1,17 +1,10 @@
 require_relative '../lib/hledger_forecast'
 
-config = <<~YAML
-  settings:
-    currency: GBP
-
-  quarterly:
-    - from: "2023-04-01"
-      account: "Assets:Bank"
-      transactions:
-        - description: Bonus
-          category: "Income:Bonus"
-          amount: -1,000.00
-YAML
+config = <<~CSV
+  type,frequency,account,from,to,description,category,amount,roll-up,summary_exclude,track
+  quarterly,,Assets:Bank,01/04/2023,,Bonus,Income:Bonus,-1000,,,
+  settings,currency,GBP,,,,,,,,
+CSV
 
 output = <<~JOURNAL
   ~ every 3 months from 2023-04-01  * Bonus

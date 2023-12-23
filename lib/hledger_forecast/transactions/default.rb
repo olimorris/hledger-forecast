@@ -6,14 +6,18 @@ module HledgerForecast
     #    Expenses:Groceries    $250.00 ;  Food expenses
     #    Assets:Checking
     class Default
-      def self.generate(data, options)
-        new(data, options).generate
+      def self.generate(forecast, settings)
+        new(forecast, settings).generate
       end
 
       def generate
-        data.each_value do |blocks|
-          blocks.each do |block|
-            process_block(block)
+        forecast.each do |row|
+          next if row[:type] == "settings"
+
+          if row[:type] == "custom"
+            process_custom_transactions(row)
+          else
+            process_standard_transactions(row)
           end
         end
 
@@ -22,23 +26,19 @@ module HledgerForecast
 
       private
 
-      attr_reader :data, :options, :output
+      attr_reader :forecast, :settings, :output
 
-      def initialize(data, options)
-        @data = data
-        @options = options
+      def initialize(forecast, settings)
+        @forecast = forecast
+        @settings = settings
         @output = []
       end
 
-      def process_block(block)
-        block[:transactions].each do |to, transactions|
-          to = get_header(block[:to], to)
-
-          if block[:type] == "custom"
-            process_custom_transactions(block, to, transactions)
-          else
-            process_standard_transactions(block, to, transactions)
-          end
+      def process_row(row)
+        if row[:type] == "custom"
+          process_custom_transactions(row)
+        else
+          process_standard_transactions(row)
         end
       end
 
@@ -52,29 +52,32 @@ module HledgerForecast
         end
       end
 
-      def process_standard_transactions(block, to, transactions)
-        if @options[:verbose]
-          transactions.map do |t|
+      def process_standard_transactions(row)
+        if @settings[:verbose]
+          rows.map do |t|
             # Skip transactions that have been marked as tracked
             next if t[:track]
 
-            frequency = get_periodic_rules(block[:type], block[:frequency])
-            header = build_header(block, to, frequency, t[:description])
-            footer = build_footer(block)
-            output << build_transaction(header, [t], footer)
+            frequency = get_periodic_rules(t[:type], t[:frequency])
+            header = build_header(t, frequency, t[:to], t[:description])
+            footer = build_footer(t)
+
+            output << build_transaction(header, t[:transactions], footer)
           end
+
           return
         end
 
-        block[:descriptions] = get_descriptions(transactions)
-        frequency = get_periodic_rules(block[:type], block[:frequency])
-        header = build_header(block, to, frequency, block[:descriptions])
-        footer = build_footer(block)
-        output << build_transaction(header, transactions, footer)
+        to = build_to_header(row[:to])
+        frequency = get_periodic_rules(row[:type], row[:frequency])
+        header = build_header(row, frequency, to, get_descriptions(row[:transactions]))
+        footer = build_footer(row)
+
+        output << build_transaction(header, row[:transactions], footer)
       end
 
-      def build_header(block, to, frequency, description)
-        "#{frequency} #{block[:from]}#{to}  * #{description}\n"
+      def build_header(row, frequency, to, descriptions)
+        "#{frequency} #{row[:from]}#{to}  * #{descriptions}\n"
       end
 
       def build_footer(block)
@@ -82,14 +85,12 @@ module HledgerForecast
       end
 
       def build_transaction(header, transactions, footer)
-        { header: header, transactions: write_transactions(transactions), footer: footer }
+        trans = write_transactions(transactions)
+        { header: header, transactions: trans, footer: footer }
       end
 
-      def get_header(block, transaction)
-        return " to #{transaction}" if transaction
-        return " to #{block}" if block
-
-        return nil
+      def build_to_header(to)
+        return " to #{to}" if to
       end
 
       def get_descriptions(transactions)
@@ -119,11 +120,11 @@ module HledgerForecast
           # Skip transactions that have been marked as tracked
           next if t[:track]
 
-          t[:amount] = t[:amount].to_s.ljust(options[:max_amount])
-          t[:category] = t[:category].ljust(options[:max_category])
+          t[:amount] = t[:amount].to_s.ljust(@settings[:max_amount] + 5)
+          t[:category] = t[:category].to_s.ljust(@settings[:max_category])
 
           "    #{t[:category]}    #{t[:amount]};  #{t[:description]}\n"
-        end
+        end.compact
       end
     end
   end

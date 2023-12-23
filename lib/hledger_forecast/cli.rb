@@ -79,15 +79,8 @@ module HledgerForecast
         opts.separator ""
 
         opts.on("-f", "--forecast FILE",
-                "The path to the FORECAST csv/yml file to generate from") do |file|
+                "The path to the FORECAST csv file to generate from") do |file|
           options[:forecast_file] = file
-
-          options[:file_type] = if File.extname(file) == '.csv'
-                                  "csv"
-                                else
-                                  "yml"
-                                end
-
           options[:output_file] ||= file.sub(options[:file_type], 'journal')
         end
 
@@ -150,12 +143,7 @@ module HledgerForecast
         opts.separator ""
 
         opts.on("-f", "--forecast FILE",
-                "The path to the FORECAST csv/yml file to summarize") do |file|
-          options[:file_type] = if File.extname(file) == '.csv'
-                                  "csv"
-                                else
-                                  "yml"
-                                end
+                "The path to the FORECAST csv file to summarize") do |file|
           options[:forecast_file] = file
         end
 
