@@ -16,18 +16,23 @@ module HledgerForecast
         processed.push(process_forecast(row))
       end
 
-      processed = processed.group_by do |row|
-        [row[:type], row[:from], row[:to], row[:account]]
-      end
+      if @settings[:verbose]
+        transformed = processed
+      else
+        processed = processed.group_by do |row|
+          [row[:type], row[:frequency], row[:from], row[:to], row[:account]]
+        end
 
-      transformed = processed.map do |(type, from, to, account), transactions|
-        {
-          type: type,
-          from: from,
-          to: to,
-          account: account,
-          transactions: transactions
-        }
+        transformed = processed.map do |(type, frequency, from, to, account), transactions|
+          {
+            type: type,
+            frequency: frequency,
+            from: from,
+            to: to,
+            account: account,
+            transactions: transactions
+          }
+        end
       end
 
       Formatter.output_to_ledger(
@@ -39,14 +44,14 @@ module HledgerForecast
     private
 
     def process_forecast(row)
-      amount = HledgerForecast.convert_amount(row['amount'])
+      amount = Utilities.convert_amount(row['amount'])
 
       {
         type: row['type'],
         frequency: row['frequency'] || nil,
         account: row['account'],
         from: Date.parse(row['from']),
-        to: row['to'] ? Date.parse(row['to']) : nil,
+        to: row['to'] ? Calculator.new.evaluate_date(Date.parse(row['from']), row['to']) : nil,
         description: row['description'],
         category: row['category'],
         amount: Formatter.format_money(Calculator.new.evaluate(amount), @settings)

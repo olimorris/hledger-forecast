@@ -12,7 +12,11 @@ module HledgerForecast
     end
 
     def evaluate_date(from, to)
-      return to unless to[0] == "="
+      if to[0] != "="
+        return to if to.is_a?(Date)
+
+        return Date.parse(to)
+      end
 
       # Subtract a day from the final date
       (from >> @calculator.evaluate(to.slice(1..-1))) - 1

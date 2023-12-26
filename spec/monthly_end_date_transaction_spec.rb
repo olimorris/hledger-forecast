@@ -1,66 +1,41 @@
 require_relative '../lib/hledger_forecast'
 
-base_config = <<~YAML
-  settings:
-    currency: GBP
+config = <<~CSV
+  type,frequency,account,from,to,description,category,amount,roll-up,summary_exclude,track
+  monthly,,Assets:Bank,01/03/2023,01/06/2023,Mortgage,Expenses:Mortgage,2000.00,,,
+  monthly,,Assets:Bank,01/03/2023,01/06/2023,Mortgage top up,Expenses:Mortgage,200.00,,,
+  monthly,,Assets:Bank,01/03/2023,,Food,Expenses:Food,100.00,,,
+  settings,currency,GBP,,,,,,,,
+CSV
 
-  monthly:
-    - from: "2023-03-01"
-      account: "Assets:Bank"
-      transactions:
-        - description: Mortgage
-          to: "2023-06-01"
-          category: "Expenses:Mortgage"
-          amount: 2000.00
-        - description: Mortgage top up
-          to: "2023-06-01"
-          category: "Expenses:Mortgage Top Up"
-          amount: 200.00
-        - description: Food
-          category: "Expenses:Food"
-          amount: 100.00
-        - description: Party time
-          category: "Expenses:Going Out"
-          amount: 50.00
-YAML
-
-base_output = <<~JOURNAL
+output = <<~JOURNAL
   ~ monthly from 2023-03-01 to 2023-06-01  * Mortgage, Mortgage top up
-      Expenses:Mortgage           £2,000.00;  Mortgage
-      Expenses:Mortgage Top Up    £200.00  ;  Mortgage top up
+      Expenses:Mortgage    £2,000.00   ;  Mortgage
+      Expenses:Mortgage    £200.00     ;  Mortgage top up
       Assets:Bank
 
-  ~ monthly from 2023-03-01  * Food, Party time
-      Expenses:Food               £100.00  ;  Food
-      Expenses:Going Out          £50.00   ;  Party time
+  ~ monthly from 2023-03-01  * Food
+      Expenses:Food        £100.00     ;  Food
       Assets:Bank
 
 JOURNAL
 
-computed_config = <<~YAML
-  settings:
-    currency: GBP
-
-  monthly:
-    - from: "2023-03-01"
-      account: "Assets:Bank"
-      transactions:
-        - description: Mortgage
-          category: "Expenses:Mortgage"
-          to: "=12"
-          amount: 2000.00
-YAML
+computed_config = <<~CSV
+  type,frequency,account,from,to,description,category,amount,roll-up,summary_exclude,track
+  monthly,,Assets:Bank,01/03/2023,=12,Mortgage,Expenses:Mortgage,2000.00,,,
+  settings,currency,GBP,,,,,,,,
+CSV
 
 computed_output = <<~JOURNAL
   ~ monthly from 2023-03-01 to 2024-02-29  * Mortgage
-      Expenses:Mortgage    £2,000.00;  Mortgage
+      Expenses:Mortgage    £2,000.00   ;  Mortgage
       Assets:Bank
 
 JOURNAL
 
 RSpec.describe 'generate' do
   it 'generates a forecast with correct MONTHLY transactions that have an end date' do
-    expect(HledgerForecast::Generator.generate(base_config)).to eq(base_output)
+    expect(HledgerForecast::Generator.generate(config)).to eq(output)
   end
 
   it 'generates a forecast with correct MONTHLY transactions that have a COMPUTED end date' do

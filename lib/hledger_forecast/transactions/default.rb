@@ -34,40 +34,16 @@ module HledgerForecast
         @output = []
       end
 
-      def process_row(row)
-        if row[:type] == "custom"
-          process_custom_transactions(row)
-        else
-          process_standard_transactions(row)
-        end
-      end
+      def process_custom_transactions(row)
+        to = build_to_header(row[:to])
+        frequency = get_periodic_rules(row[:type], row[:frequency])
+        header = build_header(row, frequency, to, get_descriptions(row[:transactions]))
+        footer = build_footer(row)
 
-      def process_custom_transactions(block, to, transactions)
-        transactions.each do |t|
-          frequency = get_periodic_rules(block[:type], t[:frequency])
-
-          header = build_header(block, to, frequency, t[:description])
-          footer = build_footer(block)
-          output << build_transaction(header, [t], footer)
-        end
+        output << build_transaction(header, row[:transactions], footer)
       end
 
       def process_standard_transactions(row)
-        if @settings[:verbose]
-          rows.map do |t|
-            # Skip transactions that have been marked as tracked
-            next if t[:track]
-
-            frequency = get_periodic_rules(t[:type], t[:frequency])
-            header = build_header(t, frequency, t[:to], t[:description])
-            footer = build_footer(t)
-
-            output << build_transaction(header, t[:transactions], footer)
-          end
-
-          return
-        end
-
         to = build_to_header(row[:to])
         frequency = get_periodic_rules(row[:type], row[:frequency])
         header = build_header(row, frequency, to, get_descriptions(row[:transactions]))
@@ -111,7 +87,6 @@ module HledgerForecast
           'yearly' => '~ yearly from',
           'custom' => "~ #{frequency} from"
         }
-
         map[type]
       end
 

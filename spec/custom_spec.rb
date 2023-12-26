@@ -1,52 +1,32 @@
 require_relative '../lib/hledger_forecast'
 
-base_config = <<~YAML
-  custom:
-    - account: "[Assets:Bank]"
-      from: "2023-05-01"
-      transactions:
-        - amount: 80
-          category: "[Expenses:Personal Care]"
-          description: Hair and beauty
-          frequency: "every 2 weeks"
-        - amount: 50
-          category: "[Expenses:Groceries]"
-          description: Gotta feed that stomach
-          frequency: "every 5 days"
-
-  settings:
-    currency: GBP
-YAML
+base_config = <<~CSV
+  type,frequency,account,from,to,description,category,amount,roll-up,summary_exclude,track
+  custom,every 2 weeks,[Assets:Bank],01/05/2023,,Hair and beauty,[Expenses:Personal Care],80,,,
+  custom,every 5 days,[Assets:Bank],01/05/2023,,Food,[Expenses:Groceries],50,,,
+  settings,currency,GBP,,,,,,,,
+CSV
 
 base_output = <<~JOURNAL
   ~ every 2 weeks from 2023-05-01  * Hair and beauty
-      [Expenses:Personal Care]    £80.00;  Hair and beauty
+      [Expenses:Personal Care]    £80.00 ;  Hair and beauty
       [Assets:Bank]
 
-  ~ every 5 days from 2023-05-01  * Gotta feed that stomach
-      [Expenses:Groceries]        £50.00;  Gotta feed that stomach
+  ~ every 5 days from 2023-05-01  * Food
+      [Expenses:Groceries]        £50.00 ;  Food
       [Assets:Bank]
 
 JOURNAL
 
-calculated_config = <<~YAML
-  custom:
-    - account: "[Assets:Bank]"
-      from: "2023-05-01"
-      transactions:
-        - amount: 80
-          category: "[Expenses:Personal Care]"
-          description: Hair and beauty
-          frequency: "every 2 weeks"
-          to: "=6"
-
-  settings:
-    currency: GBP
-YAML
+calculated_config = <<~CSV
+  type,frequency,account,from,to,description,category,amount,roll-up,summary_exclude,track
+  custom,every 2 weeks,[Assets:Bank],01/05/2023,=6,Hair and beauty,[Expenses:Personal Care],80,,,
+  settings,currency,GBP,,,,,,,,
+CSV
 
 calculated_output = <<~JOURNAL
   ~ every 2 weeks from 2023-05-01 to 2023-10-31  * Hair and beauty
-      [Expenses:Personal Care]    £80.00;  Hair and beauty
+      [Expenses:Personal Care]    £80.00 ;  Hair and beauty
       [Assets:Bank]
 
 JOURNAL

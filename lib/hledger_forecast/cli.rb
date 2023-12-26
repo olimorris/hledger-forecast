@@ -81,7 +81,7 @@ module HledgerForecast
         opts.on("-f", "--forecast FILE",
                 "The path to the FORECAST csv file to generate from") do |file|
           options[:forecast_file] = file
-          options[:output_file] ||= file.sub(options[:file_type], 'journal')
+          options[:output_file] ||= file.sub(options[:forecast_file], 'journal')
         end
 
         opts.on("-o", "--output-file FILE",
@@ -92,11 +92,6 @@ module HledgerForecast
         opts.on("-t", "--transaction FILE",
                 "The path to the TRANSACTION journal file") do |file|
           options[:transaction_file] = file
-        end
-
-        opts.on("-v", "--verbose",
-                "Don't group transactions by type in the output file") do
-          options[:verbose] = true
         end
 
         opts.on("--force",
@@ -228,7 +223,6 @@ module HledgerForecast
       forecast = File.read(options[:forecast_file])
 
       begin
-        forecast = HledgerForecast::CSVParser.parse(forecast) if options[:file_type] == "csv"
         transactions = Generator.generate(forecast, options)
       rescue StandardError => e
         puts "An error occurred while generating transactions: #{e.message}"

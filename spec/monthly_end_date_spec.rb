@@ -1,26 +1,16 @@
 require_relative '../lib/hledger_forecast'
 
-config = <<~YAML
-  settings:
-    currency: GBP
-
-  monthly:
-    - from: "2023-03-01"
-      to: "2023-06-01"
-      account: "Assets:Bank"
-      transactions:
-        - description: Mortgage
-          category: "Expenses:Mortgage"
-          amount: 2000.00
-        - description: Food
-          category: "Expenses:Food"
-          amount: 100.00
-YAML
+config = <<~CSV
+  type,frequency,account,from,to,description,category,amount,roll-up,summary_exclude,track
+  monthly,,Assets:Bank,01/03/2023,01/06/2023,Mortgage,Expenses:Mortgage,2000.00,,,
+  monthly,,Assets:Bank,01/03/2023,01/06/2023,Food,Expenses:Food,100.00,,,
+  settings,currency,GBP,,,,,,,,
+CSV
 
 output = <<~JOURNAL
   ~ monthly from 2023-03-01 to 2023-06-01  * Mortgage, Food
-      Expenses:Mortgage    £2,000.00;  Mortgage
-      Expenses:Food        £100.00  ;  Food
+      Expenses:Mortgage    £2,000.00   ;  Mortgage
+      Expenses:Food        £100.00     ;  Food
       Assets:Bank
 
 JOURNAL
