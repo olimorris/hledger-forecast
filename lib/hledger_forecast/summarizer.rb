@@ -6,7 +6,7 @@ module HledgerForecast
     end
 
     def summarize(config, cli_options = nil)
-      @forecast = YAML.safe_load(config)
+      @forecast = CSV.parse(config, headers: true)
       @settings = Settings.config(@forecast, cli_options)
 
       return { output: generate(@forecast), settings: @settings }
@@ -15,57 +15,30 @@ module HledgerForecast
     private
 
     def generate(forecast)
-      output = {}
-      forecast.each do |period, blocks|
-        next if %w[settings].include?(period)
-
-        blocks.each do |block|
-          key = if @settings[:roll_up].nil?
-                  period
-                else
-                  output.length
-                end
-
-          output[key] ||= []
-          output[key] << process_block(period, block)
-        end
-      end
-
-      output = filter_out(flatten_and_merge(output))
-      output = calculate_rolled_up_amount(output) unless @settings[:roll_up].nil?
-
-      output
-    end
-
-    def process_block(period, block)
       output = []
 
-      output << {
-        account: block['account'],
-        from: Date.parse(block['from']),
-        to: block['to'] ? Date.parse(block['to']) : nil,
-        type: period,
-        frequency: block['frequency'],
-        transactions: []
-      }
+      forecast.each do |row|
+        next if row['type'] == "settings"
+        next if row['summary_exclude']
 
-      process_transactions(period, block, output)
-    end
+        row['amount'] = Utilities.convert_amount(row['amount'])
+        annualised_amount = row['roll-up'] ? row['amount'] * row['roll-up'].to_f : row['amount'] * annualise(row['type'])
 
-    def process_transactions(period, block, output)
-      block['transactions'].each do |t|
-        amount = Calculator.new.evaluate(t['amount'])
-
-        output.last[:transactions] << {
-          amount: amount,
-          annualised_amount: amount * (t['roll-up'] || annualise(period)),
-          rolled_up_amount: 0,
-          category: t['category'],
-          exclude: t['summary_exclude'],
-          description: t['description'],
-          to: t['to'] ? Calculator.new.evaluate_date(Date.parse(block['from']), t['to']) : nil
+        output << {
+          account: row['account'],
+          from: Date.parse(row['from']),
+          to: row['to'] ? Calculator.new.evaluate_date(Date.parse(row['from']), row['to']) : nil,
+          type: row['type'],
+          frequency: row['frequency'],
+          category: row['category'],
+          description: row['description'],
+          amount: row['amount'],
+          annualised_amount: annualised_amount.to_f,
+          exclude: row['summary_exclude']
         }
       end
+
+      output = calculate_rolled_up_amount(output) unless @settings[:roll_up].nil?
 
       output
     end
@@ -84,22 +57,9 @@ module HledgerForecast
       annualise[period]
     end
 
-    def filter_out(data)
-      data.reject { |item| item[:exclude] == true }
-    end
-
-    def flatten_and_merge(blocks)
-      blocks.values.flatten.flat_map do |block|
-        block[:transactions].map do |transaction|
-          block.slice(:account, :from, :to, :type, :frequency).merge(transaction)
-        end
-      end
-    end
-
-    def calculate_rolled_up_amount(data)
-      data.map do |item|
-        item[:rolled_up_amount] = item[:annualised_amount] / annualise(@settings[:roll_up])
-        item
+    def calculate_rolled_up_amount(forecast)
+      forecast.each do |row|
+        row[:rolled_up_amount] = row[:annualised_amount] / annualise(@settings[:roll_up])
       end
     end
   end

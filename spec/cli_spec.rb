@@ -35,18 +35,18 @@ RSpec.describe 'command' do
     expect(File.read(generated_journal)).to eq(output)
   end
 
-  # it 'uses the CLI to compare two CSV files' do
-  #   expected_output = strip_ansi_codes(<<~OUTPUT)
-  #     +---------+---------+---------+
-  #     | account | 2023-07 | 2023-08 |
-  #     +---------+---------+---------+
-  #     | total   | £10.00  | €-10.00 |
-  #     +---------+---------+---------+
-  #
-  #   OUTPUT
-  #
-  #   actual_output = `./bin/hledger-forecast compare ./spec/stubs/output1.csv ./spec/stubs/output2.csv`
-  #
-  #   expect(strip_ansi_codes(actual_output)).to eq(expected_output)
-  # end
+  it 'uses the CLI to compare two CSV files' do
+    expected_output = strip_ansi_codes(<<~OUTPUT)
+      +---------+---------+---------+
+      | account | 2023-07 | 2023-08 |
+      +---------+---------+---------+
+      | total   | £10.00  | €-10.00 |
+      +---------+---------+---------+
+
+    OUTPUT
+
+    actual_output = `./bin/hledger-forecast compare ./spec/stubs/output1.csv ./spec/stubs/output2.csv`
+
+    expect(strip_ansi_codes(actual_output)).to eq(expected_output)
+  end
 end
