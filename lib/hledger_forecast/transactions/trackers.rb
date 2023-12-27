@@ -14,6 +14,7 @@ module HledgerForecast
       end
 
       def generate
+        return if @options[:no_track]
         return nil unless tracked?(forecast)
 
         forecast.each do |row|

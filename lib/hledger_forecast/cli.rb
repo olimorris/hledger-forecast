@@ -94,13 +94,18 @@ module HledgerForecast
           options[:transaction_file] = file
         end
 
+        opts.on("-v", "--verbose",
+                "Do not group transactions in the output file") do
+          options[:verbose] = true
+        end
+
         opts.on("--force",
                 "Force an overwrite of the output file") do
           options[:force] = true
         end
 
         opts.on("--no-track",
-                "Don't track any transactions") do
+                "Do not track any transactions") do
           options[:no_track] = true
         end
 

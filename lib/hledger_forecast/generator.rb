@@ -16,25 +16,27 @@ module HledgerForecast
         processed.push(process_forecast(row))
       end
 
-      processed = processed.group_by do |row|
-        [row[:type], row[:frequency], row[:from], row[:to], row[:account], row[:track]]
-      end
+      unless @settings[:verbose]
+        processed = processed.group_by do |row|
+          [row[:type], row[:frequency], row[:from], row[:to], row[:account], row[:track]]
+        end
 
-      transformed = processed.map do |(type, frequency, from, to, account, track), transactions|
-        {
-          type: type,
-          frequency: frequency,
-          from: from,
-          to: to,
-          account: account,
-          track: track || false,
-          transactions: transactions
-        }
+        processed = processed.map do |(type, frequency, from, to, account, track), transactions|
+          {
+            type: type,
+            frequency: frequency,
+            from: from,
+            to: to,
+            account: account,
+            track: track || false,
+            transactions: transactions
+          }
+        end
       end
 
       Formatter.output_to_ledger(
-        Transactions::Default.generate(transformed, @settings),
-        Transactions::Trackers.generate(transformed, @settings)
+        Transactions::Default.generate(processed, @settings),
+        Transactions::Trackers.generate(processed, @settings)
       )
     end
 

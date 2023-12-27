@@ -14,11 +14,7 @@ module HledgerForecast
         forecast.each do |row|
           next if row[:type] == "settings"
 
-          if row[:type] == "custom"
-            process_custom_transactions(row)
-          else
-            process_standard_transactions(row)
-          end
+          process_transactions(row)
         end
 
         output
@@ -34,22 +30,22 @@ module HledgerForecast
         @output = []
       end
 
-      def process_custom_transactions(row)
+      def process_transactions(row)
         to = build_to_header(row[:to])
         frequency = get_periodic_rules(row[:type], row[:frequency])
-        header = build_header(row, frequency, to, get_descriptions(row[:transactions]))
+
+        if @settings[:verbose]
+          description = row[:description]
+          transactions = [row]
+        else
+          description = get_descriptions(row[:transactions])
+          transactions = row[:transactions]
+        end
+
+        header = build_header(row, frequency, to, description)
         footer = build_footer(row)
 
-        output << build_transaction(header, row[:transactions], footer)
-      end
-
-      def process_standard_transactions(row)
-        to = build_to_header(row[:to])
-        frequency = get_periodic_rules(row[:type], row[:frequency])
-        header = build_header(row, frequency, to, get_descriptions(row[:transactions]))
-        footer = build_footer(row)
-
-        output << build_transaction(header, row[:transactions], footer)
+        output << build_transaction(header, transactions, footer)
       end
 
       def build_header(row, frequency, to, descriptions)
