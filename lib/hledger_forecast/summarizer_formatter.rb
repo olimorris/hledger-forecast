@@ -41,7 +41,7 @@ module HledgerForecast
         @table.add_row([{ value: type.capitalize.bold, colspan: 3, alignment: :center }])
         total = 0
         items.each do |item|
-          total += item[:amount]
+          total += item[:amount].to_f
 
           if @settings[:verbose]
             @table.add_row [{ value: item[:category], alignment: :left },
@@ -63,7 +63,7 @@ module HledgerForecast
     def sort(data)
       data.each do |type, items|
         data[type] = items.sort_by do |item|
-          value = item[:amount]
+          value = item[:amount].to_f
           [value >= 0 ? 1 : 0, value >= 0 ? -value : value]
         end
       end
@@ -114,11 +114,11 @@ module HledgerForecast
 
     def add_total_row_to_table(data, row_to_sum)
       total = data.reduce(0) do |sum, item|
-        sum + item[row_to_sum]
+        sum + item[row_to_sum].to_f
       end
 
       income = data.reduce(0) do |sum, item|
-        sum += item[row_to_sum] if item[row_to_sum] < 0
+        sum += item[row_to_sum].to_f if item[row_to_sum].to_f < 0
         sum
       end
 
