@@ -16,35 +16,32 @@ module HledgerForecast
         processed.push(process_forecast(row))
       end
 
-      if @settings[:verbose]
-        transformed = processed
-      else
-        processed = processed.group_by do |row|
-          [row[:type], row[:frequency], row[:from], row[:to], row[:account]]
-        end
+      processed = processed.group_by do |row|
+        [row[:type], row[:frequency], row[:from], row[:to], row[:account], row[:track]]
+      end
 
-        transformed = processed.map do |(type, frequency, from, to, account), transactions|
-          {
-            type: type,
-            frequency: frequency,
-            from: from,
-            to: to,
-            account: account,
-            transactions: transactions
-          }
-        end
+      transformed = processed.map do |(type, frequency, from, to, account, track), transactions|
+        {
+          type: type,
+          frequency: frequency,
+          from: from,
+          to: to,
+          account: account,
+          track: track || false,
+          transactions: transactions
+        }
       end
 
       Formatter.output_to_ledger(
-        Transactions::Default.generate(transformed, @settings)
-        # Transactions::Trackers.generate(transformed, @settings)
+        Transactions::Default.generate(transformed, @settings),
+        Transactions::Trackers.generate(transformed, @settings)
       )
     end
 
     private
 
     def process_forecast(row)
-      amount = Utilities.convert_amount(row['amount'])
+      row['amount'] = Utilities.convert_amount(row['amount'])
 
       {
         type: row['type'],
@@ -54,8 +51,8 @@ module HledgerForecast
         to: row['to'] ? Calculator.new.evaluate_date(Date.parse(row['from']), row['to']) : nil,
         description: row['description'],
         category: row['category'],
-        amount: Formatter.format_money(Calculator.new.evaluate(amount), @settings)
-        # track: Transactions::Trackers.track?(row, block, @settings) ? true : false
+        amount: Formatter.format_money(Calculator.new.evaluate(row['amount']), @settings),
+        track: Transactions::Trackers.track?(row, @settings) ? true : false
       }
     end
 

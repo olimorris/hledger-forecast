@@ -61,8 +61,7 @@ module HledgerForecast
       end
 
       def build_transaction(header, transactions, footer)
-        trans = write_transactions(transactions)
-        { header: header, transactions: trans, footer: footer }
+        { header: header, transactions: write_transactions(transactions), footer: footer }
       end
 
       def build_to_header(to)
