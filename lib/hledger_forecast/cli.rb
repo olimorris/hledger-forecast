@@ -81,7 +81,7 @@ module HledgerForecast
         opts.on("-f", "--forecast FILE",
                 "The path to the FORECAST csv file to generate from") do |file|
           options[:forecast_file] = file
-          options[:output_file] ||= file.sub(options[:forecast_file], 'journal')
+          options[:output_file] ||= file.sub('csv', 'journal')
         end
 
         opts.on("-o", "--output-file FILE",

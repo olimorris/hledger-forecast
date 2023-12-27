@@ -1,44 +1,44 @@
 ~ monthly from 2023-03-01  * Salary, Bills, Food, New Kitchen
-    Income:Salary                $-3,500.00;  Salary
-    Expenses:Bills               $175.00   ;  Bills
-    Expenses:Food                $500.00   ;  Food
-    Expenses:House               $208.33   ;  New Kitchen
+    Income:Salary                $-3,500.00   ;  Salary
+    Expenses:Bills               $175.00      ;  Bills
+    Expenses:Food                $500.00      ;  Food
+    Expenses:House               $208.33      ;  New Kitchen
     Assets:Bank
 
 ~ monthly from 2023-03-01 to 2025-01-01  * Mortgage
-    Expenses:Mortgage            $2,000.00 ;  Mortgage
+    Expenses:Mortgage            $2,000.00    ;  Mortgage
     Assets:Bank
 
 ~ monthly from 2023-03-01 to 2024-02-29  * Holiday
-    Expenses:Holiday             $125.00   ;  Holiday
+    Expenses:Holiday             $125.00      ;  Holiday
     Assets:Bank
 
 ~ monthly from 2023-03-01 to 2025-03-01  * Rainy day fund
-    Assets:Savings               $300.00   ;  Rainy day fund
+    Assets:Savings               $300.00      ;  Rainy day fund
     Assets:Bank
 
 ~ monthly from 2024-01-01  * Pension draw down
-    Income:Pension               $-500.00  ;  Pension draw down
+    Income:Pension               $-500.00     ;  Pension draw down
     Assets:Pension
 
 ~ every 3 months from 2023-04-01  * Quarterly bonus
-    Income:Bonus                 $-1,000.00;  Quarterly bonus
+    Income:Bonus                 $-1,000.00   ;  Quarterly bonus
     Assets:Bank
 
 ~ every 6 months from 2023-04-01  * Top up holiday funds
-    Expenses:Holiday             $500.00   ;  Top up holiday funds
+    Expenses:Holiday             $500.00      ;  Top up holiday funds
     Assets:Bank
 
 ~ yearly from 2023-04-01  * Annual bonus
-    Income:Bonus                 $-2,000.00;  Annual bonus
+    Income:Bonus                 $-2,000.00   ;  Annual bonus
     Assets:Bank
 
 ~ every 2 weeks from 2023-03-01  * Hair and beauty
-    Expenses:Personal Care       $80.00    ;  Hair and beauty
+    Expenses:Personal Care       $80.00       ;  Hair and beauty
     Assets:Bank
 
 ~ every 5 weeks from 2023-03-01  * Misc expenses
-    Expenses:General Expenses    $30.00    ;  Misc expenses
+    Expenses:General Expenses    $30.00       ;  Misc expenses
     Assets:Bank
 
 ~ 2024-01-01  * [TRACKED] Refund for that damn laptop
