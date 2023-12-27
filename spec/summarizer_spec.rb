@@ -1,51 +1,20 @@
 require_relative '../lib/hledger_forecast'
 
-config = <<~YAML
-  monthly:
-    - account: "Assets:Bank"
-      from: "2023-03-01"
-      transactions:
-        - amount: 2000.55
-          category: "Expenses:Mortgage"
-          description: Mortgage
-          to: "=24"
-        - amount: 100
-          category: "Expenses:Food"
-          description: Food
-    - account: "Assets:Savings"
-      from: "2023-03-01"
-      transactions:
-        - amount: -1000
-          category: "Assets:Bank"
-          description: Savings
-
-  custom:
-    - account: "[Assets:Bank]"
-      from: "2023-05-01"
-      transactions:
-        - amount: 80
-          category: "[Expenses:Personal Care]"
-          description: Hair and beauty
-          frequency: "every 2 weeks"
-          roll-up: 26
-    - account: "[Assets:Checking]"
-      from: "2023-05-01"
-      transactions:
-        - amount: 50
-          category: "[Expenses:Groceries]"
-          description: Gotta feed that stomach
-          frequency: "every 5 days"
-          roll-up: 73
-
-  settings:
-    currency: GBP
-YAML
+config = <<~CSV
+  type,frequency,account,from,to,description,category,amount,roll-up,summary_exclude,track
+  monthly,,Assets:Bank,01/03/2023,=24,Mortgage,Expenses:Mortgage,2000.55,,,
+  monthly,,Assets:Bank,01/03/2023,,Food,Expenses:Food,100,,,
+  monthly,,Assets:Savings,01/03/2023,,Savings,Assets:Bank,-1000,,,
+  custom,every 2 weeks,[Assets:Bank],01/05/2023,,Hair and beauty,[Expenses:Personal Care],80,26,,
+  custom,every 2 weeks,[Assets:Checking],01/05/2023,,Extra Food,[Expenses:Groceries],50,73,,
+  settings,currency,GBP,,,,,,,,
+CSV
 
 RSpec.describe HledgerForecast::Summarizer do
   let(:summarizer) { described_class.new }
 
   describe '#generate with roll_up' do
-    let(:forecast) { YAML.safe_load(config) }
+    let(:forecast) { CSV.parse(config, headers: true) }
     let(:cli_options) { { roll_up: 'monthly' } }
 
     before do
@@ -69,7 +38,7 @@ RSpec.describe HledgerForecast::Summarizer do
   end
 
   describe '#generate' do
-    let(:forecast) { YAML.safe_load(config) }
+    let(:forecast) { CSV.parse(config, headers: true) }
     let(:cli_options) { nil }
 
     before do

@@ -1,29 +1,18 @@
 require_relative '../lib/hledger_forecast'
 
-config = <<~YAML
-  settings:
-    currency: GBP
-
-  monthly:
-    - account: "Liabilities:Amex"
-      from: "2023-05-01"
-      transactions:
-        - amount: "=5000/24"
-          category: "Expenses:House"
-          description: New Kitchen
-        - amount: "=25*4.3"
-          category: "Expenses:Food"
-          description: Monthly food shop
-        - amount: "=(102.50+3.25)/2"
-          category: "Expenses:Food"
-          description: Random food
-YAML
+config = <<~CSV
+  type,frequency,account,from,to,description,category,amount,roll-up,summary_exclude,track
+  monthly,,Liabilities:Amex,01/05/2023,,New kitchen,Expenses:House,=5000/24,,,
+  monthly,,Liabilities:Amex,01/05/2023,,Monthly food shop,Expenses:Food,=25*4.3,,,
+  monthly,,Liabilities:Amex,01/05/2023,,Random food,Expenses:Food,=(102.50+3.25)/2,,,
+  settings,currency,GBP,,,,,,,,
+CSV
 
 output = <<~JOURNAL
-  ~ monthly from 2023-05-01  * New Kitchen, Monthly food shop, Random food
-      Expenses:House    £208.33          ;  New Kitchen
-      Expenses:Food     £107.50          ;  Monthly food shop
-      Expenses:Food     £52.88           ;  Random food
+  ~ monthly from 2023-05-01  * New kitchen, Monthly food shop, Random food
+      Expenses:House    £208.33              ;  New kitchen
+      Expenses:Food     £107.50              ;  Monthly food shop
+      Expenses:Food     £52.88               ;  Random food
       Liabilities:Amex
 
 JOURNAL

@@ -1,21 +1,14 @@
 require_relative '../lib/hledger_forecast'
 
-config = <<~YAML
-  settings:
-    currency: GBP
-
-  half-yearly:
-    - from: "2023-04-01"
-      account: "Assets:Bank"
-      transactions:
-        - description: Holiday
-          category: "Expenses:Holiday"
-          amount: 500
-YAML
+config = <<~CSV
+  type,frequency,account,from,to,description,category,amount,roll-up,summary_exclude,track
+  half-yearly,,Assets:Bank,01/04/2023,,Holiday,Expenses:Holiday,500,,,
+  settings,currency,GBP,,,,,,,,
+CSV
 
 output = <<~JOURNAL
   ~ every 6 months from 2023-04-01  * Holiday
-      Expenses:Holiday    £500.00;  Holiday
+      Expenses:Holiday    £500.00 ;  Holiday
       Assets:Bank
 
 JOURNAL

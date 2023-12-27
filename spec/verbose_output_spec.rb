@@ -2,15 +2,15 @@ require_relative '../lib/hledger_forecast'
 
 output = <<~JOURNAL
   ~ monthly from 2023-03-01  * Mortgage
-      Expenses:Mortgage    £2,000.55;  Mortgage
+      Expenses:Mortgage    £2,000.55   ;  Mortgage
       Assets:Bank
 
   ~ monthly from 2023-03-01  * Food
-      Expenses:Food        £100.00  ;  Food
+      Expenses:Food        £100.00     ;  Food
       Assets:Bank
 
   ~ monthly from 2023-03-01  * Savings
-      Assets:Bank          £-1,000.00;  Savings
+      Assets:Bank          £-1,000.00  ;  Savings
       Assets:Savings
 
 JOURNAL

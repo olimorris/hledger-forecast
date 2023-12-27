@@ -1,41 +1,56 @@
 module HledgerForecast
-  # Set the options from a user's confgi
+  # Set the options from a user's config
   class Settings
     def self.config(forecast, cli_options)
       settings = {}
+      settings[:max_amount] = 0
+      settings[:max_category] = 0
 
-      settings[:max_amount] = get_max_field_size(forecast, 'amount') + 1 # +1 for the negatives
-      settings[:max_category] = get_max_field_size(forecast, 'category')
+      forecast.each do |row|
+        if row['type'] != 'settings'
+          category_length = row['category'].length
+          settings[:max_category] = category_length if category_length > settings[:max_category]
 
-      settings[:currency] = Money::Currency.new(forecast.fetch('settings', {}).fetch('currency', 'USD'))
-      settings[:show_symbol] = forecast.fetch('settings', {}).fetch('show_symbol', true)
-      # settings[:sign_before_symbol] = forecast.fetch('settings', {}).fetch('sign_before_symbol', false)
-      settings[:thousands_separator] = forecast.fetch('settings', {}).fetch('thousands_separator', true)
+          amount = if row['amount'].is_a?(Integer) || row['amount'].is_a?(Float)
+                     ((row['amount'] + 3) * 100).to_s
+                   else
+                     row['amount'].to_s
+                   end
 
-      settings.merge!(cli_options) if cli_options
-
-      settings
-    end
-
-    def self.get_max_field_size(block, field)
-      max_size = 0
-
-      block.each do |period, items|
-        next if %w[settings].include?(period)
-
-        items.each do |item|
-          item['transactions'].each do |t|
-            field_value = if t[field].is_a?(Integer) || t[field].is_a?(Float)
-                            ((t[field] + 3) * 100).to_s
-                          else
-                            t[field].to_s
-                          end
-            max_size = [max_size, field_value.length].max
-          end
+          settings[:max_amount] = amount.length if amount.length > settings[:max_amount]
         end
+
+        if row['type'] == 'settings'
+
+          settings[:currency] = if row['frequency'] == "currency"
+                                  row['account']
+                                else
+                                  "USD"
+                                end
+
+          settings[:show_symbol] = if row['frequency'] == "show_symbol"
+                                     row['account']
+                                   else
+                                     true
+                                   end
+
+          settings[:sign_before_symbol] = if row['frequency'] == "sign_before_symbol"
+                                            row['account']
+                                          else
+                                            false
+                                          end
+
+          settings[:thousands_separator] = if row['frequency'] == "thousands_separator"
+                                             row['account']
+                                           else
+                                             ","
+                                           end
+        end
+
+        settings.merge!(cli_options) if cli_options
       end
 
-      max_size
+      settings
     end
   end
 end

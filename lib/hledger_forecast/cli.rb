@@ -79,16 +79,9 @@ module HledgerForecast
         opts.separator ""
 
         opts.on("-f", "--forecast FILE",
-                "The path to the FORECAST csv/yml file to generate from") do |file|
+                "The path to the FORECAST csv file to generate from") do |file|
           options[:forecast_file] = file
-
-          options[:file_type] = if File.extname(file) == '.csv'
-                                  "csv"
-                                else
-                                  "yml"
-                                end
-
-          options[:output_file] ||= file.sub(options[:file_type], 'journal')
+          options[:output_file] ||= file.sub('csv', 'journal')
         end
 
         opts.on("-o", "--output-file FILE",
@@ -102,7 +95,7 @@ module HledgerForecast
         end
 
         opts.on("-v", "--verbose",
-                "Don't group transactions by type in the output file") do
+                "Do not group transactions in the output file") do
           options[:verbose] = true
         end
 
@@ -112,7 +105,7 @@ module HledgerForecast
         end
 
         opts.on("--no-track",
-                "Don't track any transactions") do
+                "Do not track any transactions") do
           options[:no_track] = true
         end
 
@@ -150,12 +143,7 @@ module HledgerForecast
         opts.separator ""
 
         opts.on("-f", "--forecast FILE",
-                "The path to the FORECAST csv/yml file to summarize") do |file|
-          options[:file_type] = if File.extname(file) == '.csv'
-                                  "csv"
-                                else
-                                  "yml"
-                                end
+                "The path to the FORECAST csv file to summarize") do |file|
           options[:forecast_file] = file
         end
 
@@ -240,7 +228,6 @@ module HledgerForecast
       forecast = File.read(options[:forecast_file])
 
       begin
-        forecast = HledgerForecast::CSVParser.parse(forecast) if options[:file_type] == "csv"
         transactions = Generator.generate(forecast, options)
       rescue StandardError => e
         puts "An error occurred while generating transactions: #{e.message}"

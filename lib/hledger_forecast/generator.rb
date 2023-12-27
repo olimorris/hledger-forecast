@@ -6,61 +6,78 @@ module HledgerForecast
     end
 
     def generate(config, cli_options = nil)
-      forecast = YAML.safe_load(config)
+      forecast = CSV.parse(config, headers: true)
       @settings = Settings.config(forecast, cli_options)
 
-      output = {}
-      forecast.each do |period, blocks|
-        next if %w[settings].include?(period)
+      processed = []
+      forecast.each do |row|
+        next if row['type'] == "settings"
 
-        blocks.each do |block|
-          output[output.length] = process_block(period, block)
+        processed.push(process_forecast(row))
+      end
+
+      unless @settings[:verbose]
+        processed = processed.group_by do |row|
+          [row[:type], row[:frequency], row[:from], row[:to], row[:account], row[:track]]
+        end
+
+        processed = processed.map do |(type, frequency, from, to, account, track), transactions|
+          {
+            type: type,
+            frequency: frequency,
+            from: from,
+            to: to,
+            account: account,
+            track: track || false,
+            transactions: transactions
+          }
         end
       end
 
       Formatter.output_to_ledger(
-        Transactions::Default.generate(output, @settings),
-        Transactions::Trackers.generate(output, @settings),
-        Transactions::Modifiers.generate(output, @settings)
+        Transactions::Default.generate(processed, @settings),
+        Transactions::Trackers.generate(processed, @settings)
       )
     end
 
     private
 
-    def process_block(period, block)
-      output = []
+    def process_forecast(row)
+      row['amount'] = Utilities.convert_amount(row['amount'])
 
-      output << {
-        account: block['account'],
-        from: Date.parse(block['from']),
-        to: block['to'] ? Date.parse(block['to']) : nil,
-        type: period,
-        frequency: block['frequency'],
-        transactions: []
+      {
+        type: row['type'],
+        frequency: row['frequency'] || nil,
+        account: row['account'],
+        from: Date.parse(row['from']),
+        to: row['to'] ? Calculator.new.evaluate_date(Date.parse(row['from']), row['to']) : nil,
+        description: row['description'],
+        category: row['category'],
+        amount: Formatter.format_money(Calculator.new.evaluate(row['amount']), @settings),
+        track: Transactions::Trackers.track?(row, @settings) ? true : false
       }
-
-      output = process_transactions(block, output)
-
-      output.map do |item|
-        transactions = item[:transactions].group_by { |t| t[:to] }
-        item.merge(transactions: transactions)
-      end
     end
 
-    def process_transactions(block, output)
-      block['transactions'].each do |t|
-        output.last[:transactions] << {
-          category: t['category'],
-          amount: Formatter.format_money(Calculator.new.evaluate(t['amount']), @settings),
-          description: t['description'],
-          to: t['to'] ? Calculator.new.evaluate_date(Date.parse(block['from']), t['to']) : nil,
-          modifiers: t['modifiers'] ? Transactions::Modifiers.get_modifiers(t, block) : [],
-          track: Transactions::Trackers.track?(t, block, @settings) ? true : false,
-          frequency: t['frequency'] || nil
+    def transform_data(data)
+      transformed_data = []
+
+      data.each do |group_key, transactions|
+        next if group_key == "settings"
+
+        split_keys = group_key.split("@@")
+
+        group_info = {
+          type: split_keys[0],
+          from: split_keys[1],
+          to: split_keys[2],
+          account: split_keys[3],
+          transactions: transactions
         }
+
+        transformed_data << group_info
       end
 
-      output
+      transformed_data
     end
   end
 end

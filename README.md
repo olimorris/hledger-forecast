@@ -11,13 +11,13 @@
 <a href="https://github.com/olimorris/hledger-forecast/actions/workflows/test.yml"><img src="https://img.shields.io/github/actions/workflow/status/olimorris/hledger-forecast/test.yml?branch=main&label=tests&style=for-the-badge"></a>
 </p>
 
-**"Improved", you say?** Using a _CSV_ (or _YML_) file, forecasts can be quickly generated into a _journal_ file ready to be fed into [hledger](https://github.com/simonmichael/hledger). **A 16 line [CSV file](https://github.com/olimorris/hledger-forecast/blob/main/example.csv) can generate a 46 line hledger [forecast file](https://github.com/olimorris/hledger-forecast/blob/main/example.journal)!**
+**"Improved", you say?** Using a _CSV_ file, forecasts can be quickly generated into a _journal_ file ready to be fed into [hledger](https://github.com/simonmichael/hledger). **A 16 line [CSV file](https://github.com/olimorris/hledger-forecast/blob/main/example.csv) can generate a 46 line hledger [forecast file](https://github.com/olimorris/hledger-forecast/blob/main/example.journal)!**
 
 Forecasts can also be constrained between dates, inflated by modifiers, tracked until they appear in your bank statements and summarized into your own daily/weekly/monthly/yearly personal forecast income and expenditure statement.
 
 ## :sparkles: Features
 
-- :rocket: Uses a simple CSV (or YML) file to generate forecasts which can be used with hledger
+- :rocket: Uses a simple CSV file to generate forecasts which can be used with hledger
 - :calendar: Can smartly track forecasts against your bank statement
 - :dollar: Can automatically apply modifiers such as inflation/deflation to forecasts
 - :mag: Enables the use of maths in your forecasts (for amounts and dates)
@@ -62,13 +62,13 @@ The available options are:
 
 ### Generate command
 
-The `hledger-forecast generate` command will generate a forecast _from_ a `CSV` or `YML` file _to_ a journal file. You can see the output of this command in the [example.journal](https://github.com/olimorris/hledger-forecast/blob/main/example.journal) file.
+The `hledger-forecast generate` command will generate a forecast _from_ a `CSV` file _to_ a journal file. You can see the output of this command in the [example.journal](https://github.com/olimorris/hledger-forecast/blob/main/example.journal) file.
 
 The available options are:
 
     Usage: hledger-forecast generate [options]
 
-      -f, --forecast FILE              The path to the FORECAST CSV/YML file to generate from
+      -f, --forecast FILE              The path to the FORECAST CSV file to generate from
       -o, --output-file FILE           The path to the OUTPUT file to create
       -t, --transaction FILE           The path to the TRANSACTION journal file
       -v, --verbose                    Don't group transactions by type in the output file
@@ -78,7 +78,7 @@ The available options are:
 
 > **Note**: For the tracking of transactions you need to include the `-t` flag
 
-Running the command with no options will assume a `forecast.yml` file exists.
+Running the command with no options will assume a `forecast.csv` file exists.
 
 ### Using with hledger
 
@@ -100,7 +100,7 @@ The available options are:
 
     Usage: hledger-forecast summarize [options]
 
-    -f, --forecast FILE              The path to the FORECAST CSV/YML file to summarize
+    -f, --forecast FILE              The path to the FORECAST CSV file to summarize
     -r, --roll-up PERIOD             The period to roll-up your forecasts into. One of:
                                      [yearly], [half-yearly], [quarterly], [monthly], [weekly], [daily]
     -v, --verbose                    Show additional information in the summary
@@ -138,7 +138,7 @@ The _CSV_ file _should_ contain a header row with the following columns:
 - `summary_exclude` - (boolean) _(optional)_ - Exclude the transaction from the summarizer?
 - `track` - (boolean) _(optional)_ - Track the transaction against your confirmed transactions?
 
-### An example CSV forecast
+### Example forecast
 
 Putting it together, we end up with a CSV file like:
 
@@ -198,157 +198,6 @@ settings,show_symbol,true,,,,,,,,
 settings,thousands_separator,true,,,,,,,,
 ```
 
-### An example YML forecast
-
-> **Note**: The app uses `yml` in place of `yaml` by default
-
-Taking the _CSV_ example above and applying it to a _YML_ file:
-
-```yml
-monthly:
-  - account: "Assets:Bank"
-    from: "2023-03-01"
-    transactions:
-      - amount: -3500
-        category: "Income:Salary"
-        description: Salary
-      - amount: 2000
-        category: "Expenses:Mortgage"
-        description: Mortgage
-        to: "2025-01-01"
-      - amount: 175
-        category: "Expenses:Bills"
-        description: Bills
-      - amount: 500
-        category: "Expenses:Food"
-        description: Food
-      - amount: "=5000/24"
-        category: "Expenses:House"
-        description: New Kitchen
-      - amount: 125
-        category: "Expenses:Holiday"
-        description: Holiday
-        to: "=12"
-  - account: "Assets:Bank"
-    from: "2023-03-01"
-    to: "2025-01-01"
-    transactions:
-      - amount: 300
-        category: "Assets:Savings"
-        description: "Rainy day fund"
-  - account: "Assets:Pension"
-    from: "2024-01-01"
-    transactions:
-      - amount: -500
-        category: "Income:Pension"
-        description: Pension draw down
-
-quarterly:
-  - account: "Assets:Bank"
-    from: "2023-04-01"
-    transactions:
-      - amount: -1000.00
-        category: "Income:Bonus"
-        description: Quarterly bonus
-
-half-yearly:
-  - account: "Assets:Bank"
-    from: "2023-04-01"
-    transactions:
-      - amount: 500
-        category: "Expenses:Holiday"
-        description: Top up holiday funds
-
-yearly:
-  - account: "Assets:Bank"
-    from: "2023-04-01"
-    transactions:
-      - amount: -2000.00
-        category: "Income:Bonus"
-        description: Annual Bonus
-
-once:
-  - account: "Assets:Bank"
-    from: "2023-03-05"
-    transactions:
-      - amount: -3000
-        category: "Expenses:Shopping"
-        description: Refund for that damn laptop
-        summary_exclude: true
-        track: true
-
-custom:
-  - account: "Assets:Bank"
-    from: "2023-03-01"
-    transactions:
-      - amount: 80
-        category: "Expenses:Personal Care"
-        description: Hair and beauty
-        frequency: "every 2 weeks"
-        roll-up: 26
-      - amount: 30
-        category: "Expenses:General Expenses"
-        description: Misc expenses
-        frequency: "every 5 weeks"
-        roll-up: 10.4
-
-settings:
-  currency: USD
-```
-
-#### Modifiers
-
-> **Note**: For modifiers to be included in your hledger reporting, use the `--auto` flag
-
-Currently, a YML forecast allows a user to include forecasted % uplifts or downshifts:
-
-```yml
-monthly:
-  - account: "Assets:Bank"
-    from: "2023-03-01"
-    transactions:
-      - amount: 500
-        category: "Expenses:Food"
-        description: Food
-        modifiers:
-          - amount: 0.02
-            description: "Inflation"
-            from: "2024-01-01"
-            to: "2024-12-31"
-          - amount: 0.05
-            description: "Inflation"
-            from: "2025-01-01"
-            to: "2025-12-31"
-```
-
-This will generate an [auto-posting](https://hledger.org/dev/hledger.html#auto-postings) in your forecast which will uplift any transaction with an `Expenses:Food` category. In the first year the uplift with be 2% and in the following year, 5%.
-
-#### Additional YML features
-
-Dates in a YML file can be constrained by the `to` date in two ways:
-
-```yml
-monthly:
-  - account: "Assets:Bank"
-    from: "2023-03-01"
-    to: "2025-01-01"
-    transactions:
-      # details omitted for brevity
-```
-
-or:
-
-```yml
-monthly:
-  - account: "Assets:Bank"
-    from: "2023-03-01"
-    transactions:
-      - amount: 2000
-        category: "Expenses:Mortgage"
-        description: Mortgage
-        to: "2025-01-01"
-```
-
 ### Tracking
 
 > **Note**: Marking a transaction for tracking will ensure that it is only written into the forecast if it isn't found within a specified transaction file
@@ -360,19 +209,6 @@ To mark transactions as available for tracking you may use the `track` option in
 ```csv
 type,frequency,account,from,to,description,category,amount,roll-up,summary_exclude,track
 once,,Assets:Bank,2023-03-05,,Refund for that damn laptop,Expenses:Shopping,-3000,,,TRUE
-```
-
-Or:
-
-```yml
-once:
-  - account: "Assets:Bank"
-    from: "2023-03-05"
-    transactions:
-      - amount: -3000
-        category: "Expenses:Shopping"
-        description: Refund for that damn laptop
-        track: true
 ```
 
 > **Note**: This feature has been designed to work with `once` transaction types only
