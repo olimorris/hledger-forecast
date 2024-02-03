@@ -9,7 +9,7 @@ module HledgerForecast
       @forecast = CSV.parse(config, headers: true)
       @settings = Settings.config(@forecast, cli_options)
 
-      return { output: generate(@forecast), settings: @settings }
+      { output: generate(@forecast), settings: @settings }
     end
 
     private
@@ -18,11 +18,17 @@ module HledgerForecast
       output = []
 
       forecast.each do |row|
-        next if row['type'] == "settings"
+        next if row['type'] == 'settings'
         next if row['summary_exclude']
 
         row['amount'] = Utilities.convert_amount(row['amount'])
-        annualised_amount = row['roll-up'] ? row['amount'] * row['roll-up'].to_f : row['amount'] * annualise(row['type'])
+
+        begin
+          annualised_amount = row['roll-up'] ? row['amount'] * row['roll-up'].to_f : row['amount'] * annualise(row['type'])
+        rescue StandardError
+          puts "\nError: ".bold.red + 'Could not create an annualised ammount. Have you set the roll-up for your custom type transactions?'
+          exit
+        end
 
         output << {
           account: row['account'],
