@@ -21,7 +21,7 @@ module HledgerForecast
         next if row['type'] == 'settings'
         next if row['summary_exclude']
 
-        row['amount'] = Utilities.convert_amount(row['amount'])
+        row['amount'] = Calculator.new.evaluate(Utilities.convert_amount(row['amount']))
 
         begin
           annualised_amount = row['roll-up'] ? row['amount'] * row['roll-up'].to_f : row['amount'] * annualise(row['type'])
