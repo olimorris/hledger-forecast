@@ -13,7 +13,9 @@
 
 **"Improved", you say?** Using a _CSV_ file, forecasts can be quickly generated into a _journal_ file ready to be fed into [hledger](https://github.com/simonmichael/hledger). **A 16 line [CSV file](https://github.com/olimorris/hledger-forecast/blob/main/example.csv) can generate a 46 line hledger [forecast file](https://github.com/olimorris/hledger-forecast/blob/main/example.journal)!**
 
-Forecasts can also be constrained between dates, inflated by modifiers, tracked until they appear in your bank statements and summarized into your own daily/weekly/monthly/yearly personal forecast income and expenditure statement.
+**Before hledger**: As the complexity of my forecasts started to increase, so did the length of my journal file. When I undertook the monthly exercise of editing my forecast, it became more cumbersome to find specific amounts and descriptions.It also became a nuisance if I'd grouped certain items by date which needed to be changed.
+
+With `hledger-forecast` forecasts can be constrained between dates, tracked until they appear in your bank statements and summarized into your own daily/weekly/monthly/yearly personal forecast income and expenditure statement.
 
 ## :sparkles: Features
 
