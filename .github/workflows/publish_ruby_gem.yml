@@ -1,8 +1,10 @@
 name: Publish Ruby Gem
 
 on:
-  release:
-    types: [published]
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
 
 jobs:
   release:
