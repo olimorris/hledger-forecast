@@ -14,6 +14,7 @@ Gem::Specification.new do |s|
   s.homepage = "https://github.com/olimorris/hledger-forecast"
   s.license = "MIT"
 
+  s.add_dependency("abbrev", "~> 0.1")
   s.add_dependency("csv", "~> 3.0")
   s.add_dependency("colorize", "~> 0.8.1")
   s.add_dependency("dentaku", "~> 3.5.1")
