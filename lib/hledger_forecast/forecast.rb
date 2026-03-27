@@ -13,14 +13,17 @@ module HledgerForecast
       settings = Settings.parse(rows.select { |r| r[:type] == "settings" }, cli_options)
       transactions = rows.reject { |r| r[:type] == "settings" }.map { |r| Transaction.from_row(r) }
 
-      new(transactions, settings)
+      new(transactions, settings, rows.headers.include?(:tag))
     end
+
+    def has_tags_column? = @has_tags_column
 
     private
 
-    def initialize(transactions, settings)
+    def initialize(transactions, settings, has_tags_column)
       @transactions = transactions
       @settings = settings
+      @has_tags_column = has_tags_column
     end
   end
 end

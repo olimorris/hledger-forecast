@@ -104,6 +104,14 @@ module HledgerForecast
         end
 
         opts.on(
+          "-t",
+          "--tags TAGS",
+          "Only include transactions with given tags (comma-separated)"
+        ) do |tags|
+          options[:tags] = tags.split(",").map(&:strip)
+        end
+
+        opts.on(
           "--force",
           "Force an overwrite of the output file"
         ) do
@@ -160,6 +168,14 @@ module HledgerForecast
           ) do |rollup|
             options[:roll_up] = rollup
           end
+
+        opts.on(
+          "-t",
+          "--tags TAGS",
+          "Only include transactions with given tags (comma-separated)"
+        ) do |tags|
+          options[:tags] = tags.split(",").map(&:strip)
+        end
 
         opts.on(
           "-v",

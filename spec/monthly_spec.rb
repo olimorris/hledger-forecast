@@ -10,9 +10,9 @@ CSV
 
 output = <<~JOURNAL
   ~ monthly from 2023-03-01  * Bills, Food, Savings
-      Expenses:Bills    £175.00   ;  Bills
-      Expenses:Food     £500.00   ;  Food
-      Assets:Savings    £-1,000.00;  Savings
+      Expenses:Bills    £175.00
+      Expenses:Food     £500.00
+      Assets:Savings    £-1,000.00
       Assets:Bank
 
 JOURNAL
