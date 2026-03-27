@@ -9,6 +9,7 @@
 <a href="https://github.com/olimorris/hledger-forecast/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/olimorris/hledger-forecast/ci.yml?branch=main&label=tests&style=for-the-badge"></a>
 <a href="https://github.com/olimorris/hledger-forecast/releases"><img src="https://img.shields.io/github/v/release/olimorris/hledger-forecast?style=for-the-badge"</a>
 </p>
+
 **"Improved", you say?** Using a _CSV_ file, forecasts can be quickly generated into a _journal_ file ready to be fed into [hledger](https://github.com/simonmichael/hledger). **A 16 line [CSV file](https://github.com/olimorris/hledger-forecast/blob/main/example.csv) can generate a 46 line hledger [forecast file](https://github.com/olimorris/hledger-forecast/blob/main/example.journal)!**
 
 ## :sparkles: Features
@@ -67,14 +68,14 @@ Assuming you have Ruby and [RubyGems](http://rubygems.org/pages/download) instal
 ## :rocket: Usage
 
     hledger-forecast
-    
+
     Usage: hledger-forecast [command] [options]
-    
+
     Commands:
       generate    Generate a forecast from a CSV file
       summarize   Summarize the forecast file and output to the terminal
       compare     Compare and highlight the differences between two CSV files
-    
+
     Options:
         -h, --help                       Show this help message
         -v, --version                    Show version
@@ -84,9 +85,9 @@ Assuming you have Ruby and [RubyGems](http://rubygems.org/pages/download) instal
 Reads your CSV file and creates a journal file ready to use with hledger. See [example.journal](https://github.com/olimorris/hledger-forecast/blob/main/example.journal) for an example of the output.
 
     hledger-forecast generate -f my_forecast.csv -o forecast.journal
-    
+
     Usage: hledger-forecast generate [options]
-    
+
       -f, --forecast FILE              The path to the FORECAST CSV file to generate from
       -o, --output-file FILE           The path to the OUTPUT file to create
       -t, --tags TAGS                  Only include transactions with given tags (comma-separated)
@@ -111,9 +112,9 @@ This will generate a forecast up to the end of Feb 2027, showing asset balances 
 As your forecast grows, it's useful to see the totals at a glance. Think of this as your income statement, rolled up to whatever period makes sense.
 
     hledger-forecast summarize -f my_forecast.csv
-    
+
     Usage: hledger-forecast summarize [options]
-    
+
       -f, --forecast FILE              The path to the FORECAST CSV file to summarize
       -r, --roll-up PERIOD             The period to roll-up your forecasts into. One of:
                                        [yearly], [half-yearly], [quarterly], [monthly], [weekly], [daily]
