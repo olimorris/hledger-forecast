@@ -8,6 +8,11 @@ module HledgerForecast
       forecast = Forecast.parse(csv_string, cli_options)
       transactions = forecast.transactions.reject(&:summary_exclude?)
 
+      if cli_options&.dig(:tags)
+        raise "The --tags option requires a 'tag' column in the forecast CSV" unless forecast.has_tags_column?
+        transactions = transactions.select { |t| t.matches_tags?(cli_options[:tags]) }
+      end
+
       output = transactions.map { |t| build_summary_row(t) }
       output = apply_roll_up(output, forecast.settings.roll_up) if forecast.settings.roll_up
 

@@ -9,11 +9,11 @@ CSV
 
 base_output = <<~JOURNAL
   ~ every 2 weeks from 2023-05-01  * Hair and beauty
-      [Expenses:Personal Care]    £80.00;  Hair and beauty
+      [Expenses:Personal Care]    £80.00
       [Assets:Bank]
 
   ~ every 5 days from 2023-05-01  * Food
-      [Expenses:Groceries]        £50.00;  Food
+      [Expenses:Groceries]        £50.00
       [Assets:Bank]
 
 JOURNAL
@@ -26,7 +26,7 @@ CSV
 
 calculated_output = <<~JOURNAL
   ~ every 2 weeks from 2023-05-01 to 2023-10-31  * Hair and beauty
-      [Expenses:Personal Care]    £80.00;  Hair and beauty
+      [Expenses:Personal Care]    £80.00
       [Assets:Bank]
 
 JOURNAL

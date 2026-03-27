@@ -46,9 +46,15 @@ module HledgerForecast
         group
           .transactions
           .map do |t|
-            amount = Formatter.format_money(t.amount, settings).ljust(@max_amount)
+            amount = Formatter.format_money(t.amount, settings)
             category = t.category.to_s.ljust(@max_category)
-            "    #{category}    #{amount};  #{t.description}\n"
+
+            if t.tags.any?
+              tags_str = t.tags.map { |tag| "#{tag}:" }.join(", ")
+              "    #{category}    #{amount.ljust(@max_amount)};  #{tags_str}\n"
+            else
+              "    #{category}    #{amount}\n"
+            end
           end
           .join
       end

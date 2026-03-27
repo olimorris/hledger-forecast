@@ -8,7 +8,7 @@ CSV
 
 output = <<~JOURNAL
   ~ every 6 months from 2023-04-01  * Holiday
-      Expenses:Holiday    £500.00;  Holiday
+      Expenses:Holiday    £500.00
       Assets:Bank
 
 JOURNAL

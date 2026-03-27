@@ -2,6 +2,7 @@
 
 source "https://rubygems.org"
 
+gem 'bigdecimal'
 gem 'colorize'
 gem 'money'
 gem 'terminal-table'

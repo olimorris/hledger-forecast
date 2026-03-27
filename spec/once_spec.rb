@@ -8,7 +8,7 @@ CSV
 
 output = <<~JOURNAL
   ~ 2023-07-01  * New Kitchen
-      Expenses:House    £5,000.00;  New Kitchen
+      Expenses:House    £5,000.00
       Assets:Bank
 
 JOURNAL

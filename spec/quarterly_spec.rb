@@ -8,7 +8,7 @@ CSV
 
 output = <<~JOURNAL
   ~ every 3 months from 2023-04-01  * Bonus
-      Income:Bonus    £-1,000.00;  Bonus
+      Income:Bonus    £-1,000.00
       Assets:Bank
 
 JOURNAL

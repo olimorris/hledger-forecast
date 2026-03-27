@@ -20,6 +20,7 @@ module HledgerForecast
     :amount,
     :roll_up,
     :summary_exclude,
+    :tags,
     keyword_init: true
   ) do
     def self.from_row(row)
@@ -34,8 +35,14 @@ module HledgerForecast
         category: row[:category],
         amount: Calculator.evaluate(row[:amount]),
         roll_up: row[:roll_up],
-        summary_exclude: row[:summary_exclude]
+        summary_exclude: row[:summary_exclude],
+        tags: row[:tag].to_s.split("|").map(&:strip).reject(&:empty?)
       )
+    end
+
+    def matches_tags?(filter_tags)
+      return true if filter_tags.nil? || filter_tags.empty?
+      (tags & filter_tags).any?
     end
 
     def annualised_amount
