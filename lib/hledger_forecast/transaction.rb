@@ -1,32 +1,39 @@
 module HledgerForecast
   ANNUAL_MULTIPLIERS = {
-    'monthly'     => 12,
-    'quarterly'   => 4,
-    'half-yearly' => 2,
-    'yearly'      => 1,
-    'once'        => 1,
-    'daily'       => 352,
-    'weekly'      => 52
+    "monthly" => 12,
+    "quarterly" => 4,
+    "half-yearly" => 2,
+    "yearly" => 1,
+    "once" => 1,
+    "daily" => 352,
+    "weekly" => 52
   }.freeze
 
   Transaction = Struct.new(
-    :type, :frequency, :account, :from, :to,
-    :description, :category, :amount,
-    :roll_up, :summary_exclude,
+    :type,
+    :frequency,
+    :account,
+    :from,
+    :to,
+    :description,
+    :category,
+    :amount,
+    :roll_up,
+    :summary_exclude,
     keyword_init: true
   ) do
     def self.from_row(row)
       from = Date.parse(row[:from].to_s)
       new(
-        type:            row[:type],
-        frequency:       row[:frequency],
-        account:         row[:account],
-        from:            from,
-        to:              row[:to] ? Calculator.evaluate_date(from, row[:to].to_s) : nil,
-        description:     row[:description],
-        category:        row[:category],
-        amount:          Calculator.evaluate(row[:amount]),
-        roll_up:         row[:roll_up],
+        type: row[:type],
+        frequency: row[:frequency],
+        account: row[:account],
+        from: from,
+        to: row[:to] ? Calculator.evaluate_date(from, row[:to].to_s) : nil,
+        description: row[:description],
+        category: row[:category],
+        amount: Calculator.evaluate(row[:amount]),
+        roll_up: row[:roll_up],
         summary_exclude: row[:summary_exclude]
       )
     end
@@ -35,9 +42,10 @@ module HledgerForecast
       if roll_up
         amount * roll_up
       else
-        amount * ANNUAL_MULTIPLIERS.fetch(type) {
-          raise KeyError, "Unknown type '#{type}'. Set a roll-up for custom transactions."
-        }
+        amount *
+          ANNUAL_MULTIPLIERS.fetch(type) {
+            raise(KeyError, "Unknown type '#{type}'. Set a roll-up for custom transactions.")
+          }
       end
     end
 

@@ -19,16 +19,16 @@ module HledgerForecast
       attr_reader :groups, :settings
 
       def initialize(groups, settings)
-        @groups   = groups
+        @groups = groups
         @settings = settings
         precompute_padding
       end
 
       def precompute_padding
-        all_transactions  = groups.flat_map(&:transactions)
+        all_transactions = groups.flat_map(&:transactions)
         formatted_amounts = all_transactions.map { |t| Formatter.format_money(t.amount, settings) }
 
-        @max_amount   = formatted_amounts.map(&:length).max || 0
+        @max_amount = formatted_amounts.map(&:length).max || 0
         @max_category = all_transactions.map { |t| t.category.to_s.length }.max || 0
       end
 
@@ -37,27 +37,30 @@ module HledgerForecast
       end
 
       def render_header(group)
-        to_part      = " to #{group.to}" if group.to
-        descriptions = group.transactions.map(&:description).join(', ')
+        to_part = " to #{group.to}" if group.to
+        descriptions = group.transactions.map(&:description).join(", ")
         "#{periodic_rule_for(group.type, group.frequency)} #{group.from}#{to_part}  * #{descriptions}\n"
       end
 
       def render_postings(group)
-        group.transactions.map do |t|
-          amount   = Formatter.format_money(t.amount, settings).ljust(@max_amount)
-          category = t.category.to_s.ljust(@max_category)
-          "    #{category}    #{amount};  #{t.description}\n"
-        end.join
+        group
+          .transactions
+          .map do |t|
+            amount = Formatter.format_money(t.amount, settings).ljust(@max_amount)
+            category = t.category.to_s.ljust(@max_category)
+            "    #{category}    #{amount};  #{t.description}\n"
+          end
+          .join
       end
 
       def periodic_rule_for(type, frequency)
         {
-          'once'        => '~',
-          'monthly'     => '~ monthly from',
-          'quarterly'   => '~ every 3 months from',
-          'half-yearly' => '~ every 6 months from',
-          'yearly'      => '~ yearly from',
-          'custom'      => "~ #{frequency} from"
+          "once" => "~",
+          "monthly" => "~ monthly from",
+          "quarterly" => "~ every 3 months from",
+          "half-yearly" => "~ every 6 months from",
+          "yearly" => "~ yearly from",
+          "custom" => "~ #{frequency} from"
         }.fetch(type)
       end
     end

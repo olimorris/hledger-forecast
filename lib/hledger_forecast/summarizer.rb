@@ -5,13 +5,13 @@ module HledgerForecast
     end
 
     def summarize(csv_string, cli_options = nil)
-      forecast     = Forecast.parse(csv_string, cli_options)
+      forecast = Forecast.parse(csv_string, cli_options)
       transactions = forecast.transactions.reject(&:summary_exclude?)
 
       output = transactions.map { |t| build_summary_row(t) }
       output = apply_roll_up(output, forecast.settings.roll_up) if forecast.settings.roll_up
 
-      { output: output, settings: forecast.settings }
+      {output: output, settings: forecast.settings}
     end
 
     private
@@ -20,21 +20,21 @@ module HledgerForecast
       annualised = begin
         transaction.annualised_amount
       rescue KeyError => e
-        puts "\nError: ".bold.red + e.message
+        puts("\nError: ".bold.red + e.message)
         exit
       end
 
       {
-        account:           transaction.account,
-        from:              transaction.from,
-        to:                transaction.to,
-        type:              transaction.type,
-        frequency:         transaction.frequency,
-        category:          transaction.category,
-        description:       transaction.description,
-        amount:            transaction.amount,
+        account: transaction.account,
+        from: transaction.from,
+        to: transaction.to,
+        type: transaction.type,
+        frequency: transaction.frequency,
+        category: transaction.category,
+        description: transaction.description,
+        amount: transaction.amount,
         annualised_amount: annualised.to_f,
-        exclude:           transaction.summary_exclude
+        exclude: transaction.summary_exclude
       }
     end
 

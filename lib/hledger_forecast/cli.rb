@@ -4,14 +4,14 @@ module HledgerForecast
   class Cli
     def self.run(command, options)
       case command
-      when 'generate'
+      when "generate"
         generate(options)
-      when 'summarize'
+      when "summarize"
         summarize(options)
-      when 'compare'
+      when "compare"
         compare(options)
       else
-        puts "Unknown command: #{command}"
+        puts("Unknown command: #{command}")
         exit(1)
       end
     end
@@ -22,49 +22,49 @@ module HledgerForecast
 
       global = OptionParser.new do |opts|
         opts.banner = "Usage: hledger-forecast [command] [options]"
-        opts.separator ""
-        opts.separator "Commands:"
-        opts.separator "  generate    Generate a forecast from a file"
-        opts.separator "  summarize   Summarize the forecast file and output to the terminal"
-        opts.separator "  compare     Compare and highlight the differences between two CSV files"
-        opts.separator ""
-        opts.separator "Options:"
+        opts.separator("")
+        opts.separator("Commands:")
+        opts.separator("  generate    Generate a forecast from a file")
+        opts.separator("  summarize   Summarize the forecast file and output to the terminal")
+        opts.separator("  compare     Compare and highlight the differences between two CSV files")
+        opts.separator("")
+        opts.separator("Options:")
 
         opts.on_tail("-h", "--help", "Show this help message") do
-          puts opts
+          puts(opts)
           exit
         end
 
         opts.on_tail("-v", "--version", "Show the installed version") do
-          puts VERSION
+          puts(VERSION)
           exit
         end
       end
 
       if args.empty?
-        puts global
+        puts(global)
         exit(1)
       end
 
       begin
         global.order!(args)
-        command = args.shift || 'generate'
+        command = args.shift || "generate"
       rescue OptionParser::InvalidOption => e
-        puts e
-        puts global
+        puts(e)
+        puts(global)
         exit(1)
       end
 
       case command
-      when 'generate'
+      when "generate"
         options = parse_generate_options(args)
-      when 'summarize'
+      when "summarize"
         options = parse_summarize_options(args)
-      when 'compare'
+      when "compare"
         options = parse_compare_options(args)
       else
-        puts "Unknown command: #{command}"
-        puts global
+        puts("Unknown command: #{command}")
+        puts(global)
         exit(1)
       end
 
@@ -76,31 +76,42 @@ module HledgerForecast
 
       global = OptionParser.new do |opts|
         opts.banner = "Usage: hledger-forecast generate [options]"
-        opts.separator ""
+        opts.separator("")
 
-        opts.on("-f", "--forecast FILE",
-                "The path to the FORECAST csv file to generate from") do |file|
+        opts.on(
+          "-f",
+          "--forecast FILE",
+          "The path to the FORECAST csv file to generate from"
+        ) do |file|
           options[:forecast_file] = file
-          options[:output_file] ||= file.sub('csv', 'journal')
+          options[:output_file] ||= file.sub("csv", "journal")
         end
 
-        opts.on("-o", "--output-file FILE",
-                "The path to the OUTPUT file to create") do |file|
+        opts.on(
+          "-o",
+          "--output-file FILE",
+          "The path to the OUTPUT file to create"
+        ) do |file|
           options[:output_file] = file
         end
 
-        opts.on("-v", "--verbose",
-                "Do not group transactions in the output file") do
+        opts.on(
+          "-v",
+          "--verbose",
+          "Do not group transactions in the output file"
+        ) do
           options[:verbose] = true
         end
 
-        opts.on("--force",
-                "Force an overwrite of the output file") do
+        opts.on(
+          "--force",
+          "Force an overwrite of the output file"
+        ) do
           options[:force] = true
         end
 
         opts.on_tail("-h", "--help", "Show this help message") do
-          puts opts
+          puts(opts)
           exit
         end
       end
@@ -108,13 +119,13 @@ module HledgerForecast
       begin
         global.parse!(args)
       rescue OptionParser::InvalidOption => e
-        puts e
-        puts global
+        puts(e)
+        puts(global)
         exit(1)
       end
 
       if options.empty?
-        puts global
+        puts(global)
         exit(1)
       end
 
@@ -130,21 +141,31 @@ module HledgerForecast
 
       global = OptionParser.new do |opts|
         opts.banner = "Usage: hledger-forecast summarize [options]"
-        opts.separator ""
+        opts.separator("")
 
-        opts.on("-f", "--forecast FILE",
-                "The path to the FORECAST csv file to summarize") do |file|
+        opts.on(
+          "-f",
+          "--forecast FILE",
+          "The path to the FORECAST csv file to summarize"
+        ) do |file|
           options[:forecast_file] = file
         end
 
-        opts.on("-r", "--roll-up PERIOD",
-                "The period to roll-up your forecasts into. One of:",
-                "[yearly], [half-yearly], [quarterly], [monthly], [weekly], [daily]") do |rollup|
-          options[:roll_up] = rollup
-        end
+        opts
+          .on(
+            "-r",
+            "--roll-up PERIOD",
+            "The period to roll-up your forecasts into. One of:",
+            "[yearly], [half-yearly], [quarterly], [monthly], [weekly], [daily]"
+          ) do |rollup|
+            options[:roll_up] = rollup
+          end
 
-        opts.on("-v", "--verbose",
-                "Show additional information in the summary") do |_|
+        opts.on(
+          "-v",
+          "--verbose",
+          "Show additional information in the summary"
+        ) do |_|
           options[:verbose] = true
         end
 
@@ -166,7 +187,7 @@ module HledgerForecast
         # end
 
         opts.on_tail("-h", "--help", "Show this help message") do
-          puts opts
+          puts(opts)
           exit
         end
       end
@@ -174,13 +195,13 @@ module HledgerForecast
       begin
         global.parse!(args)
       rescue OptionParser::InvalidOption => e
-        puts e
-        puts global
+        puts(e)
+        puts(global)
         exit(1)
       end
 
       if options.empty?
-        puts global
+        puts(global)
         exit(1)
       end
 
@@ -192,19 +213,19 @@ module HledgerForecast
 
       global = OptionParser.new do |opts|
         opts.banner = "Usage: hledger-forecast compare [path/to/file1.csv] [path/to/file2.csv]"
-        opts.separator ""
+        opts.separator("")
       end
 
       begin
         global.parse!(args)
       rescue OptionParser::InvalidOption => e
-        puts e
-        puts global
+        puts(e)
+        puts(global)
         exit(1)
       end
 
       if args[0].nil? || args[1].nil?
-        puts global
+        puts(global)
         exit(1)
       end
 
@@ -220,25 +241,25 @@ module HledgerForecast
       begin
         transactions = Generator.generate(forecast, options)
       rescue StandardError => e
-        puts "An error occurred while generating transactions: #{e.message}"
+        puts("An error occurred while generating transactions: #{e.message}")
         exit(1)
       end
 
       output_file = options[:output_file]
 
       if File.exist?(output_file) && !options[:force]
-        print "\nFile '#{output_file}' already exists. Overwrite? (y/n): "
+        print("\nFile '#{output_file}' already exists. Overwrite? (y/n): ")
         overwrite = gets.chomp.downcase
 
-        if overwrite == 'y'
+        if overwrite == "y"
           File.write(output_file, transactions)
-          puts "\nSuccess: ".bold.green + "File '#{output_file}' has been overwritten."
+          puts("\nSuccess: ".bold.green + "File '#{output_file}' has been overwritten.")
         else
-          puts "\nInfo: ".bold.blue + "Operation aborted. File '#{output_file}' was not overwritten."
+          puts("\nInfo: ".bold.blue + "Operation aborted. File '#{output_file}' was not overwritten.")
         end
       else
         File.write(output_file, transactions)
-        puts "\nSuccess: ".bold.green + "File '#{output_file}' has been created"
+        puts("\nSuccess: ".bold.green + "File '#{output_file}' has been created")
       end
     end
 
@@ -248,15 +269,15 @@ module HledgerForecast
 
       summarizer = Summarizer.summarize(config, options)
 
-      puts SummarizerFormatter.format(summarizer[:output], summarizer[:settings])
+      puts(SummarizerFormatter.format(summarizer[:output], summarizer[:settings]))
     end
 
     def self.compare(options)
       if !File.exist?(options[:file1]) || !File.exist?(options[:file2])
-        return puts "\nError: ".bold.red + "One or more of the files could not be found to compare"
+        return puts("\nError: ".bold.red + "One or more of the files could not be found to compare")
       end
 
-      puts Comparator.compare(options[:file1], options[:file2])
+      puts(Comparator.compare(options[:file1], options[:file2]))
     end
   end
 end

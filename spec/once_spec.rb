@@ -1,4 +1,4 @@
-require_relative '../lib/hledger_forecast'
+require_relative "../lib/hledger_forecast"
 
 config = <<~CSV
   type,frequency,account,from,to,description,category,amount,roll-up,summary_exclude,track
@@ -13,9 +13,9 @@ output = <<~JOURNAL
 
 JOURNAL
 
-RSpec.describe 'generate' do
-  it 'generates a forecast with correct ONCE transactions' do
+RSpec.describe "generate" do
+  it "generates a forecast with correct ONCE transactions" do
     generated_journal = HledgerForecast::Generator.generate(config)
-    expect(generated_journal).to eq(output)
+    expect(generated_journal).to(eq(output))
   end
 end

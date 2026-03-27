@@ -6,12 +6,12 @@ module HledgerForecast
       rows = CSV.parse(
         csv_string,
         headers: true,
-        header_converters: ->(h) { h.to_s.tr('-', '_').to_sym },
+        header_converters: -> (h) { h.to_s.tr("-", "_").to_sym },
         converters: :numeric
       )
 
-      settings     = Settings.parse(rows.select { |r| r[:type] == 'settings' }, cli_options)
-      transactions = rows.reject { |r| r[:type] == 'settings' }.map { |r| Transaction.from_row(r) }
+      settings = Settings.parse(rows.select { |r| r[:type] == "settings" }, cli_options)
+      transactions = rows.reject { |r| r[:type] == "settings" }.map { |r| Transaction.from_row(r) }
 
       new(transactions, settings)
     end
@@ -20,7 +20,7 @@ module HledgerForecast
 
     def initialize(transactions, settings)
       @transactions = transactions
-      @settings     = settings
+      @settings = settings
     end
   end
 end
