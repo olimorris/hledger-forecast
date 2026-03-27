@@ -9,8 +9,8 @@ CSV
 
 output = <<~JOURNAL
   ~ monthly from 2023-03-01 to 2023-06-01  * Mortgage, Food
-      Expenses:Mortgage    £2,000.00   ;  Mortgage
-      Expenses:Food        £100.00     ;  Food
+      Expenses:Mortgage    £2,000.00;  Mortgage
+      Expenses:Food        £100.00  ;  Food
       Assets:Bank
 
 JOURNAL

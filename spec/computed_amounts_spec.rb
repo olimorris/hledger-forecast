@@ -10,9 +10,9 @@ CSV
 
 output = <<~JOURNAL
   ~ monthly from 2023-05-01  * New kitchen, Monthly food shop, Random food
-      Expenses:House    £208.33              ;  New kitchen
-      Expenses:Food     £107.50              ;  Monthly food shop
-      Expenses:Food     £52.88               ;  Random food
+      Expenses:House    £208.33;  New kitchen
+      Expenses:Food     £107.50;  Monthly food shop
+      Expenses:Food     £52.88 ;  Random food
       Liabilities:Amex
 
 JOURNAL

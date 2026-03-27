@@ -75,7 +75,7 @@ module HledgerForecast
       formatted_amount = if currency.nil?
                            format("%.2f", amount)
                          else
-                           Formatter.format_money(amount, { currency: currency })
+                           Formatter.format_money(amount, Settings.parse([], { currency: currency }))
                          end
 
       return formatted_amount if amount == 0

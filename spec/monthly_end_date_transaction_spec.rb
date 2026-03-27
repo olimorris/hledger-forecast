@@ -10,12 +10,12 @@ CSV
 
 output = <<~JOURNAL
   ~ monthly from 2023-03-01 to 2023-06-01  * Mortgage, Mortgage top up
-      Expenses:Mortgage    £2,000.00   ;  Mortgage
-      Expenses:Mortgage    £200.00     ;  Mortgage top up
+      Expenses:Mortgage    £2,000.00;  Mortgage
+      Expenses:Mortgage    £200.00  ;  Mortgage top up
       Assets:Bank
 
   ~ monthly from 2023-03-01  * Food
-      Expenses:Food        £100.00     ;  Food
+      Expenses:Food        £100.00  ;  Food
       Assets:Bank
 
 JOURNAL
@@ -28,7 +28,7 @@ CSV
 
 computed_output = <<~JOURNAL
   ~ monthly from 2023-03-01 to 2024-02-29  * Mortgage
-      Expenses:Mortgage    £2,000.00   ;  Mortgage
+      Expenses:Mortgage    £2,000.00;  Mortgage
       Assets:Bank
 
 JOURNAL

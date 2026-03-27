@@ -1,100 +1,64 @@
 module HledgerForecast
   module Transactions
-    # Generate default hledger transactions
+    # Generate hledger periodic transactions from TransactionGroups.
     # Example output:
-    # ~ monthly from 2023-05-1  * Food expenses
+    # ~ monthly from 2023-05-01  * Food expenses
     #    Expenses:Groceries    $250.00 ;  Food expenses
     #    Assets:Checking
     class Default
-      def self.generate(forecast, settings)
-        new(forecast, settings).generate
+      def self.render(groups, settings)
+        new(groups, settings).render
       end
 
-      def generate
-        forecast.each do |row|
-          next if row[:type] == "settings"
-
-          process_transactions(row)
-        end
-
-        output
+      def render
+        groups.map { |group| render_group(group) }.join.gsub(/\n{2,}/, "\n\n")
       end
 
       private
 
-      attr_reader :forecast, :settings, :output
+      attr_reader :groups, :settings
 
-      def initialize(forecast, settings)
-        @forecast = forecast
+      def initialize(groups, settings)
+        @groups   = groups
         @settings = settings
-        @output = []
+        precompute_padding
       end
 
-      def process_transactions(row)
-        to = build_to_header(row[:to])
-        frequency = get_periodic_rules(row[:type], row[:frequency])
+      def precompute_padding
+        all_transactions  = groups.flat_map(&:transactions)
+        formatted_amounts = all_transactions.map { |t| Formatter.format_money(t.amount, settings) }
 
-        if @settings[:verbose]
-          description = row[:description]
-          transactions = [row]
-        else
-          description = get_descriptions(row[:transactions])
-          transactions = row[:transactions]
-        end
-
-        header = build_header(row, frequency, to, description)
-        footer = build_footer(row)
-
-        output << build_transaction(header, transactions, footer)
+        @max_amount   = formatted_amounts.map(&:length).max || 0
+        @max_category = all_transactions.map { |t| t.category.to_s.length }.max || 0
       end
 
-      def build_header(row, frequency, to, descriptions)
-        "#{frequency} #{row[:from]}#{to}  * #{descriptions}\n"
+      def render_group(group)
+        render_header(group) + render_postings(group) + "    #{group.account}\n\n"
       end
 
-      def build_footer(block)
-        "    #{block[:account]}\n\n"
+      def render_header(group)
+        to_part      = " to #{group.to}" if group.to
+        descriptions = group.transactions.map(&:description).join(', ')
+        "#{periodic_rule_for(group.type, group.frequency)} #{group.from}#{to_part}  * #{descriptions}\n"
       end
 
-      def build_transaction(header, transactions, footer)
-        { header: header, transactions: write_transactions(transactions), footer: footer }
+      def render_postings(group)
+        group.transactions.map do |t|
+          amount   = Formatter.format_money(t.amount, settings).ljust(@max_amount)
+          category = t.category.to_s.ljust(@max_category)
+          "    #{category}    #{amount};  #{t.description}\n"
+        end.join
       end
 
-      def build_to_header(to)
-        return " to #{to}" if to
-      end
-
-      def get_descriptions(transactions)
-        transactions.map do |t|
-          # Skip transactions that have been marked as tracked
-          next if t[:track]
-
-          t[:description]
-        end.compact.join(', ')
-      end
-
-      def get_periodic_rules(type, frequency)
-        map = {
-          'once' => '~',
-          'monthly' => '~ monthly from',
-          'quarterly' => '~ every 3 months from',
+      def periodic_rule_for(type, frequency)
+        {
+          'once'        => '~',
+          'monthly'     => '~ monthly from',
+          'quarterly'   => '~ every 3 months from',
           'half-yearly' => '~ every 6 months from',
-          'yearly' => '~ yearly from',
-          'custom' => "~ #{frequency} from"
-        }
-        map[type]
-      end
-
-      def write_transactions(transactions)
-        transactions.map do |t|
-          # Skip transactions that have been marked as tracked
-          next if t[:track]
-
-          t[:amount] = t[:amount].to_s.ljust(@settings[:max_amount] + 5)
-          t[:category] = t[:category].to_s.ljust(@settings[:max_category])
-
-          "    #{t[:category]}    #{t[:amount]};  #{t[:description]}\n"
-        end.compact
+          'yearly'      => '~ yearly from',
+          'custom'      => "~ #{frequency} from"
+        }.fetch(type)
       end
     end
   end

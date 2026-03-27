@@ -1,56 +1,33 @@
 module HledgerForecast
-  # Set the options from a user's config
   class Settings
-    def self.config(forecast, cli_options)
-      settings = {}
-      settings[:max_amount] = 0
-      settings[:max_category] = 0
+    DEFAULTS = {
+      currency:            'USD',
+      show_symbol:         true,
+      sign_before_symbol:  false,
+      thousands_separator: ','
+    }.freeze
 
-      forecast.each do |row|
-        if row['type'] != 'settings'
-          category_length = row['category'].length
-          settings[:max_category] = category_length if category_length > settings[:max_category]
+    attr_reader :currency, :show_symbol, :sign_before_symbol, :thousands_separator,
+                :verbose, :roll_up
 
-          amount = if row['amount'].is_a?(Integer) || row['amount'].is_a?(Float)
-                     ((row['amount'] + 3) * 100).to_s
-                   else
-                     row['amount'].to_s
-                   end
+    def self.parse(settings_rows, cli_options = nil)
+      new(settings_rows, cli_options)
+    end
 
-          settings[:max_amount] = amount.length if amount.length > settings[:max_amount]
-        end
+    def verbose? = @verbose
 
-        if row['type'] == 'settings'
+    private
 
-          settings[:currency] = if row['frequency'] == "currency"
-                                  row['account']
-                                else
-                                  "USD"
-                                end
+    def initialize(settings_rows, cli_options)
+      overrides = settings_rows.each_with_object({}) { |row, h| h[row[:frequency]] = row[:account] }
+      opts      = cli_options || {}
 
-          settings[:show_symbol] = if row['frequency'] == "show_symbol"
-                                     row['account']
-                                   else
-                                     true
-                                   end
-
-          settings[:sign_before_symbol] = if row['frequency'] == "sign_before_symbol"
-                                            row['account']
-                                          else
-                                            false
-                                          end
-
-          settings[:thousands_separator] = if row['frequency'] == "thousands_separator"
-                                             row['account']
-                                           else
-                                             ","
-                                           end
-        end
-
-        settings.merge!(cli_options) if cli_options
-      end
-
-      settings
+      @currency            = opts[:currency]            || overrides['currency']            || DEFAULTS[:currency]
+      @show_symbol         = opts[:show_symbol]         || overrides['show_symbol']         || DEFAULTS[:show_symbol]
+      @sign_before_symbol  = opts[:sign_before_symbol]  || overrides['sign_before_symbol']  || DEFAULTS[:sign_before_symbol]
+      @thousands_separator = opts[:thousands_separator] || overrides['thousands_separator'] || DEFAULTS[:thousands_separator]
+      @verbose             = opts[:verbose] || false
+      @roll_up             = opts[:roll_up]
     end
   end
 end
