@@ -15,31 +15,23 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - name: Update packages
+
+      - name: Update packages 📦️
         run: sudo apt-get update
-      - name: Install packages
+
+      - name: Install packages 📦️
         run: sudo apt-get -y install hledger
-      - name: Set up Ruby
+
+      - name: Set up Ruby env 💎️
         uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
           ruby-version: ${{ matrix.ruby-version }}
-      - name: Run tests
+
+      - name: Run tests 🧪
         run: |
           bundle exec rspec
-      - name: Build gem
+
+      - name: Build gem 💎️
         run: gem build *.gemspec
 
-  release:
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    runs-on: ubuntu-latest
-    needs:
-      - tests
-    permissions:
-      contents: write
-      pull-requests: write
-    steps:
-      - uses: googleapis/release-please-action@v4
-        with:
-          token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
-          release-type: ruby
