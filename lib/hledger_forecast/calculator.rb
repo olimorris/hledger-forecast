@@ -1,25 +1,17 @@
 module HledgerForecast
-  # Calculate various
-  class Calculator
-    def initialize
-      @calculator = Dentaku::Calculator.new
-    end
+  module Calculator
+    @calc = Dentaku::Calculator.new
 
-    def evaluate(amount)
+    def self.evaluate(amount)
       return amount.to_f unless amount.is_a?(String)
 
-      @calculator.evaluate(amount.slice(1..-1))
+      @calc.evaluate(amount.slice(1..-1))
     end
 
-    def evaluate_date(from, to)
-      if to[0] != "="
-        return to if to.is_a?(Date)
+    def self.evaluate_date(from, to)
+      return Date.parse(to) unless to.start_with?("=")
 
-        return Date.parse(to)
-      end
-
-      # Subtract a day from the final date
-      (from >> @calculator.evaluate(to.slice(1..-1))) - 1
+      (from >> @calc.evaluate(to.slice(1..-1))) - 1
     end
   end
 end

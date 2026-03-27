@@ -1,72 +1,46 @@
 module HledgerForecast
-  # Summarise a forecast yaml file and output it to the CLI
   class Summarizer
-    def self.summarize(config, cli_options)
-      new.summarize(config, cli_options)
+    def self.summarize(csv_string, cli_options = nil)
+      new.summarize(csv_string, cli_options)
     end
 
-    def summarize(config, cli_options = nil)
-      @forecast = CSV.parse(config, headers: true)
-      @settings = Settings.config(@forecast, cli_options)
+    def summarize(csv_string, cli_options = nil)
+      forecast = Forecast.parse(csv_string, cli_options)
+      transactions = forecast.transactions.reject(&:summary_exclude?)
 
-      { output: generate(@forecast), settings: @settings }
+      output = transactions.map { |t| build_summary_row(t) }
+      output = apply_roll_up(output, forecast.settings.roll_up) if forecast.settings.roll_up
+
+      {output: output, settings: forecast.settings}
     end
 
     private
 
-    def generate(forecast)
-      output = []
-
-      forecast.each do |row|
-        next if row['type'] == 'settings'
-        next if row['summary_exclude']
-
-        row['amount'] = Calculator.new.evaluate(Utilities.convert_amount(row['amount']))
-
-        begin
-          annualised_amount = row['roll-up'] ? row['amount'] * row['roll-up'].to_f : row['amount'] * annualise(row['type'])
-        rescue StandardError
-          puts "\nError: ".bold.red + 'Could not create an annualised ammount. Have you set the roll-up for your custom type transactions?'
-          exit
-        end
-
-        output << {
-          account: row['account'],
-          from: Date.parse(row['from']),
-          to: row['to'] ? Calculator.new.evaluate_date(Date.parse(row['from']), row['to']) : nil,
-          type: row['type'],
-          frequency: row['frequency'],
-          category: row['category'],
-          description: row['description'],
-          amount: row['amount'],
-          annualised_amount: annualised_amount.to_f,
-          exclude: row['summary_exclude']
-        }
+    def build_summary_row(transaction)
+      annualised = begin
+        transaction.annualised_amount
+      rescue KeyError => e
+        puts("\nError: ".bold.red + e.message)
+        exit
       end
 
-      output = calculate_rolled_up_amount(output) unless @settings[:roll_up].nil?
-
-      output
-    end
-
-    def annualise(period)
-      annualise = {
-        'monthly' => 12,
-        'quarterly' => 4,
-        'half-yearly' => 2,
-        'yearly' => 1,
-        'once' => 1,
-        'daily' => 352,
-        'weekly' => 52
+      {
+        account: transaction.account,
+        from: transaction.from,
+        to: transaction.to,
+        type: transaction.type,
+        frequency: transaction.frequency,
+        category: transaction.category,
+        description: transaction.description,
+        amount: transaction.amount,
+        annualised_amount: annualised.to_f,
+        exclude: transaction.summary_exclude
       }
-
-      annualise[period]
     end
 
-    def calculate_rolled_up_amount(forecast)
-      forecast.each do |row|
-        row[:rolled_up_amount] = row[:annualised_amount] / annualise(@settings[:roll_up])
-      end
+    def apply_roll_up(output, roll_up_period)
+      divisor = ANNUAL_MULTIPLIERS.fetch(roll_up_period)
+      output.each { |row| row[:rolled_up_amount] = row[:annualised_amount] / divisor }
     end
   end
 end

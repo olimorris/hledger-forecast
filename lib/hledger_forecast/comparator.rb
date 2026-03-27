@@ -20,17 +20,17 @@ module HledgerForecast
       csv2 = CSV.read(file2)
 
       unless csv1.length == csv2.length && csv1[0].length == csv2[0].length
-        return puts "\nError: ".bold.red + "The files have different formats and cannot be compared"
+        return puts("\nError: ".bold.red + "The files have different formats and cannot be compared")
       end
 
-      @table.add_row csv2[0].map(&:bold)
+      @table.add_row(csv2[0].map(&:bold))
       @table.add_separator
 
       generate_diff(csv1, csv2).drop(1).each do |row|
-        @table.add_row [row[0].bold] + row[1..]
+        @table.add_row([row[0].bold] + row[1..])
       end
 
-      puts @table
+      puts(@table)
     end
 
     def header?(row_num)
@@ -40,7 +40,8 @@ module HledgerForecast
     def generate_diff(csv1, csv2)
       csv1.each_with_index.map do |row, i|
         row.each_with_index.map do |cell, j|
-          if header?(i) || j == 0 # Checking for the first column here
+          # Checking for the first column here
+          if header?(i) || j == 0
             csv2[i][j]
           else
             difference = parse_money(csv2[i][j]) - parse_money(cell)
@@ -66,17 +67,17 @@ module HledgerForecast
     end
 
     def parse_money(value)
-      return 0.0 if value.strip == '0'
+      return 0.0 if value.strip == "0"
 
-      value.gsub(/[^0-9.-]/, '').to_f
+      value.gsub(/[^0-9.-]/, "").to_f
     end
 
     def format_difference(amount, currency)
       formatted_amount = if currency.nil?
-                           format("%.2f", amount)
-                         else
-                           Formatter.format_money(amount, { currency: currency })
-                         end
+        format("%.2f", amount)
+      else
+        Formatter.format_money(amount, Settings.parse([], {currency: currency}))
+      end
 
       return formatted_amount if amount == 0
 
