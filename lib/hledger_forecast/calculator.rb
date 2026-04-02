@@ -9,7 +9,8 @@ module HledgerForecast
     end
 
     def self.evaluate_date(from, to)
-      return Date.parse(to) unless to.start_with?("=")
+      return (from >> to) - 1 if to.is_a?(Numeric)
+      return Date.parse(to) unless to.start_with?("=") || to.start_with?("+")
 
       (from >> @calc.evaluate(to.slice(1..-1))) - 1
     end

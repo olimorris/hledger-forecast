@@ -30,7 +30,7 @@ module HledgerForecast
         frequency: row[:frequency],
         account: row[:account],
         from: from,
-        to: row[:to] ? Calculator.evaluate_date(from, row[:to].to_s) : nil,
+        to: row[:to] ? Calculator.evaluate_date(from, row[:to]) : nil,
         description: row[:description],
         category: row[:category],
         amount: Calculator.evaluate(row[:amount]),
