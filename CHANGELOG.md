@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.1.0](https://github.com/olimorris/hledger-forecast/compare/v3.0.0...v3.1.0) (2026-04-02)
+
+
+### Features
+
+* dates now support `+` prefix ([#14](https://github.com/olimorris/hledger-forecast/issues/14)) ([16ee70e](https://github.com/olimorris/hledger-forecast/commit/16ee70ec6d3a717f679fddcbf22324f71010e93d))
+
 ## [3.0.0](https://github.com/olimorris/hledger-forecast/compare/v2.0.1...v3.0.0) (2026-03-27)
 
 
