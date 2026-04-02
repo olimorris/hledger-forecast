@@ -8,8 +8,8 @@ Gem::Specification.new do |s|
   s.name = "hledger-forecast"
   s.version = HledgerForecast::VERSION
   s.authors = ["Oli Morris"]
-  s.summary = "An extended wrapper around hledger's forecasting functionality"
-  s.description = "Use a CSV file for improved forecasting with hledger"
+  s.summary = "Generate hledger journal entries and income statements from a CSV forecast"
+  s.description = "Define recurring transactions in a CSV file with support for formulas, calculated dates, and tags. Generates hledger periodic transaction journals and provides income statement summaries with savings rates."
   s.email = "olimorris@users.noreply.github.com"
   s.homepage = "https://github.com/olimorris/hledger-forecast"
   s.license = "MIT"
