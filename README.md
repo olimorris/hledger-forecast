@@ -38,7 +38,7 @@ Except, you'd need to work out what 20 months from `2026-01-01` is and do $3000 
 In `hledger-forecast`, you add a single line to your CSV:
 
 ```csv
-monthly,,Assets:Checking,01/01/2026,=20,New Laptop,Expenses:General Expenses,=3000/20,,,
+monthly,,Assets:Checking,01/01/2026,+20,New Laptop,Expenses:General Expenses,=3000/20,,,
 ```
 
 The tool calculates the amount and the end date for you.
@@ -148,7 +148,7 @@ The CSV file should have a header row with these columns:
 | `frequency` | string | `custom` only | Repeating frequency, using hledger's [periodic rule syntax](https://hledger.org/dev/hledger.html#periodic-transactions) |
 | `account` | string | yes | The account the transaction applies to, e.g. `Assets:Bank` |
 | `from` | date | yes | Start date, e.g. `01/03/2023` |
-| `to` | date | no | End date, e.g. `01/01/2025` |
+| `to` | date | no | End date, e.g. `01/01/2025`. Supports `+` prefix for calculated values, e.g. `+12` for 12 months |
 | `description` | string | yes | A description of the transaction |
 | `category` | string | yes | The category account, e.g. `Expenses:Food` |
 | `amount` | number | yes | The transaction amount. Supports `=` prefix for calculated values |
@@ -165,7 +165,7 @@ monthly,,Assets:Bank,01/03/2023,01/01/2025,Mortgage,Expenses:Mortgage,2000,,,fix
 monthly,,Assets:Bank,01/03/2023,,Bills,Expenses:Bills,175,,,fixed|essential
 monthly,,Assets:Bank,01/03/2023,,Food,Expenses:Food,500,,,living|essential
 monthly,,Assets:Bank,01/03/2023,,New Kitchen,Expenses:House,=5000/24,,,living
-monthly,,Assets:Bank,01/03/2023,=12,Holiday,Expenses:Holiday,125,,,living
+monthly,,Assets:Bank,01/03/2023,+12,Holiday,Expenses:Holiday,125,,,living
 monthly,,Assets:Bank,01/03/2023,01/03/2025,Rainy day fund,Assets:Savings,300,,,saving
 monthly,,Assets:Pension,01/01/2024,,Pension draw down,Income:Pension,-500,,,fixed|essential
 quarterly,,Assets:Bank,01/04/2023,,Quarterly bonus,Income:Bonus,-1000,,,fixed
@@ -189,13 +189,19 @@ monthly,,Assets:Bank,01/03/2023,,New Kitchen,Expenses:House,=5000/24,,
 
 ### Calculated dates
 
-The `to` column also supports calculated values. Use `=` followed by a number to mean "N months from the `from` date":
+The `to` column supports calculated values. Use `+` followed by a number to mean "N months from the `from` date":
 
 ```csv
-monthly,,Assets:Bank,01/03/2023,=12,Holiday,Expenses:Holiday,125,,
+monthly,,Assets:Bank,01/03/2026,+12,Holiday,Expenses:Holiday,125,,
 ```
 
-That sets the end date to 12 months after `01/03/2023`.
+That sets the end date to 12 months after `01/03/2026`. The `=` prefix also supports formulas — useful for longer periods:
+
+```csv
+monthly,,Assets:Bank,01/03/2026,=12*5,Mortgage,Expenses:Mortgage,2000,,
+```
+
+That sets the end date to 5 years (60 months) after `01/03/2026`.
 
 ### Tags
 

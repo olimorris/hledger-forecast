@@ -41,5 +41,13 @@ RSpec.describe HledgerForecast::Calculator do
     it "handles a 24-month offset" do
       expect(described_class.evaluate_date(from, "=24")).to(eq(Date.parse("2025-02-28")))
     end
+
+    it "handles dates with a +" do
+      expect(described_class.evaluate_date(from, "+24")).to(eq(Date.parse("2025-02-28")))
+    end
+
+    it "handles a numeric offset (CSV numeric converter coerces +N to integer)" do
+      expect(described_class.evaluate_date(from, 24)).to(eq(Date.parse("2025-02-28")))
+    end
   end
 end
