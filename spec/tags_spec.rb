@@ -72,6 +72,32 @@ RSpec.describe "tags" do
     expect(descriptions).to(eq(["Food", "Netflix"]))
   end
 
+  it "excludes transactions by tag with - prefix" do
+    result = HledgerForecast::Summarizer.summarize(config, {tags: ["-fixed"]})
+    descriptions = result[:output].map { |r| r[:description] }
+
+    expect(descriptions).to(eq(["Food", "Netflix"]))
+  end
+
+  it "excludes tags in generator output" do
+    expected = <<~JOURNAL
+      ~ monthly from 2023-03-01  * Food, Netflix
+          Expenses:Food             £500.00;  living:, essential:
+          Expenses:Subscriptions    £15.00 ;  living:
+          Assets:Bank
+
+    JOURNAL
+
+    expect(HledgerForecast::Generator.generate(config, {tags: ["-fixed"]})).to(eq(expected))
+  end
+
+  it "combines include and exclude tags" do
+    result = HledgerForecast::Summarizer.summarize(config, {tags: ["essential", "-fixed"]})
+    descriptions = result[:output].map { |r| r[:description] }
+
+    expect(descriptions).to(eq(["Food"]))
+  end
+
   it "raises an error when --tags is used on a CSV without a tag column" do
     csv_without_tag_column = <<~CSV
       type,frequency,account,from,to,description,category,amount,roll-up,summary_exclude
