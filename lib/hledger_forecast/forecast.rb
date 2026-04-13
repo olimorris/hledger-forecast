@@ -11,7 +11,15 @@ module HledgerForecast
       )
 
       settings = Settings.parse(rows.select { |r| r[:type] == "settings" }, cli_options)
-      transactions = rows.reject { |r| r[:type] == "settings" }.map { |r| Transaction.from_row(r) }
+
+      transactions = []
+      rows.each_with_index do |r, i|
+        next if r[:type] == "settings"
+
+        transactions << Transaction.from_row(r)
+      rescue StandardError => e
+        raise "CSV row #{i + 2}: #{e.message}"
+      end
 
       new(transactions, settings, rows.headers.include?(:tag))
     end

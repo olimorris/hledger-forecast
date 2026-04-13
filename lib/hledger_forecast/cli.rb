@@ -283,7 +283,12 @@ module HledgerForecast
       config = File.read(options[:forecast_file])
       config = HledgerForecast::CSVParser.parse(config) if options[:file_type] == "csv"
 
-      summarizer = Summarizer.summarize(config, options)
+      begin
+        summarizer = Summarizer.summarize(config, options)
+      rescue StandardError => e
+        puts("An error occurred while summarizing transactions: #{e.message}")
+        exit(1)
+      end
 
       puts(SummarizerFormatter.format(summarizer[:output], summarizer[:settings]))
     end

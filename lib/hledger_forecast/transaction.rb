@@ -24,6 +24,8 @@ module HledgerForecast
     keyword_init: true
   ) do
     def self.from_row(row)
+      validate_required_fields!(row)
+
       from = Calculator.evaluate_from_date(row[:from])
       new(
         type: row[:type],
@@ -64,6 +66,15 @@ module HledgerForecast
     end
 
     def summary_exclude? = !!summary_exclude
+
+    def self.validate_required_fields!(row)
+      %i[type account from category amount].each do |field|
+        next unless row[field].nil? || row[field].to_s.strip.empty?
+
+        hint = row[:description] ? " (description: '#{row[:description]}')" : ""
+        raise ArgumentError, "missing required field '#{field}'#{hint}"
+      end
+    end
   end
 
   TransactionGroup = Struct.new(:type, :frequency, :account, :from, :to, :transactions, keyword_init: true)
