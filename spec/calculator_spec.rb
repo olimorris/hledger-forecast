@@ -23,6 +23,24 @@ RSpec.describe HledgerForecast::Calculator do
     end
   end
 
+  describe ".evaluate_from_date" do
+    it "parses a plain date string" do
+      expect(described_class.evaluate_from_date("01/09/2022")).to(eq(Date.parse("2022-09-01")))
+    end
+
+    it "evaluates a date with a month offset" do
+      expect(described_class.evaluate_from_date("=01/09/2022+6")).to(eq(Date.parse("2023-03-01")))
+    end
+
+    it "evaluates a date with a multiplied offset" do
+      expect(described_class.evaluate_from_date("=01/09/2022+(5*12)")).to(eq(Date.parse("2027-09-01")))
+    end
+
+    it "evaluates a formula with no offset" do
+      expect(described_class.evaluate_from_date("=01/09/2022")).to(eq(Date.parse("2022-09-01")))
+    end
+  end
+
   describe ".evaluate_date" do
     let(:from) { Date.parse("2023-03-01") }
 
