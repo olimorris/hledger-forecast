@@ -147,7 +147,7 @@ The CSV file should have a header row with these columns:
 | `type` | string | yes | One of: `monthly`, `quarterly`, `half-yearly`, `yearly`, `once`, `custom` |
 | `frequency` | string | `custom` only | Repeating frequency, using hledger's [periodic rule syntax](https://hledger.org/dev/hledger.html#periodic-transactions) |
 | `account` | string | yes | The account the transaction applies to, e.g. `Assets:Bank` |
-| `from` | date | yes | Start date, e.g. `01/03/2023` |
+| `from` | date | yes | Start date, e.g. `01/03/2023`. Supports `=` prefix for calculated values, e.g. `=01/03/2023+(5*12)` |
 | `to` | date | no | End date, e.g. `01/01/2025`. Supports `+` prefix for calculated values, e.g. `+12` for 12 months |
 | `description` | string | yes | A description of the transaction |
 | `category` | string | yes | The category account, e.g. `Expenses:Food` |
@@ -189,7 +189,17 @@ monthly,,Assets:Bank,01/03/2023,,New Kitchen,Expenses:House,=5000/24,,
 
 ### Calculated dates
 
-The `to` column supports calculated values. Use `+` followed by a number to mean "N months from the `from` date":
+Both `from` and `to` support calculated values.
+
+**`from` column** — prefix with `=` to compute a start date. The formula is `=BASE_DATE+OFFSET` where the offset is evaluated as months:
+
+```csv
+monthly,,Assets:Bank,=01/09/2025+(5*12),,Salary,Income:Salary,-3500,,
+```
+
+That sets the start date to 60 months (5 years) after `01/09/2025`, giving `01/09/2030`.
+
+**`to` column** — use `+` followed by a number to mean "N months from the `from` date":
 
 ```csv
 monthly,,Assets:Bank,01/03/2026,+12,Holiday,Expenses:Holiday,125,,

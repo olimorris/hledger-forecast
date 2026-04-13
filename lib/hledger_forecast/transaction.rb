@@ -24,7 +24,7 @@ module HledgerForecast
     keyword_init: true
   ) do
     def self.from_row(row)
-      from = Date.parse(row[:from].to_s)
+      from = Calculator.evaluate_from_date(row[:from])
       new(
         type: row[:type],
         frequency: row[:frequency],
