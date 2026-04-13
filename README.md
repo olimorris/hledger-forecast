@@ -235,6 +235,9 @@ hledger-forecast summarize -f forecast.csv --tags=essential
 
 # Multiple tags use OR logic — matches any
 hledger-forecast summarize -f forecast.csv --tags=fixed,living
+
+# Can also exclude tags with a `-` prefix
+hledger-forecast summarize -f forecast.csv --tags=fixed,-essential
 ```
 
 **Querying in hledger** - because the tags are native hledger format, you can query them directly:

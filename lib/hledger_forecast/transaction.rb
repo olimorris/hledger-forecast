@@ -42,7 +42,14 @@ module HledgerForecast
 
     def matches_tags?(filter_tags)
       return true if filter_tags.nil? || filter_tags.empty?
-      (tags & filter_tags).any?
+
+      exclude_tags = filter_tags.select { |t| t.start_with?("-") }.map { |t| t[1..] }
+      include_tags = filter_tags.reject { |t| t.start_with?("-") }
+
+      return false if exclude_tags.any? && (tags & exclude_tags).any?
+      return (tags & include_tags).any? if include_tags.any?
+
+      true
     end
 
     def annualised_amount
