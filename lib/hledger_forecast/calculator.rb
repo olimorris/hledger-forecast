@@ -5,7 +5,10 @@ module HledgerForecast
     def self.evaluate(amount)
       return amount.to_f unless amount.is_a?(String)
 
-      @calc.evaluate(amount.slice(1..-1))
+      result = @calc.evaluate(amount.slice(1..-1))
+      raise ArgumentError, "invalid amount '#{amount}'" if result.nil?
+
+      result
     end
 
     def self.evaluate_from_date(value)
