@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.2.0](https://github.com/olimorris/hledger-forecast/compare/v3.1.0...v3.2.0) (2026-04-13)
+
+
+### Features
+
+* can exclude tags in summarizer ([#16](https://github.com/olimorris/hledger-forecast/issues/16)) ([faee83e](https://github.com/olimorris/hledger-forecast/commit/faee83ee8eb554d146177832c307b87f5ecd4616))
+* from date can have calculations ([#18](https://github.com/olimorris/hledger-forecast/issues/18)) ([e62a693](https://github.com/olimorris/hledger-forecast/commit/e62a69385bf6c34f2d446593d5046fe22a1e7f5f))
+
 ## [3.1.0](https://github.com/olimorris/hledger-forecast/compare/v3.0.0...v3.1.0) (2026-04-02)
 
 
