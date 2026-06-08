@@ -1,5 +1,5 @@
 <p align="center">
-<img src="https://github.com/olimorris/hledger-forecast/assets/9512444/5edb77e3-0ec6-4158-9b16-3978c1259879" alt="hledger-forecast" />
+<img src="https://github.com/user-attachments/assets/f8582e29-c4f0-429d-9e3c-358fb719ed35" alt="hledger-forecast" />
 </p>
 
 <h1 align="center">hledger-forecast</h1>
@@ -10,7 +10,7 @@
 <a href="https://github.com/olimorris/hledger-forecast/releases"><img src="https://img.shields.io/github/v/release/olimorris/hledger-forecast?style=for-the-badge"</a>
 </p>
 
-**"Improved", you say?** Using a _CSV_ file, forecasts can be quickly generated into a _journal_ file ready to be fed into [hledger](https://github.com/simonmichael/hledger). **A 16 line [CSV file](https://github.com/olimorris/hledger-forecast/blob/main/example.csv) can generate a 46 line hledger [forecast file](https://github.com/olimorris/hledger-forecast/blob/main/example.journal)!**
+Using a _CSV_ file, forecasts can be quickly generated into a _journal_ file ready to be fed into [hledger](https://github.com/simonmichael/hledger). **A 16 line [CSV file](https://github.com/olimorris/hledger-forecast/blob/main/example.csv) can generate a 46 line hledger [forecast file](https://github.com/olimorris/hledger-forecast/blob/main/example.journal)!**
 
 ## :sparkles: Features
 
@@ -25,7 +25,7 @@
 
 Forecasting is essential to how I plan and budget with hledger. It enables me to know my financial position in 1 month, 10 months or even 100 months from now.
 
-But forecasting in hledger is verbose and unintelligent. Consider this scenario: you purchase a new $3,000 laptop on a 0% finance deal and spread it over 20 months. In hledger, this would be accounted for with:
+But forecasting in hledger is verbose and manual. Consider this scenario: you purchase a new $3,000 laptop on a 0% finance deal and spread it over 20 months. In hledger, this would be accounted for with:
 
 ```ledger
 ~ monthly from 2026-01-01 to 2027-08-31  * New Laptop

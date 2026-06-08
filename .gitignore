@@ -19,3 +19,4 @@ pkg/*
 test_output.journal
 todo.md
 .vscode
+/media
