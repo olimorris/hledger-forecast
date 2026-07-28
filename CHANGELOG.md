@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.3.1](https://github.com/olimorris/hledger-forecast/compare/v3.3.0...v3.3.1) (2026-07-28)
+
+
+### Bug Fixes
+
+* stop grouping transactions by category ([#21](https://github.com/olimorris/hledger-forecast/issues/21)) ([2a718ee](https://github.com/olimorris/hledger-forecast/commit/2a718ee506ea6b7e6058f5321351e959e4267f1c))
+
 ## [3.3.0](https://github.com/olimorris/hledger-forecast/compare/v3.2.0...v3.3.0) (2026-04-13)
 
 
