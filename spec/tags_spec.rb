@@ -18,9 +18,15 @@ CSV
 RSpec.describe "tags" do
   it "outputs hledger tags in posting comments" do
     expected = <<~JOURNAL
-      ~ monthly from 2023-03-01  * Salary, Food, Netflix
+      ~ monthly from 2023-03-01  * Salary
           Income:Salary             £-3,500.00;  fixed:, essential:
+          Assets:Bank
+
+      ~ monthly from 2023-03-01  * Food
           Expenses:Food             £500.00   ;  living:, essential:
+          Assets:Bank
+
+      ~ monthly from 2023-03-01  * Netflix
           Expenses:Subscriptions    £15.00    ;  living:
           Assets:Bank
 
@@ -31,8 +37,11 @@ RSpec.describe "tags" do
 
   it "omits comments when no tags are present" do
     expected = <<~JOURNAL
-      ~ monthly from 2023-03-01  * Salary, Food
+      ~ monthly from 2023-03-01  * Salary
           Income:Salary    £-3,500.00
+          Assets:Bank
+
+      ~ monthly from 2023-03-01  * Food
           Expenses:Food    £500.00
           Assets:Bank
 
@@ -43,8 +52,11 @@ RSpec.describe "tags" do
 
   it "filters transactions by a single tag" do
     expected = <<~JOURNAL
-      ~ monthly from 2023-03-01  * Food, Netflix
+      ~ monthly from 2023-03-01  * Food
           Expenses:Food             £500.00;  living:, essential:
+          Assets:Bank
+
+      ~ monthly from 2023-03-01  * Netflix
           Expenses:Subscriptions    £15.00 ;  living:
           Assets:Bank
 
@@ -55,8 +67,11 @@ RSpec.describe "tags" do
 
   it "filters transactions by multiple tags (OR logic)" do
     expected = <<~JOURNAL
-      ~ monthly from 2023-03-01  * Salary, Food
+      ~ monthly from 2023-03-01  * Salary
           Income:Salary    £-3,500.00;  fixed:, essential:
+          Assets:Bank
+
+      ~ monthly from 2023-03-01  * Food
           Expenses:Food    £500.00   ;  living:, essential:
           Assets:Bank
 
@@ -81,8 +96,11 @@ RSpec.describe "tags" do
 
   it "excludes tags in generator output" do
     expected = <<~JOURNAL
-      ~ monthly from 2023-03-01  * Food, Netflix
+      ~ monthly from 2023-03-01  * Food
           Expenses:Food             £500.00;  living:, essential:
+          Assets:Bank
+
+      ~ monthly from 2023-03-01  * Netflix
           Expenses:Subscriptions    £15.00 ;  living:
           Assets:Bank
 

@@ -8,8 +8,11 @@ config = <<~CSV
 CSV
 
 output = <<~JOURNAL
-  ~ monthly from 2023-03-01 to 2023-06-01  * Mortgage, Food
+  ~ monthly from 2023-03-01 to 2023-06-01  * Mortgage
       Expenses:Mortgage    £2,000.00
+      Assets:Bank
+
+  ~ monthly from 2023-03-01 to 2023-06-01  * Food
       Expenses:Food        £100.00
       Assets:Bank
 

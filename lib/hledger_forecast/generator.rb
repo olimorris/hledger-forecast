@@ -26,7 +26,7 @@ module HledgerForecast
         end
       else
         transactions
-          .group_by { |t| [t.type, t.frequency, t.from, t.to, t.account] }
+          .group_by { |t| [t.type, t.frequency, t.from, t.to, t.account, t.category] }
           .map do |(type, frequency, from, to, account), txns|
             TransactionGroup.new(
               type: type,

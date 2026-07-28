@@ -9,8 +9,11 @@ config = <<~CSV
 CSV
 
 output = <<~JOURNAL
-  ~ monthly from 2023-05-01  * New kitchen, Monthly food shop, Random food
+  ~ monthly from 2023-05-01  * New kitchen
       Expenses:House    £208.33
+      Liabilities:Amex
+
+  ~ monthly from 2023-05-01  * Monthly food shop, Random food
       Expenses:Food     £107.50
       Expenses:Food     £52.88
       Liabilities:Amex
