@@ -9,9 +9,15 @@ config = <<~CSV
 CSV
 
 output = <<~JOURNAL
-  ~ monthly from 2023-03-01  * Bills, Food, Savings
+  ~ monthly from 2023-03-01  * Bills
       Expenses:Bills    £175.00
+      Assets:Bank
+
+  ~ monthly from 2023-03-01  * Food
       Expenses:Food     £500.00
+      Assets:Bank
+
+  ~ monthly from 2023-03-01  * Savings
       Assets:Savings    £-1,000.00
       Assets:Bank
 
