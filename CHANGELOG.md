@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.4.0](https://github.com/olimorris/hledger-forecast/compare/v3.3.1...v3.4.0) (2026-09-02)
+
+
+### Features
+
+* better summarisation ([#28](https://github.com/olimorris/hledger-forecast/issues/28)) ([619291d](https://github.com/olimorris/hledger-forecast/commit/619291d61bcb0aeb442edff4dd4bd382295629ab))
+
 ## [3.3.1](https://github.com/olimorris/hledger-forecast/compare/v3.3.0...v3.3.1) (2026-07-28)
 
 
