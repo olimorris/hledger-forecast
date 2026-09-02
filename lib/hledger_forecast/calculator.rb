@@ -22,6 +22,17 @@ module HledgerForecast
       date >> @calc.evaluate(offset_expr).to_i
     end
 
+    # Parses a user-supplied date such as "Sep 2027", "2027-09" or "01/09/2027"
+    def self.parse_date(value)
+      value = value.to_s.strip
+      value = "#{value}-01" if value.match?(/\A\d{4}-\d{1,2}\z/)
+      value = "#{value}-01-01" if value.match?(/\A\d{4}\z/)
+
+      Date.parse(value)
+    rescue Date::Error
+      raise ArgumentError, "invalid date '#{value}'"
+    end
+
     def self.evaluate_date(from, to)
       return (from >> to) - 1 if to.is_a?(Numeric)
       return Date.parse(to) unless to.start_with?("=") || to.start_with?("+")

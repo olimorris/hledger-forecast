@@ -25,6 +25,7 @@ module HledgerForecast
 
     def init_table
       title = "FORECAST SUMMARY"
+      title += " FROM #{@settings.from.strftime("%b %Y").upcase}" if @settings.from
       title += " (#{@settings.roll_up.upcase} ROLL UP)" if @settings.roll_up
 
       @table.add_row([{value: title.bold, colspan: 3, alignment: :center}])

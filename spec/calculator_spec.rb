@@ -69,3 +69,27 @@ RSpec.describe HledgerForecast::Calculator do
     end
   end
 end
+
+RSpec.describe HledgerForecast::Calculator do
+  describe ".parse_date" do
+    it "parses a month and year" do
+      expect(described_class.parse_date("Sep 2027")).to(eq(Date.new(2027, 9, 1)))
+    end
+
+    it "parses an ISO year-month" do
+      expect(described_class.parse_date("2027-09")).to(eq(Date.new(2027, 9, 1)))
+    end
+
+    it "parses a bare year" do
+      expect(described_class.parse_date("2027")).to(eq(Date.new(2027, 1, 1)))
+    end
+
+    it "parses a day-first date" do
+      expect(described_class.parse_date("15/09/2027")).to(eq(Date.new(2027, 9, 15)))
+    end
+
+    it "raises on an unparseable value" do
+      expect { described_class.parse_date("nonsense") }.to(raise_error(ArgumentError, /invalid date/))
+    end
+  end
+end

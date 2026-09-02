@@ -8,6 +8,12 @@ module HledgerForecast
       forecast = Forecast.parse(csv_string, cli_options)
       transactions = forecast.transactions.reject(&:summary_exclude?)
 
+      transactions = transactions.reject(&:once?) if forecast.settings.exclude_once
+
+      if (from = forecast.settings.from)
+        transactions = transactions.select { |t| t.active_on_or_after?(from) }
+      end
+
       if cli_options&.dig(:tags)
         raise "The --tags option requires a 'tag' column in the forecast CSV" unless forecast.has_tags_column?
         transactions = transactions.select { |t| t.matches_tags?(cli_options[:tags]) }

@@ -48,3 +48,46 @@ RSpec.describe HledgerForecast::Summarizer do
     end
   end
 end
+
+FILTER_CONFIG = <<~CSV
+  type,frequency,account,from,to,description,category,amount,roll-up,summary_exclude
+  monthly,,Assets:Bank,01/03/2023,,Food,Expenses:Food,100,,
+  monthly,,Assets:Bank,01/03/2023,01/01/2025,Mortgage,Expenses:Mortgage,2000,,
+  yearly,,Assets:Bank,01/04/2023,01/06/2028,Insurance,Expenses:Insurance,500,,
+  once,,Assets:Bank,05/03/2023,,Laptop refund,Expenses:Shopping,-3000,,
+  once,,Assets:Bank,05/03/2029,,New car,Expenses:Car,10000,,
+CSV
+
+RSpec.describe HledgerForecast::Summarizer do
+  def descriptions(options)
+    described_class.summarize(FILTER_CONFIG, options)[:output].map { |r| r[:description] }
+  end
+
+  describe "#summarize with exclude_once" do
+    it "removes one-off transactions" do
+      expect(descriptions({exclude_once: true})).to(eq(["Food", "Mortgage", "Insurance"]))
+    end
+
+    it "keeps them by default" do
+      expect(descriptions({})).to(include("Laptop refund", "New car"))
+    end
+  end
+
+  describe "#summarize with from" do
+    it "keeps transactions that are still running" do
+      expect(descriptions({from: Date.new(2027, 9, 1)})).to(eq(["Food", "Insurance", "New car"]))
+    end
+
+    it "drops a one-off that has already happened" do
+      expect(descriptions({from: Date.new(2023, 4, 1)})).not_to(include("Laptop refund"))
+    end
+
+    it "drops a transaction that ends before the date" do
+      expect(descriptions({from: Date.new(2028, 7, 1)})).to(eq(["Food", "New car"]))
+    end
+
+    it "combines with exclude_once" do
+      expect(descriptions({from: Date.new(2027, 9, 1), exclude_once: true})).to(eq(["Food", "Insurance"]))
+    end
+  end
+end
