@@ -109,7 +109,7 @@ This will generate a forecast up to the end of Feb 2027, showing asset balances 
 
 ### Summarise
 
-It can be useful to summarise the entirety of your forecast into a profit and loss statement, rolling up periodic transactions accordingly. This is a great way of being able to see your monthly or yearly profit/loss. .
+It can be useful to summarise the entirety of your forecast into a profit and loss statement, rolling up periodic transactions accordingly. This is a great way of being able to see your monthly or yearly profit/loss.
 
     hledger-forecast summarize -f my_forecast.csv
 
@@ -133,7 +133,7 @@ It can be useful to summarise the entirety of your forecast into a profit and lo
 hledger-forecast summarize -f forecast.csv --exclude-once
 ```
 
-You can use the `--from` flag to enable questions like _"what does my P&L look like at this point in the future?"_. Anything that has finished by then - a mortgage with a `to` date in 2025, a one-off purchase in 2023 - is left out:
+You can use the `--from` flag to enable questions like _"what does my P&L look like at this point in the future?"_. Anything that has finished by then - a mortgage with a `to` date in December 2026, a one-off purchase in August 2027 - is left out:
 
 ```bash
 hledger-forecast summarize -f forecast.csv --from="Sep 2027"
@@ -151,7 +151,7 @@ The above would only show transactions that have been permanently tagged as `fix
 hledger-forecast summarize -f forecast.csv --tags=-periodic
 ```
 
-Whereas the above would show everything _except_ transactions tagged as `periodic`.
+Whereas the above would show everything _except_ transactions tagged as `periodic`, designated by the `-` prefix.
 
 **Exporting** - `--export` writes the summary to a CSV file as well as printing the table:
 
