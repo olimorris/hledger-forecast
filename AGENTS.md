@@ -25,3 +25,5 @@ In non-verbose mode, `Generator.build_groups` (lib/hledger_forecast/generator.rb
 ## version.rb
 
 `lib/hledger_forecast/version.rb` is bumped by release automation (release-please), not manually. If it shows as changed after running tests/tooling and you didn't intend a release bump, `git checkout` it rather than committing the bump.
+
+The bump comes from the release PR, driven by `release-please-config.json`. Two settings there are load-bearing: `version-file` points at `version.rb`, and `package-name` is the gem name the `Gemfile.lock` updater matches on. Without them release-please writes only `CHANGELOG.md`, and because the gemspec reads `HledgerForecast::VERSION`, the publish job then pushes the previous version and RubyGems rejects it as a duplicate. Do not add a `release-type` input to `.github/workflows/release.yml` - it switches the action to standalone mode, which ignores the config file entirely.
