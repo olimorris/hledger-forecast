@@ -13,7 +13,9 @@ module HledgerForecast
       :sign_before_symbol,
       :thousands_separator,
       :verbose,
-      :roll_up
+      :roll_up,
+      :from,
+      :exclude_once
     )
 
     def self.parse(settings_rows, cli_options = nil)
@@ -38,6 +40,8 @@ module HledgerForecast
         DEFAULTS[:thousands_separator]
       @verbose = opts[:verbose] || false
       @roll_up = opts[:roll_up]
+      @from = opts[:from]
+      @exclude_once = opts[:exclude_once] || false
     end
   end
 end

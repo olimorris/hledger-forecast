@@ -67,6 +67,15 @@ module HledgerForecast
 
     def summary_exclude? = !!summary_exclude
 
+    def once? = type == "once"
+
+    # A `once` transaction has no TO date but only ever occurs on its FROM date
+    def ends_on = to || (once? ? from : nil)
+
+    def active_on_or_after?(date)
+      ends_on.nil? || ends_on >= date
+    end
+
     def self.validate_required_fields!(row)
       %i[type account from category amount].each do |field|
         next unless row[field].nil? || row[field].to_s.strip.empty?

@@ -107,9 +107,9 @@ This will generate a forecast up to the end of Feb 2027, showing asset balances 
 
 > **Tip:** If you use `hledger-ui`, the `--verbose` flag is worth using. It keeps each transaction as its own entry in the journal, making descriptions much easier to read in the UI.
 
-### Summarize
+### Summarise
 
-As your forecast grows, it's useful to see the totals at a glance. Think of this as your income statement, rolled up to whatever period makes sense.
+It can be useful to summarise the entirety of your forecast into a profit and loss statement, rolling up periodic transactions accordingly. This is a great way of being able to see your monthly or yearly profit/loss. .
 
     hledger-forecast summarize -f my_forecast.csv
 
@@ -120,7 +120,44 @@ As your forecast grows, it's useful to see the totals at a glance. Think of this
                                        [yearly], [half-yearly], [quarterly], [monthly], [weekly], [daily]
       -t, --tags TAGS                  Only include transactions with given tags (comma-separated)
       -v, --verbose                    Show additional information in the summary
+          --from DATE                  Only include transactions still running from a given DATE,
+                                       e.g. "Sep 2027", "2027-09" or "01/09/2027"
+          --exclude-once               Exclude one-off transactions from the summary
+      -e, --export FILE                Also write the summary to a CSV FILE
+          --force                      Force an overwrite of the exported file
       -h, --help                       Show this help message
+
+**Scoping** - one-off purchases can distort the overall summary, since a `once` row is counted at its full value alongside your recurring commitments. They can be excluded with `--exclude-once`:
+
+```bash
+hledger-forecast summarize -f forecast.csv --exclude-once
+```
+
+You can use the `--from` flag to enable questions like _"what does my P&L look like at this point in the future?"_. Anything that has finished by then - a mortgage with a `to` date in 2025, a one-off purchase in 2023 - is left out:
+
+```bash
+hledger-forecast summarize -f forecast.csv --from="Sep 2027"
+```
+
+You can also scope for specific tags:
+
+```bash
+hledger-forecast summarize -f forecast.csv --tags=fixed
+```
+
+The above would only show transactions that have been permanently tagged as `fixed` in the CSV file.
+
+```bash
+hledger-forecast summarize -f forecast.csv --tags=-periodic
+```
+
+Whereas the above would show everything _except_ transactions tagged as `periodic`.
+
+**Exporting** - `--export` writes the summary to a CSV file as well as printing the table:
+
+```bash
+hledger-forecast summarize -f forecast.csv --export summary.csv
+```
 
 ### Compare
 

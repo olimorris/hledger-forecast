@@ -185,15 +185,39 @@ module HledgerForecast
           options[:verbose] = true
         end
 
-        # opts.on("--from DATE",
-        #         "Include transactions that start FROM a given DATE [yyyy-mm-dd]") do |from|
-        #   options[:from] = from
-        # end
-        #
-        # opts.on("--to DATE",
-        #         "Include transactions that run TO a given DATE [yyyy-mm-dd]") do |to|
-        #   options[:to] = to
-        # end
+        opts
+          .on(
+            "--from DATE",
+            "Only include transactions still running from a given DATE,",
+            "e.g. \"Sep 2027\", \"2027-09\" or \"01/09/2027\""
+          ) do |from|
+            options[:from] = Calculator.parse_date(from)
+          rescue ArgumentError => e
+            puts("\nError: ".bold.red + e.message)
+            exit(1)
+          end
+
+        opts.on(
+          "--exclude-once",
+          "Exclude one-off transactions from the summary"
+        ) do
+          options[:exclude_once] = true
+        end
+
+        opts.on(
+          "-e",
+          "--export FILE",
+          "Also write the summary to a CSV FILE"
+        ) do |file|
+          options[:export] = file
+        end
+
+        opts.on(
+          "--force",
+          "Force an overwrite of the exported file"
+        ) do
+          options[:force] = true
+        end
 
         # opts.on("-s", "--scenario \"NAMES\"",
         #         "Include transactions from given scenarios, e.g.:",
@@ -261,22 +285,7 @@ module HledgerForecast
         exit(1)
       end
 
-      output_file = options[:output_file]
-
-      if File.exist?(output_file) && !options[:force]
-        print("\nFile '#{output_file}' already exists. Overwrite? (y/n): ")
-        overwrite = gets.chomp.downcase
-
-        if overwrite == "y"
-          File.write(output_file, transactions)
-          puts("\nSuccess: ".bold.green + "File '#{output_file}' has been overwritten.")
-        else
-          puts("\nInfo: ".bold.blue + "Operation aborted. File '#{output_file}' was not overwritten.")
-        end
-      else
-        File.write(output_file, transactions)
-        puts("\nSuccess: ".bold.green + "File '#{output_file}' has been created")
-      end
+      write_file(options[:output_file], transactions, options[:force])
     end
 
     def self.summarize(options)
@@ -291,6 +300,27 @@ module HledgerForecast
       end
 
       puts(SummarizerFormatter.format(summarizer[:output], summarizer[:settings]))
+
+      return unless options[:export]
+
+      csv = SummarizerExporter.export(summarizer[:output], summarizer[:settings])
+      write_file(options[:export], csv, options[:force])
+    end
+
+    private_class_method def self.write_file(path, contents, force)
+      if File.exist?(path) && !force
+        print("\nFile '#{path}' already exists. Overwrite? (y/n): ")
+
+        unless gets.chomp.downcase == "y"
+          return puts("\nInfo: ".bold.blue + "Operation aborted. File '#{path}' was not overwritten.")
+        end
+
+        File.write(path, contents)
+        return puts("\nSuccess: ".bold.green + "File '#{path}' has been overwritten.")
+      end
+
+      File.write(path, contents)
+      puts("\nSuccess: ".bold.green + "File '#{path}' has been created")
     end
 
     def self.compare(options)
